@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "module": "BroadUIFlows",
+  "product": "BroadUIFlows",
+  "sandbox": "BroadUIFlowsGallery",
+  "minimumIOS": "17.0",
+  "swiftTools": "6.0",
+  "allowedBroadImports": ["BroadCore", "BroadMonetization"],
+  "requiresPrivacyManifest": false,
+  "realPaymentsExecuted": false
+}
