@@ -4,7 +4,20 @@
 
 ## Unreleased
 
-Пока нет изменений.
+### Changed
+
+- README получил визуальный справочник AppFlow, onboarding, adaptive paywall,
+  loader, Special Offer, token paywall и RU Billing UI;
+- восстановлены GIF и обезличенные reference/screenshots из последней полной
+  platform-инструкции с явным разделением platform behavior и app-owned design;
+- все financial decisions по-прежнему делегированы BroadMonetization/backend,
+  а Gallery остаётся fixture-only.
+
+### Почему
+
+После разделения repository public API был описан, но разработчик потерял
+наглядную библиотеку состояний и последовательностей. Теперь UI owner снова
+показывает ожидаемое поведение рядом с кодом без возврата к монолиту.
 
 ## 1.0.0
 
