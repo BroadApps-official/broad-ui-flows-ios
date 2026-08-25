@@ -6,6 +6,8 @@
 
 ### Changed
 
+- верх README теперь ведёт в актуальную cross-module карту создания
+  приложения, не смешивая её с UI-specific flow и gallery;
 - README получил визуальный справочник AppFlow, onboarding, adaptive paywall,
   loader, Special Offer, token paywall и RU Billing UI;
 - восстановлены GIF и обезличенные reference/screenshots из последней полной
