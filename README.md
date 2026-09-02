@@ -19,6 +19,10 @@
 subscription/token paywalls, Special Offer и RU Billing UI.
 
 [Документация BroadApps iOS](https://broadapps-ios-docs.nkhsnv.chatgpt.site) ·
+[Все экраны BroadUIFlows](https://broadapps-ios-docs.nkhsnv.chatgpt.site/docs/broad-ui-flows) ·
+[Онбординг](https://broadapps-ios-docs.nkhsnv.chatgpt.site/docs/ui-flows-onboarding) ·
+[Paywall и Special Offer](https://broadapps-ios-docs.nkhsnv.chatgpt.site/docs/ui-flows-paywall) ·
+[Настройки и Support](https://broadapps-ios-docs.nkhsnv.chatgpt.site/docs/ui-flows-settings-support) ·
 [Создание приложения](https://broadapps-ios-docs.nkhsnv.chatgpt.site/docs/app-creation) ·
 [Changelog](CHANGELOG.md) ·
 [Публичный API](Documentation/PublicAPI.md) ·
@@ -38,6 +42,21 @@ subscription/token paywalls, Special Offer и RU Billing UI.
 - отображает subscription/token paywall на моделях `BroadMonetization`;
 - показывает Special Offer, выбор способа оплаты и RU subscription management;
 - регистрирует UI dependencies через `BroadUIFlowsAssembly`.
+
+## Почему paywall находится в UIFlows
+
+Paywall — одновременно экран и финансовый сценарий, поэтому ответственность
+разделена:
+
+```text
+BroadUIFlows       карточки, выбранное состояние, кнопки, loader и ошибки
+BroadMonetization  products, purchase, restore и подтверждение Premium
+Host app           тексты, изображения, тема, placements и момент показа
+```
+
+UIFlows не выполняет оплату. Monetization не навязывает внешний вид. Отдельные
+визуальные страницы сайта показывают реальный onboarding, выбор продукта,
+обычный paywall, Special Offer, main, settings и Support.
 
 ## Что модуль не делает
 
@@ -90,8 +109,10 @@ Onboarding не имеет скрытого числа страниц: един�
 не вызывает; Rate Us в onboarding запрещён.
 
 Paywall использует массив products, уже полученный от BroadMonetization, без
-filter/sort/dedup. Special Offer может появиться только после закрытия первого
-paywall. Его `24:00:00 → 00:00:00 → 24:00:00` — визуальный цикл: ноль не
+filter/sort/dedup. После закрытия первого paywall Special Offer показывается
+только по одной проверке: `special_offer = true` — всегда показать, любое
+другое значение — не показывать. Его `24:00:00 → 00:00:00 → 24:00:00` —
+локальный визуальный цикл, который продолжается между открытиями; ноль не
 отключает offer и не блокирует действие.
 
 ## Полный flow
@@ -177,7 +198,8 @@ pressed effect. Ошибка/timeout снимают loader и дают поня�
 
 Special Offer никогда не заменяет initial paywall. Confirmed purchase/restore
 первого экрана обходит downsell; close без покупки запускает resolver, и только
-явный `special_offer = true` текущего resolved payload разрешает второй экран.
+явный `special_offer = true` текущего resolved payload показывает второй экран.
+Это единственный gate; любое другое значение не показывает Special Offer.
 
 ## Token paywall
 

@@ -4,6 +4,17 @@ BroadUIFlows предоставляет готовый UI поверх public co
 BroadMonetization. Host подключает модуль только когда готовые сценарии полезнее
 собственной верстки.
 
+Реальные визуальные проходы находятся на сайте:
+
+- [весь BroadUIFlows и границы ответственности](https://broadapps-ios-docs.nkhsnv.chatgpt.site/docs/broad-ui-flows);
+- [онбординг](https://broadapps-ios-docs.nkhsnv.chatgpt.site/docs/ui-flows-onboarding);
+- [paywall и Special Offer](https://broadapps-ios-docs.nkhsnv.chatgpt.site/docs/ui-flows-paywall);
+- [settings и support](https://broadapps-ios-docs.nkhsnv.chatgpt.site/docs/ui-flows-settings-support).
+
+Paywall находится в UIFlows только как пользовательский интерфейс. Загрузка
+products, purchase, restore и подтверждение Premium принадлежат
+BroadMonetization.
+
 ## Onboarding и ATT
 
 Pages задаются только массивом `OnboardingConfiguration.pages`. Стандартный
@@ -22,7 +33,10 @@ App передаёт тексты, theme и действия через public c
 `PaywallViewModel` получает готовые use cases BroadMonetization. Presentation не
 импортирует provider SDK, не меняет порядок products и использует provider
 display price. Special Offer UI показывается вторым paywall после закрытия
-первого. Countdown зациклен и не является сроком действия предложения.
+первого только при `special_offer = true`; это единственный gate, и любое
+другое значение не показывает экран. Countdown локально идёт
+`24:00:00 → 00:00:00 → 24:00:00`, продолжается между открытиями и не является
+сроком действия предложения.
 
 ## Token и RU UI
 

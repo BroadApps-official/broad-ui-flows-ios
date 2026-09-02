@@ -6,6 +6,16 @@
 
 ### Changed
 
+- Special Offer UI закреплён за единственным gate `special_offer = true`; его
+  локальный countdown идёт по циклу `24 → 0 → 24`, продолжается между
+  открытиями и не управляет показом или покупкой;
+- README и owner guide теперь прямо объясняют, почему paywall находится в
+  UIFlows: модуль владеет экраном и нажатиями, а Monetization — продуктами,
+  purchase/restore и подтверждением Premium;
+- добавлены прямые маршруты к отдельным визуальным страницам onboarding,
+  paywall/Special Offer и settings/support на публичном сайте;
+- публичная галерея расширена до пяти реально запущенных Simulator-референсов
+  с разными onboarding, наборами paywall-продуктов, main и settings;
 - верх README теперь ведёт в актуальную cross-module карту создания
   приложения, не смешивая её с UI-specific flow и gallery;
 - README получил визуальный справочник AppFlow, onboarding, adaptive paywall,
