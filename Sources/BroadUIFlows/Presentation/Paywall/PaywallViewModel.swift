@@ -66,6 +66,7 @@ public final class PaywallViewModel: ObservableObject {
     @Published public internal(set) var selectedProductPresentationID: ProductPresentationID?
     @Published public internal(set) var inlineFeedback: BroadPaywallInlineFeedback?
     @Published public internal(set) var checkoutMethods: [CheckoutMethod] = []
+    @Published public internal(set) var resolvedRUProduct: RUCatalogProduct?
     @Published public internal(set) var completionEvent: BroadPaywallCompletionEvent?
     @Published public internal(set) var isCloseAvailable: Bool
     @Published public internal(set) var isResolvingCheckoutMethods = false
@@ -130,13 +131,15 @@ public final class PaywallViewModel: ObservableObject {
             return false
         }
 
-        return selectedSelection?.product.isEligibleForGenericPurchase == true
+        return configuration.specialOfferAuthorization?.countdown.isExpired != true
+            && selectedSelection?.product.isEligibleForGenericPurchase == true
             && !isBusy
             && !isFinancialOperationPending
     }
 
     public var canSelectProducts: Bool {
-        !isBusy && !isFinancialOperationPending
+        configuration.specialOfferAuthorization?.countdown.isExpired != true
+            && !isBusy && !isFinancialOperationPending
     }
 
     public func viewDidAppear() {
@@ -154,6 +157,7 @@ public final class PaywallViewModel: ObservableObject {
         checkoutTask?.cancel()
         checkoutTask = nil
         checkoutMethods = []
+        resolvedRUProduct = nil
         isResolvingCheckoutMethods = false
         isFinancialOperationPending = true
         let gate = dependencies.operationGate
@@ -207,6 +211,7 @@ public final class PaywallViewModel: ObservableObject {
         financialStatusTask = nil
         financialStatusObservationTask = nil
         checkoutMethods = []
+        resolvedRUProduct = nil
         isResolvingCheckoutMethods = false
 
         if wasLoading {

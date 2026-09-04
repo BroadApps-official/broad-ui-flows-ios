@@ -32,7 +32,7 @@ for contract in \
     'README.md|Host app подключает этот repository только по надобности' \
     'README.md|BroadPlatform.*для приложения нет' \
     'README.md|OnboardingConfiguration\.pages' \
-    'README.md|24:00:00.*00:00:00.*24:00:00' \
+    'README.md|не перезапускается в 24:00:00' \
     'README.md|bash Scripts/module_gate\.sh' \
     'README.md|https://broadapps-ios-docs\.nkhsnv\.chatgpt\.site' \
     'README.dev.md|Что изменилось и почему' \

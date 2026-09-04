@@ -156,14 +156,11 @@ extension BroadPaywallView {
                     .frame(maxWidth: .infinity)
             }
 
-            if viewModel.configuration.specialOfferAuthorization?.paywallPresentationID
-                == payload.presentationID,
-                let specialOffer = payload.remoteConfiguration.specialOffer,
-                specialOffer.isEnabled {
+            if let authorization = viewModel.configuration.specialOfferAuthorization,
+               authorization.paywallPresentationID == payload.presentationID {
                 BroadSpecialOfferMetadataView(
-                    configuration: specialOffer,
-                    countdownAuthorization: viewModel.configuration
-                        .specialOfferAuthorization?.countdown,
+                    configuration: authorization.remoteConfiguration,
+                    countdownAuthorization: authorization.countdown,
                     copy: viewModel.configuration.specialOfferCopy,
                     theme: theme,
                     locale: productFormatter.locale

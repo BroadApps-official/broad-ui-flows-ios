@@ -12,8 +12,8 @@
 - Paywall показывает products в полученном порядке и не содержит product IDs или
   цен конкретного приложения.
 - Product rows и primary actions не получают opacity/scale/pressed effect.
-- Special Offer — только второй paywall; countdown является циклической
-  визуализацией и не закрывает offer на нуле.
+- Special Offer — только второй paywall; countdown идёт до конца
+  активного окна, закрывает offer на нуле и не запускается по кругу.
 - Интерактивные цели имеют общий минимум 44 points.
 - Не добавляйте `Tests/`, test targets, XCTest, Swift Testing или UI tests.
 - Gallery использует fixtures, не активирует SDK и не запускает purchase,

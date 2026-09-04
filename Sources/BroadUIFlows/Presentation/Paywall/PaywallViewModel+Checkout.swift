@@ -16,10 +16,11 @@ extension PaywallViewModel {
         inlineFeedback = nil
 
         let useCase = dependencies.resolveCheckoutMethods
+        let remoteConfiguration = effectiveRemoteConfiguration(for: payload)
         checkoutTask = Task { @MainActor [weak self, useCase] in
             let resolution = await useCase(
-                for: selection.product,
-                remoteConfiguration: payload.remoteConfiguration
+                for: selection,
+                remoteConfiguration: remoteConfiguration
             )
 
             guard let self, !Task.isCancelled else {
@@ -29,9 +30,9 @@ extension PaywallViewModel {
             checkoutTask = nil
             isResolvingCheckoutMethods = false
             applyCheckoutMethods(
-                resolution.methods,
+                resolution,
                 selection: selection,
-                remoteConfiguration: payload.remoteConfiguration
+                remoteConfiguration: remoteConfiguration
             )
         }
     }
@@ -56,10 +57,11 @@ extension PaywallViewModel {
         }
 
         checkoutMethods = []
+        resolvedRUProduct = nil
         beginCheckout(
             selection: selection,
             method: method,
-            remoteConfiguration: payload.remoteConfiguration,
+            remoteConfiguration: effectiveRemoteConfiguration(for: payload),
             options: options
         )
     }
@@ -70,6 +72,7 @@ extension PaywallViewModel {
         }
 
         checkoutMethods = []
+        resolvedRUProduct = nil
     }
 
     public func restorePurchases() {
@@ -95,17 +98,22 @@ extension PaywallViewModel {
     }
 
     func applyCheckoutMethods(
-        _ methods: [CheckoutMethod],
+        _ resolution: CheckoutMethodsResolution,
         selection: ProductSelection,
         remoteConfiguration: RemotePaywallConfiguration
     ) {
         guard !isFinancialOperationPending else {
             checkoutMethods = []
+            resolvedRUProduct = nil
             return
         }
 
+        let methods = resolution.methods
+        resolvedRUProduct = resolution.ruProduct
+
         switch methods.count {
         case 0:
+            resolvedRUProduct = nil
             inlineFeedback = .failure(checkoutUnavailableError)
         case 1:
             if let method = methods.first {
@@ -125,6 +133,17 @@ extension PaywallViewModel {
         default:
             checkoutMethods = methods
         }
+    }
+
+    func effectiveRemoteConfiguration(
+        for payload: PaywallPayload
+    ) -> RemotePaywallConfiguration {
+        guard let authorization = configuration.specialOfferAuthorization,
+              authorization.paywallPresentationID == payload.presentationID
+        else {
+            return payload.remoteConfiguration
+        }
+        return authorization.gateRemoteConfiguration
     }
 
     func beginCheckout(

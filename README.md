@@ -12,7 +12,7 @@
   <img alt="iOS 17+" src="https://img.shields.io/badge/iOS-17%2B-111827?logo=apple&amp;logoColor=white">
   <img alt="SwiftUI" src="https://img.shields.io/badge/UI-SwiftUI-0A84FF?logo=swift&amp;logoColor=white">
   <img alt="iPhone only" src="https://img.shields.io/badge/device-iPhone%20only-111827?logo=apple&amp;logoColor=white">
-  <img alt="Release 1.0.1" src="https://img.shields.io/badge/release-1.0.1-10B981">
+  <img alt="Release 1.1.0" src="https://img.shields.io/badge/release-1.1.0-10B981">
 </p>
 
 Готовые SwiftUI-сценарии BroadApps для AppFlow, onboarding, loadable states,
@@ -70,7 +70,7 @@ UIFlows не выполняет оплату. Monetization не навязыва
 
 | Product | Platform | BroadApps dependencies | External dependency |
 |---|---|---|---|
-| `BroadUIFlows` | iOS 17+, iPhone | compatible `BroadCore` и `BroadMonetization` from `1.0.0` | Swinject `2.10.0` |
+| `BroadUIFlows` | iOS 17+, iPhone | compatible `BroadCore`; `BroadMonetization` from `1.3.0` | Swinject `2.10.0` |
 
 Host app подключает этот repository только по надобности. Обязательного
 `BroadPlatform` для приложения нет: оно может выбрать Core, Extensions,
@@ -83,7 +83,7 @@ Monetization, UIFlows или нужную комбинацию. Транзити
 dependencies: [
     .package(
         url: "https://github.com/BroadApps-official/broad-ui-flows-ios.git",
-        from: "1.0.1"
+        from: "1.1.0"
     )
 ]
 ```
@@ -109,11 +109,10 @@ Onboarding не имеет скрытого числа страниц: един�
 не вызывает; Rate Us в onboarding запрещён.
 
 Paywall использует массив products, уже полученный от BroadMonetization, без
-filter/sort/dedup. После закрытия первого paywall Special Offer показывается
-только по одной проверке: `special_offer = true` — всегда показать, любое
-другое значение — не показывать. Его `24:00:00 → 00:00:00 → 24:00:00` —
-локальный визуальный цикл, который продолжается между открытиями; ноль не
-отключает offer и не блокирует действие.
+filter/sort/dedup. Main paywall владеет strict boolean gate
+`special_offer`, а отдельный offer placement — всеми products. UI показывает
+countdown до конца persisted 24-часового окна, на нуле блокирует
+покупку и закрывает экран. Он не перезапускается в 24:00:00.
 
 ## Полный flow
 
@@ -198,8 +197,10 @@ pressed effect. Ошибка/timeout снимают loader и дают поня�
 
 Special Offer никогда не заменяет initial paywall. Confirmed purchase/restore
 первого экрана обходит downsell; close без покупки запускает resolver, и только
-явный `special_offer = true` текущего resolved payload показывает второй экран.
-Это единственный gate; любое другое значение не показывает Special Offer.
+явный `special_offer = true` из Remote Config основного paywall
+разрешает второй экран с products отдельного placement. Countdown идёт
+до `expiresAt`, на нуле закрывает экран и не зацикливается. RU-цена
+показывается из точной backend-строки `isSpecialOffer = true`.
 
 ## Token paywall
 

@@ -129,13 +129,6 @@ scan_forbidden \
     "$source_root/Presentation/Paywall/BroadSelectableProductRow.swift" \
     "$source_root/Presentation/Paywall/BroadPaywallPrimaryButton.swift"
 
-scan_forbidden \
-    "Special Offer UI must not expire, hide or disable at visual zero:" \
-    '(isExpired|expiresAt|sleepUntilExpiration|expiredMessage|countdown[^\n]{0,80}(disable|hide|close))' \
-    "$source_root/Presentation/Paywall/BroadSpecialOfferMetadataView.swift" \
-    "$source_root/Presentation/Paywall/BroadPaywallView+Content.swift" \
-    "$source_root/Presentation/Paywall/PaywallViewModel.swift"
-
 require_pattern \
     "OnboardingConfiguration.pages must remain the single page source:" \
     "$source_root/Domain/Onboarding/OnboardingConfiguration.swift" \
@@ -210,6 +203,26 @@ require_pattern \
     "Special Offer countdown must use a periodic visual timeline:" \
     "$source_root/Presentation/Paywall/BroadSpecialOfferMetadataView.swift" \
     '(?s)TimelineView\(\.periodic.*countdownAuthorization\.remainingTimeInterval'
+
+require_pattern \
+    "Special Offer screen waits for the authorized window end:" \
+    "$source_root/Presentation/Paywall/BroadPaywallView.swift" \
+    'countdown\.sleepUntilExpiration\(\)(?s:.*?)requestSpecialOfferExpirationClose\(\)(?s:.*?)onClose\(\)'
+
+require_pattern \
+    "Special Offer expiration blocks product selection and purchase:" \
+    "$source_root/Presentation/Paywall/PaywallViewModel.swift" \
+    'canPurchase(?s:.*?)countdown\.isExpired[[:space:]]*!=[[:space:]]*true(?s:.*?)canSelectProducts(?s:.*?)countdown\.isExpired[[:space:]]*!=[[:space:]]*true'
+
+require_pattern \
+    "Special Offer checkout reads the main paywall remote configuration:" \
+    "$source_root/Presentation/Paywall/PaywallViewModel+Checkout.swift" \
+    'authorization\.gateRemoteConfiguration'
+
+require_pattern \
+    "RU payment copy uses the exact resolved backend product:" \
+    "$source_root/Presentation/Paywall/BroadPaymentMethodSheet.swift" \
+    'ruProduct\?\.displayPrice(?s:.*?)ruProduct\?\.price(?s:.*?)ruProduct\?\.subscriptionPeriod'
 
 for gallery_contract in \
     'Onboarding' \

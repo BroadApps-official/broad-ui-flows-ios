@@ -10,14 +10,10 @@ struct FixturePaywallScreen: View {
     init(showsSpecialOffer: Bool) {
         let payload = FixtureCatalog.subscriptionPayload(
             placementID: showsSpecialOffer ? .specialOffer : .main,
-            showsSpecialOffer: showsSpecialOffer
+            showsSpecialOffer: false
         )
         let authorization: SpecialOfferPresentationAuthorization? = if showsSpecialOffer {
-            SpecialOfferResolution(
-                state: .eligible,
-                paywall: payload
-            )
-            .presentationAuthorization
+            FixtureCatalog.specialOfferAuthorization(for: payload)
         } else {
             nil
         }
@@ -106,6 +102,33 @@ struct FixtureRUSubscriptionScreen: View {
 }
 
 enum FixtureCatalog {
+    static func specialOfferAuthorization(
+        for offerPayload: PaywallPayload
+    ) -> SpecialOfferPresentationAuthorization? {
+        let now = Date()
+        guard case let .synchronized(trustedTime) = SpecialOfferClockReading.trusted(now) else {
+            return nil
+        }
+        let gatePayload = subscriptionPayload(
+            placementID: .main,
+            showsSpecialOffer: true
+        )
+        return SpecialOfferResolution(
+            state: .active(
+                SpecialOfferWindow(
+                    startedAt: now,
+                    expiresAt: now.addingTimeInterval(
+                        SpecialOfferConfiguration.standardWindowDuration
+                    )
+                )
+            ),
+            paywall: offerPayload,
+            trustedTime: trustedTime,
+            gatePaywall: gatePayload
+        )
+        .presentationAuthorization
+    }
+
     static func subscriptionPayload(
         placementID: PlacementID,
         showsSpecialOffer: Bool
@@ -142,7 +165,7 @@ enum FixtureCatalog {
                     isEnabled: true,
                     crossedPrice: "provider crossed value",
                     priceMultiplier: 2,
-                    periodText: "Fixture visual cycle",
+                    periodText: "Fixture active window",
                     badge: "SPECIAL OFFER"
                 )
                 : nil

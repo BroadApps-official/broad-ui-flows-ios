@@ -50,6 +50,7 @@ extension PaywallViewModel {
 
         selectedSelection = selection
         selectedProductPresentationID = presentationID
+        resolvedRUProduct = nil
         inlineFeedback = nil
 
         track(
@@ -65,6 +66,7 @@ extension PaywallViewModel {
         let generation = loadGeneration
 
         checkoutMethods = []
+        resolvedRUProduct = nil
         selectedSelection = nil
         selectedProductPresentationID = nil
         inlineFeedback = nil

@@ -102,7 +102,7 @@
 | Initializer | `@MainActor init(content: BroadStateContent, theme: BroadLoadableTheme, @ViewBuilder media: () -> Media)` |
 | Initializer | `@MainActor init(dependencies: BroadRUSubscriptionDependencies)` |
 | Initializer | `@MainActor init(links: [BroadPaywallLegalLink], theme: BroadPaywallTheme, onOpen: @escaping @MainActor (BroadPaywallLegalLink) -> Void)` |
-| Initializer | `@MainActor init(methods: [CheckoutMethod], product: MonetizationProduct, initialMethod: CheckoutMethod? = nil, initialRUDetails: RUCheckoutDetails? = nil, copy: BroadPaywallCopy, ruConfiguration: BroadRUBillingPresentationConfiguration? = nil, theme: BroadPaywallTheme, receiptEmailStore: (any BroadReceiptEmailStoreProtocol)? = nil, onSubmit: @escaping @MainActor (CheckoutMethod, CheckoutOptions) -> Void, onCancel: @escaping @MainActor () -> Void)` |
+| Initializer | `@MainActor init(methods: [CheckoutMethod], product: MonetizationProduct, ruProduct: RUCatalogProduct? = nil, initialMethod: CheckoutMethod? = nil, initialRUDetails: RUCheckoutDetails? = nil, copy: BroadPaywallCopy, ruConfiguration: BroadRUBillingPresentationConfiguration? = nil, theme: BroadPaywallTheme, receiptEmailStore: (any BroadReceiptEmailStoreProtocol)? = nil, onSubmit: @escaping @MainActor (CheckoutMethod, CheckoutOptions) -> Void, onCancel: @escaping @MainActor () -> Void)` |
 | Initializer | `@MainActor init(palette: BroadLoadableTheme.Palette, typography: BroadLoadableTheme.Typography, metrics: BroadLoadableTheme.Metrics)` |
 | Initializer | `@MainActor init(palette: BroadOnboardingTheme.Palette, typography: BroadOnboardingTheme.Typography, metrics: BroadOnboardingTheme.Metrics)` |
 | Initializer | `@MainActor init(palette: BroadPaywallTheme.Palette, typography: BroadPaywallTheme.Typography, metrics: BroadPaywallTheme.Metrics)` |
@@ -200,6 +200,7 @@
 | Instance Method | `@MainActor func recoverPendingPurchaseIfNeeded()` |
 | Instance Method | `@MainActor func refreshFinancialOperationStatus()` |
 | Instance Method | `@MainActor func reload()` |
+| Instance Method | `@MainActor func requestSpecialOfferExpirationClose() -> Bool` |
 | Instance Method | `@MainActor func restart()` |
 | Instance Method | `@MainActor func restorePurchases()` |
 | Instance Method | `@MainActor func retry()` |
@@ -276,6 +277,7 @@
 | Instance Property | `@Published @MainActor var isRestoreInFlight: Bool { get set }` |
 | Instance Property | `@Published @MainActor var isRetrySuggested: Bool { get set }` |
 | Instance Property | `@Published @MainActor var isTransitionInFlight: Bool { get set }` |
+| Instance Property | `@Published @MainActor var resolvedRUProduct: RUCatalogProduct? { get set }` |
 | Instance Property | `@Published @MainActor var route: AppFlowRoute { get set }` |
 | Instance Property | `@Published @MainActor var selectedProductPresentationID: ProductPresentationID? { get set }` |
 | Instance Property | `@Published @MainActor var state: BroadPaywallViewState { get set }` |

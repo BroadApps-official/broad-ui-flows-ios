@@ -72,6 +72,12 @@ public struct BroadPaywallView: View {
         .onChange(of: viewModel.completionEvent) { _, event in
             handleCompletionEvent(event)
         }
+        .task(
+            id: viewModel.configuration.specialOfferAuthorization?
+                .paywallPresentationID
+        ) {
+            await closeSpecialOfferAtWindowEnd()
+        }
         .sheet(item: $safariDestination) { destination in
             BroadInAppSafariView(url: destination.url)
                 .ignoresSafeArea()
@@ -81,6 +87,7 @@ public struct BroadPaywallView: View {
                 BroadPaymentMethodSheet(
                     methods: viewModel.checkoutMethods,
                     product: product,
+                    ruProduct: viewModel.resolvedRUProduct,
                     copy: viewModel.configuration.copy,
                     ruConfiguration: viewModel.configuration.ruBilling,
                     theme: theme,
@@ -133,6 +140,34 @@ public struct BroadPaywallView: View {
 
         viewModel.consumeCompletionEvent(id: event.id)
         onCompleted(event.completion)
+    }
+
+    func closeSpecialOfferAtWindowEnd() async {
+        guard let countdown = viewModel.configuration
+            .specialOfferAuthorization?.countdown
+        else {
+            return
+        }
+        do {
+            try await countdown.sleepUntilExpiration()
+        } catch {
+            return
+        }
+
+        while !Task.isCancelled {
+            if viewModel.requestSpecialOfferExpirationClose() {
+                onClose()
+                return
+            }
+            if viewModel.completionEvent != nil {
+                return
+            }
+            do {
+                try await ContinuousClock().sleep(for: .milliseconds(250))
+            } catch {
+                return
+            }
+        }
     }
 }
 

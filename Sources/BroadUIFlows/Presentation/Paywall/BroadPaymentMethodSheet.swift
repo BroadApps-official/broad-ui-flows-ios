@@ -20,6 +20,7 @@ public struct BroadPaymentMethodSheet: View {
 
     let methods: [CheckoutMethod]
     let product: MonetizationProduct
+    let ruProduct: RUCatalogProduct?
     let copy: BroadPaywallCopy
     let ruConfiguration: BroadRUBillingPresentationConfiguration
     let theme: BroadPaywallTheme
@@ -30,6 +31,7 @@ public struct BroadPaymentMethodSheet: View {
     public init(
         methods: [CheckoutMethod],
         product: MonetizationProduct,
+        ruProduct: RUCatalogProduct? = nil,
         initialMethod: CheckoutMethod? = nil,
         initialRUDetails: RUCheckoutDetails? = nil,
         copy: BroadPaywallCopy,
@@ -57,6 +59,7 @@ public struct BroadPaymentMethodSheet: View {
 
         self.methods = methods
         self.product = product
+        self.ruProduct = ruProduct
         self.copy = copy
         self.ruConfiguration = resolvedRUConfiguration
         self.theme = theme
@@ -125,9 +128,12 @@ extension BroadPaymentMethodSheet {
     }
 
     var recurringConsentTitle: String {
-        let price = product.displayPrice ?? "—"
+        let price = ruProduct?.displayPrice
+            ?? ruProduct?.price.flatMap(RUBPriceFormatter().string)
+            ?? product.displayPrice
+            ?? "—"
         let period = BroadRUBillingPeriodFormatter.russian(
-            product.subscriptionPeriod
+            ruProduct?.subscriptionPeriod ?? product.subscriptionPeriod
         )
         return "\(ruConfiguration.copy.recurringConsentPrefix): \(price) \(period)"
             .trimmingCharacters(in: .whitespaces)

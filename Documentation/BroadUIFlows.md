@@ -33,10 +33,10 @@ App передаёт тексты, theme и действия через public c
 `PaywallViewModel` получает готовые use cases BroadMonetization. Presentation не
 импортирует provider SDK, не меняет порядок products и использует provider
 display price. Special Offer UI показывается вторым paywall после закрытия
-первого только при `special_offer = true`; это единственный gate, и любое
-другое значение не показывает экран. Countdown локально идёт
-`24:00:00 → 00:00:00 → 24:00:00`, продолжается между открытиями и не является
-сроком действия предложения.
+первого только при strict `special_offer = true` из main Remote Config.
+Отдельный offer placement владеет products. Countdown считает до конца
+persisted 24-часового окна, на нуле блокирует покупку и закрывает
+экран. Значение не зацикливается в 24:00:00.
 
 ## Token и RU UI
 

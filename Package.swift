@@ -17,7 +17,7 @@ let package = Package(
         ),
         .package(
             url: "https://github.com/BroadApps-official/broad-monetization-ios.git",
-            from: "1.0.0"
+            from: "1.3.0"
         ),
         .package(
             url: "https://github.com/Swinject/Swinject.git",

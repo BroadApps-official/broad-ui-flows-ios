@@ -13,6 +13,19 @@ extension PaywallViewModel {
         return true
     }
 
+    public func requestSpecialOfferExpirationClose() -> Bool {
+        guard configuration.specialOfferAuthorization?.countdown.isExpired == true,
+              !isPurchaseInFlight,
+              !isRestoreInFlight
+        else {
+            return false
+        }
+
+        trackClose(reason: .dismissed)
+        cancelDismissedOperations()
+        return true
+    }
+
     public func consumeCompletionEvent(id: UUID) {
         guard completionEvent?.id == id else {
             return

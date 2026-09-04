@@ -2,6 +2,21 @@
 
 Все заметные изменения BroadUIFlows фиксируются здесь с объяснением: что изменилось и почему.
 
+## 1.1.0
+
+### Changed
+
+- Special Offer countdown завершается на нуле, блокирует новую
+  покупку и закрывает экран; визуальный цикл 24 → 0 → 24 удалён.
+- Special Offer UI использует gate Remote Config основного paywall,
+  а products — из отдельного offer payload.
+- RU payment sheet показывает price, currency и period из точной
+  backend-строки `isSpecialOffer`, выбранной BroadMonetization.
+
+### Dependency
+
+- Minimum BroadMonetization поднят до `1.3.0`.
+
 ## 1.0.1
 
 ### Changed
