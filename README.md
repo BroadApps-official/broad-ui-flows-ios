@@ -1,5 +1,11 @@
 # BroadUIFlows
 
+С 2.0.0 требуется BroadMonetization 2.0.0: все Remote Config ключи берутся
+из выбранного paywall `main`. Продукты каждого экрана остаются у его placement.
+Перед обновлением перенесите общие флаги и RU A/B-коды в варианты/локали `main`.
+Special Offer использует последние настройки `main`, полученные с его payload;
+старое разрешение не перекрывает более новый запрет.
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="Documentation/Assets/README/hero-dark.svg">
@@ -12,7 +18,7 @@
   <img alt="iOS 17+" src="https://img.shields.io/badge/iOS-17%2B-111827?logo=apple&amp;logoColor=white">
   <img alt="SwiftUI" src="https://img.shields.io/badge/UI-SwiftUI-0A84FF?logo=swift&amp;logoColor=white">
   <img alt="iPhone only" src="https://img.shields.io/badge/device-iPhone%20only-111827?logo=apple&amp;logoColor=white">
-  <img alt="Release 1.1.0" src="https://img.shields.io/badge/release-1.1.0-10B981">
+  <img alt="Release 2.0.0" src="https://img.shields.io/badge/release-2.0.0-10B981">
 </p>
 
 Готовые SwiftUI-сценарии BroadApps для AppFlow, onboarding, loadable states,
@@ -70,7 +76,7 @@ UIFlows не выполняет оплату. Monetization не навязыва
 
 | Product | Platform | BroadApps dependencies | External dependency |
 |---|---|---|---|
-| `BroadUIFlows` | iOS 17+, iPhone | compatible `BroadCore`; `BroadMonetization` from `1.3.0` | Swinject `2.10.0` |
+| `BroadUIFlows` | iOS 17+, iPhone | compatible `BroadCore`; `BroadMonetization` from `2.0.0` | Swinject `2.10.0` |
 
 Host app подключает этот repository только по надобности. Обязательного
 `BroadPlatform` для приложения нет: оно может выбрать Core, Extensions,
@@ -83,7 +89,7 @@ Monetization, UIFlows или нужную комбинацию. Транзити
 dependencies: [
     .package(
         url: "https://github.com/BroadApps-official/broad-ui-flows-ios.git",
-        from: "1.1.0"
+        from: "2.0.0"
     )
 ]
 ```
@@ -197,7 +203,7 @@ pressed effect. Ошибка/timeout снимают loader и дают поня�
 
 Special Offer никогда не заменяет initial paywall. Confirmed purchase/restore
 первого экрана обходит downsell; close без покупки запускает resolver, и только
-явный `special_offer = true` из Remote Config основного paywall
+явный `special_offer = true` из Remote Config выбранного paywall плейсмента `main`
 разрешает второй экран с products отдельного placement. Countdown идёт
 до `expiresAt`, на нуле закрывает экран и не зацикливается. RU-цена
 показывается из точной backend-строки `isSpecialOffer = true`.
