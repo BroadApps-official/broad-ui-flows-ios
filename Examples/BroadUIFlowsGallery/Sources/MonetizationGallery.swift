@@ -10,7 +10,7 @@ struct FixturePaywallScreen: View {
     init(showsSpecialOffer: Bool) {
         let payload = FixtureCatalog.subscriptionPayload(
             placementID: showsSpecialOffer ? .specialOffer : .main,
-            showsSpecialOffer: false
+            showsSpecialOffer: showsSpecialOffer
         )
         let authorization: SpecialOfferPresentationAuthorization? = if showsSpecialOffer {
             FixtureCatalog.specialOfferAuthorization(for: payload)

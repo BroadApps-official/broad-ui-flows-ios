@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.1
+
+### Fixed
+
+- Fixture Special Offer в Gallery передаёт общий main config с offer payload,
+  как требует BroadMonetization 2.0.0. Открытие демонстрационного экрана больше
+  не нарушает precondition авторизации. Products остаются у offer placement.
+
 ## 2.0.0
 
 ### Breaking
