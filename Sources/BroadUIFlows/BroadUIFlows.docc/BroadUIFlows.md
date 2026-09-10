@@ -1,10 +1,9 @@
 # ``BroadUIFlows``
 
-Version 2.0.0 requires BroadMonetization 2.0.0. Paywall configuration comes
-from the selected `main` variant for every screen, while products and variation
-remain attached to the screen's placement. Move shared flags and RU experiment
-codes to main before upgrading. Special Offer authorization carries the latest
-main configuration obtained while loading the offer's own products.
+Version 3.0.0 requires BroadMonetization 3.0.0 and supports its RU account-policy
+confirmation contract. Handle credited tokens separately from subscription access.
+Paywall configuration comes from the current placement; main fills missing keys.
+Products and variation remain attached to the screen's placement.
 
 Reusable SwiftUI flows and presentation boundaries for BroadApps iPhone applications.
 

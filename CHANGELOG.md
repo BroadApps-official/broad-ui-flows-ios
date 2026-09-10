@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.0.0
+
+### Breaking
+
+- Зависимость BroadMonetization обновлена до 3.0.0: optional payment-status
+  endpoint и отдельный результат `tokensCredited` требуют нового публичного
+  контракта. UI-сигнатуры не менялись; host обновляет exhaustive return switches.
+
+### Почему
+
+Общие экраны должны подключаться вместе с новым RU account-policy режимом,
+без конфликта диапазона зависимости 2.x. README и DocC также исправляют старое
+правило main: текущий placement приоритетен, main заполняет отсутствующие поля.
+
 ## 2.0.1
 
 ### Fixed

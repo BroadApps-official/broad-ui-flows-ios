@@ -1,10 +1,10 @@
 # BroadUIFlows
 
-С 2.0.0 требуется BroadMonetization 2.0.0: все Remote Config ключи берутся
-из выбранного paywall `main`. Продукты каждого экрана остаются у его placement.
-Перед обновлением перенесите общие флаги и RU A/B-коды в варианты/локали `main`.
-Special Offer использует последние настройки `main`, полученные с его payload;
-старое разрешение не перекрывает более новый запрет.
+С 3.0.0 требуется BroadMonetization 3.0.0 с подтверждением RU checkout через
+account policy. Remote Config читается из текущего placement; `main` заполняет
+только отсутствующие ключи. Продукты и variation остаются у своего placement.
+При обработке возврата RU-оплаты учитывайте `.tokensCredited` отдельно от premium.
+См. [контракт подключения](https://github.com/BroadApps-official/broad-monetization-ios/blob/main/Documentation/RUAccountPolicy.md).
 
 <p align="center">
   <picture>
@@ -18,7 +18,7 @@ Special Offer использует последние настройки `main`,
   <img alt="iOS 17+" src="https://img.shields.io/badge/iOS-17%2B-111827?logo=apple&amp;logoColor=white">
   <img alt="SwiftUI" src="https://img.shields.io/badge/UI-SwiftUI-0A84FF?logo=swift&amp;logoColor=white">
   <img alt="iPhone only" src="https://img.shields.io/badge/device-iPhone%20only-111827?logo=apple&amp;logoColor=white">
-  <img alt="Release 2.0.1" src="https://img.shields.io/badge/release-2.0.1-10B981">
+  <img alt="Release 3.0.0" src="https://img.shields.io/badge/release-3.0.0-10B981">
 </p>
 
 Готовые SwiftUI-сценарии BroadApps для AppFlow, onboarding, loadable states,
@@ -76,7 +76,7 @@ UIFlows не выполняет оплату. Monetization не навязыва
 
 | Product | Platform | BroadApps dependencies | External dependency |
 |---|---|---|---|
-| `BroadUIFlows` | iOS 17+, iPhone | compatible `BroadCore`; `BroadMonetization` from `2.0.0` | Swinject `2.10.0` |
+| `BroadUIFlows` | iOS 17+, iPhone | compatible `BroadCore`; `BroadMonetization` from `3.0.0` | Swinject `2.10.0` |
 
 Host app подключает этот repository только по надобности. Обязательного
 `BroadPlatform` для приложения нет: оно может выбрать Core, Extensions,
@@ -89,7 +89,7 @@ Monetization, UIFlows или нужную комбинацию. Транзити
 dependencies: [
     .package(
         url: "https://github.com/BroadApps-official/broad-ui-flows-ios.git",
-        from: "2.0.1"
+        from: "3.0.0"
     )
 ]
 ```
