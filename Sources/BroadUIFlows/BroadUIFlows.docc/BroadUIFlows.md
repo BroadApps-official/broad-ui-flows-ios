@@ -1,6 +1,11 @@
 # ``BroadUIFlows``
 
-Version 3.0.0 requires BroadMonetization 3.0.0 and supports its RU account-policy
+Version 4.0.0 requires BroadCore 2.0.0 and BroadMonetization 4.0.0.
+Update package constraints together. Temporary token fulfillment failures retain
+the existing purchase for safe retry. Host exhaustive switches handle the new
+`BroadLogEvent.host` and `TokenFulfillmentOutcome.rejected` cases; UI API is unchanged.
+
+The module supports the RU account-policy
 confirmation contract. Handle credited tokens separately from subscription access.
 Paywall configuration comes from the current placement; main fills missing keys.
 Products and variation remain attached to the screen's placement.

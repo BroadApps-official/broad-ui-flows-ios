@@ -42,7 +42,8 @@ done
 for dependency_contract in \
     'BroadApps-official/broad-core-ios\.git' \
     'BroadApps-official/broad-monetization-ios\.git' \
-    'from: "1\.0\.0"' \
+    'from: "2\.0\.0"' \
+    'from: "4\.0\.0"' \
     'Swinject/Swinject\.git' \
     'exact: "2\.10\.0"'
 do

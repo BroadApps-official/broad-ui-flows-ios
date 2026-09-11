@@ -1,6 +1,12 @@
 # BroadUIFlows
 
-С 3.0.0 требуется BroadMonetization 3.0.0 с подтверждением RU checkout через
+С 4.0.0 требуются BroadCore 2.0.0 и BroadMonetization 4.0.0. Retry после
+временной ошибки начисления токенов восстанавливает прежнюю покупку.
+Обновите ограничения всех подключённых модулей вместе; если приложение
+перебирает `BroadLogEvent` или `TokenFulfillmentOutcome` через exhaustive switch,
+добавьте `.host` и `.rejected` соответственно. UI API остаётся прежним.
+
+Поддерживается подтверждение RU checkout через
 account policy. Remote Config читается из текущего placement; `main` заполняет
 только отсутствующие ключи. Продукты и variation остаются у своего placement.
 При обработке возврата RU-оплаты учитывайте `.tokensCredited` отдельно от premium.
@@ -18,7 +24,7 @@ account policy. Remote Config читается из текущего placement; 
   <img alt="iOS 17+" src="https://img.shields.io/badge/iOS-17%2B-111827?logo=apple&amp;logoColor=white">
   <img alt="SwiftUI" src="https://img.shields.io/badge/UI-SwiftUI-0A84FF?logo=swift&amp;logoColor=white">
   <img alt="iPhone only" src="https://img.shields.io/badge/device-iPhone%20only-111827?logo=apple&amp;logoColor=white">
-  <img alt="Release 3.0.0" src="https://img.shields.io/badge/release-3.0.0-10B981">
+  <img alt="Release 4.0.0" src="https://img.shields.io/badge/release-4.0.0-10B981">
 </p>
 
 Готовые SwiftUI-сценарии BroadApps для AppFlow, onboarding, loadable states,
@@ -76,7 +82,7 @@ UIFlows не выполняет оплату. Monetization не навязыва
 
 | Product | Platform | BroadApps dependencies | External dependency |
 |---|---|---|---|
-| `BroadUIFlows` | iOS 17+, iPhone | compatible `BroadCore`; `BroadMonetization` from `3.0.0` | Swinject `2.10.0` |
+| `BroadUIFlows` | iOS 17+, iPhone | `BroadCore` from `2.0.0`; `BroadMonetization` from `4.0.0` | Swinject `2.10.0` |
 
 Host app подключает этот repository только по надобности. Обязательного
 `BroadPlatform` для приложения нет: оно может выбрать Core, Extensions,
@@ -89,7 +95,7 @@ Monetization, UIFlows или нужную комбинацию. Транзити
 dependencies: [
     .package(
         url: "https://github.com/BroadApps-official/broad-ui-flows-ios.git",
-        from: "3.0.0"
+        from: "4.0.0"
     )
 ]
 ```
