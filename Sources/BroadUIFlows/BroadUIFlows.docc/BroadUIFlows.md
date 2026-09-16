@@ -42,6 +42,13 @@ Reusable SwiftUI flows and presentation boundaries for BroadApps iPhone applicat
 - ``BroadTokenPaywallView``
 - ``BroadRUSubscriptionManagementView``
 
+### Support email
+
+- ``BroadSupportEmailConfiguration``
+- ``BroadSupportEmailEnvironment``
+- ``BroadSupportEmailRequestBuilder``
+- ``BroadSupportEmailComposer``
+
 ### Composition
 
 - ``BroadUIFlowsAssembly``

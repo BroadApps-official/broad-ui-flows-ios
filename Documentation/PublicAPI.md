@@ -140,6 +140,7 @@
 | Initializer | `init(id: String, title: String, subtitle: String? = nil, media: OnboardingMediaDescriptor)` |
 | Initializer | `init(identifier: String = "BroadUIFlows", monetizationIdentifier: String)` |
 | Initializer | `init(identifier: String)` |
+| Initializer | `init(installedVersion: String, buildNumber: String, bundleIdentifier: String, systemVersion: String, deviceModel: String, localeIdentifier: String, timeZoneIdentifier: String)` |
 | Initializer | `init(keyValueStore: any KeyValueStoreProtocol, keyPrefix: String = "app-flow")` |
 | Initializer | `init(loadPaywall: any LoadPaywallUseCaseProtocol, selectProduct: any SelectProductUseCaseProtocol, checkoutProduct: any CheckoutSelectedProductUseCaseProtocol, restorePurchases: any RestorePurchasesUseCaseProtocol, resolveCheckoutMethods: any ResolveCheckoutMethodsUseCaseProtocol, trackEvent: any TrackPaywallEventUseCaseProtocol, presentationLifecycle: any PaywallPresentationLifecycleProtocol, operationGate: MonetizationOperationGate)` |
 | Initializer | `init(loadPaywall: any LoadPaywallUseCaseProtocol, selectProduct: any SelectProductUseCaseProtocol, purchaseManager: TokenPurchaseManager, recoverTokenAccount: any RecoverTokenAccountUseCaseProtocol, onBalanceConfirmed: @escaping @MainActor (TokenBalanceSnapshot) -> Void)` |
@@ -156,6 +157,7 @@
 | Initializer | `init(placementID: PlacementID, defaultSelection: BroadPaywallDefaultSelection? = nil, access: BroadPaywallAccessConfiguration = BroadPaywallAccessConfiguration(), copy: BroadPaywallCopy = .standard, legalLinks: [BroadPaywallLegalLink] = [], ruBilling: BroadRUBillingPresentationConfiguration? = nil, specialOfferCopy: BroadPaywallSpecialOfferCopy = .english, specialOfferAuthorization: SpecialOfferPresentationAuthorization? = nil)` |
 | Initializer | `init(purchaseTitle: String, purchasingTitle: String, retryTitle: String, retryingTitle: String, recoverBalanceTitle: String, recoveringBalanceTitle: String, closeAccessibilityLabel: String)` |
 | Initializer | `init(purchaseTitle: String, restoreTitle: String, restoringTitle: String, retryTitle: String, closeAccessibilityLabel: String, cancelTitle: String)` |
+| Initializer | `init(recipient: String, subject: String, greeting: BroadSupportEmailGreeting, appName: String, appStoreVersion: String, environment: BroadSupportEmailEnvironment, adaptyProfileID: String, backendUserID: String, subscriptionStatus: String, supportLogData: Data, supportLogFileName: String = "support-log.txt")` |
 | Initializer | `init(recipient: String, subject: String, greeting: BroadSupportEmailGreeting, appName: String, appStoreVersion: String, installedVersion: String, buildNumber: String, bundleIdentifier: String, systemVersion: String, deviceModel: String, localeIdentifier: String, timeZoneIdentifier: String, adaptyProfileID: String, backendUserID: String, subscriptionStatus: String, supportLogData: Data, supportLogFileName: String = "support-log.txt")` |
 | Initializer | `init(screen: CGFloat, header: CGFloat, content: CGFloat, product: CGFloat, productContent: CGFloat, footer: CGFloat, text: CGFloat)` |
 | Initializer | `init(singular: String, plural: String)` |
@@ -524,6 +526,7 @@
 | Structure | `struct BroadSelectableProductContent` |
 | Structure | `struct BroadStateContent` |
 | Structure | `struct BroadSupportEmailConfiguration` |
+| Structure | `struct BroadSupportEmailEnvironment` |
 | Structure | `struct BroadSupportEmailRequest` |
 | Structure | `struct BroadTokenPaywallAnalyticsRecord` |
 | Structure | `struct BroadTokenPaywallConfiguration` |
@@ -546,7 +549,9 @@
 | Structure | `struct States` |
 | Structure | `struct Typography` |
 | Structure | `struct UnitCopy` |
+| Type Method | `@MainActor static func current(bundle: Bundle = .main, locale: Locale = .current, timeZone: TimeZone = .current) -> BroadSupportEmailEnvironment` |
 | Type Method | `static func afterFirstSlide(delay: Duration = .milliseconds(400)) -> OnboardingTrackingAuthorizationPolicy` |
+| Type Method | `static func hardwareIdentifier(environment: [String : String] = ProcessInfo.processInfo.environment) -> String` |
 | Type Method | `static func makeRequest(configuration: BroadSupportEmailConfiguration) -> BroadSupportEmailRequest?` |
 | Type Property | `@MainActor static let standard: BroadLoadableTheme` |
 | Type Property | `@MainActor static let standard: BroadOnboardingTheme` |
@@ -566,3 +571,4 @@
 | Type Property | `static let russian: BroadRUSubscriptionManagementCopy` |
 | Type Property | `static let russian: BroadTokenPaywallCopy` |
 | Type Property | `static let standard: BroadPaywallCopy` |
+| Type Property | `static let unavailableValue: String` |

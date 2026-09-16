@@ -10,7 +10,24 @@ if [[ "$simulator_arch" == "x86_64" && "$translation_state" == "1" ]]; then
     simulator_arch="arm64"
 fi
 
-module_directory="$module_root/.build/${simulator_arch}-apple-ios-simulator/debug/Modules"
+# Newer toolchains put the built module in the Swift Build products directory;
+# older ones use the per-triple path. Take the first that holds it, newest
+# layout first, so a module left behind by a previous Xcode is not picked up.
+module_directory=""
+for candidate_directory in \
+    "$module_root/.build/out/Products/Debug-iphonesimulator" \
+    "$module_root/.build/${simulator_arch}-apple-ios-simulator/debug/Modules" \
+    "$module_root/.build/${simulator_arch}-apple-ios-simulator/debug"
+do
+    if [[ -e "$candidate_directory/$module_name.swiftmodule" ]]; then
+        module_directory="$candidate_directory"
+        break
+    fi
+done
+if [[ -z "$module_directory" ]]; then
+    echo "Built $module_name module not found. Run the package build step first." >&2
+    exit 1
+fi
 symbol_directory="$module_root/.build/PublicAPI/SymbolGraphs"
 current_report="$module_root/.build/PublicAPI/PublicAPI.md"
 committed_report="$module_root/Documentation/PublicAPI.md"
@@ -36,6 +53,9 @@ xcrun swift-symbolgraph-extract \
     kind = symbol.dig("kind", "displayName") || symbol.dig("kind", "identifier")
     declaration = symbol.fetch("declarationFragments", []).map { |fragment| fragment["spelling"] }.join
     declaration = symbol.dig("names", "title") if declaration.empty?
+    # Newer toolchains spell inferred `@Sendable` in declaration fragments, older ones omit it;
+    # drop it so the committed report does not depend on the Xcode version that generated it.
+    declaration = declaration.gsub(/@Sendable\s*/, "")
     [kind, declaration.gsub(/\s+/, " ").strip]
   end.uniq.sort
   File.open(output, "w") do |file|

@@ -44,6 +44,43 @@ Token paywall и RU subscription management работают через public
 BroadMonetization protocols. Любой network/payment result остаётся типизированным;
 UI не считает timeout успехом и не повторяет financial action автоматически.
 
+## Письмо в поддержку
+
+`BroadSupportEmailConfiguration` перечисляет всё, что письмо сообщает о сборке и
+телефоне. Семь из этих полей — не продуктовое решение: версия, build, bundle ID,
+версия системы, модель устройства, локаль и часовой пояс читаются у системы.
+`BroadSupportEmailEnvironment.current()` читает их сам:
+
+```swift
+let configuration = BroadSupportEmailConfiguration(
+    recipient: AppConfiguration.supportEmail,
+    subject: AppTexts.supportSubject,
+    greeting: .standard,
+    appName: AppTexts.appName,
+    appStoreVersion: appStoreVersion,
+    environment: .current(),
+    adaptyProfileID: profileID,
+    backendUserID: userID,
+    subscriptionStatus: status.supportSubscriptionValue,
+    supportLogData: supportLogRecorder.makeSupportLogData()
+)
+```
+
+Модель устройства — аппаратный идентификатор (`iPhone17,1`), а не маркетинговое
+имя: только он надёжно отличает один телефон от другого, публичного
+маркетингового имени в рантайме iOS нет. На симуляторе `uname` отвечает про
+хостовый Mac, поэтому там берётся `SIMULATOR_MODEL_IDENTIFIER` — иначе каждое
+письмо из debug-сборки приходит с «arm64».
+
+Значение, которого система не сообщает, читается как
+`BroadSupportEmailEnvironment.unavailableValue`, а не пустой строкой: пустое поле
+в письме выглядит так, будто отправитель его стёр.
+
+`adaptyProfileID`, `backendUserID` и `subscriptionStatus` остаются явными
+параметрами — они приходят из монетизации, и письмо, тихо назвавшее чужой
+аккаунт, хуже письма с «unavailable». Полный init со всеми полями остаётся: он
+нужен, когда приложение сообщает не то, что читается у системы.
+
 ## Проверка
 
 ```bash
