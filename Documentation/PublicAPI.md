@@ -549,10 +549,11 @@
 | Structure | `struct States` |
 | Structure | `struct Typography` |
 | Structure | `struct UnitCopy` |
-| Type Method | `@MainActor static func current(bundle: Bundle = .main, locale: Locale = .current, timeZone: TimeZone = .current) -> BroadSupportEmailEnvironment` |
 | Type Method | `static func afterFirstSlide(delay: Duration = .milliseconds(400)) -> OnboardingTrackingAuthorizationPolicy` |
+| Type Method | `static func current(bundle: Bundle = .main, locale: Locale = .current, timeZone: TimeZone = .current) -> BroadSupportEmailEnvironment` |
 | Type Method | `static func hardwareIdentifier(environment: [String : String] = ProcessInfo.processInfo.environment) -> String` |
 | Type Method | `static func makeRequest(configuration: BroadSupportEmailConfiguration) -> BroadSupportEmailRequest?` |
+| Type Method | `static func systemVersion(version: OperatingSystemVersion = ProcessInfo.processInfo.operatingSystemVersion) -> String` |
 | Type Property | `@MainActor static let standard: BroadLoadableTheme` |
 | Type Property | `@MainActor static let standard: BroadOnboardingTheme` |
 | Type Property | `@MainActor static let standard: BroadPaywallTheme` |
