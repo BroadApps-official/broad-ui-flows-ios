@@ -1,16 +1,6 @@
 # BroadUIFlows
 
-С 4.0.0 требуются BroadCore 2.0.0 и BroadMonetization 4.0.0. Retry после
-временной ошибки начисления токенов восстанавливает прежнюю покупку.
-Обновите ограничения всех подключённых модулей вместе; если приложение
-перебирает `BroadLogEvent` или `TokenFulfillmentOutcome` через exhaustive switch,
-добавьте `.host` и `.rejected` соответственно. UI API остаётся прежним.
-
-Поддерживается подтверждение RU checkout через
-account policy. Remote Config читается из текущего placement; `main` заполняет
-только отсутствующие ключи. Продукты и variation остаются у своего placement.
-При обработке возврата RU-оплаты учитывайте `.tokensCredited` отдельно от premium.
-См. [контракт подключения](https://github.com/BroadApps-official/broad-monetization-ios/blob/main/Documentation/RUAccountPolicy.md).
+Version 5.0.0 requires BroadCore 3.0.0 and BroadMonetization 5.0.0. RU screens live in the optional BroadRUBillingUI product.
 
 <p align="center">
   <picture>
@@ -24,11 +14,11 @@ account policy. Remote Config читается из текущего placement; 
   <img alt="iOS 17+" src="https://img.shields.io/badge/iOS-17%2B-111827?logo=apple&amp;logoColor=white">
   <img alt="SwiftUI" src="https://img.shields.io/badge/UI-SwiftUI-0A84FF?logo=swift&amp;logoColor=white">
   <img alt="iPhone only" src="https://img.shields.io/badge/device-iPhone%20only-111827?logo=apple&amp;logoColor=white">
-  <img alt="Release 4.1.0" src="https://img.shields.io/badge/release-4.1.0-10B981">
+  <img alt="Release 5.0.0" src="https://img.shields.io/badge/release-5.0.0-10B981">
 </p>
 
 Готовые SwiftUI-сценарии BroadApps для AppFlow, onboarding, loadable states,
-subscription/token paywalls, Special Offer и RU Billing UI.
+subscription/token paywalls, Special Offer.
 
 [Документация BroadApps iOS](https://broadapps-ios-docs.nkhsnv.chatgpt.site) ·
 [Все экраны BroadUIFlows](https://broadapps-ios-docs.nkhsnv.chatgpt.site/docs/broad-ui-flows) ·
@@ -52,7 +42,7 @@ subscription/token paywalls, Special Offer и RU Billing UI.
 - даёт стандартный onboarding и logic-only host для уникального дизайна;
 - показывает loader, empty, error, retry, refresh и stale states;
 - отображает subscription/token paywall на моделях `BroadMonetization`;
-- показывает Special Offer, выбор способа оплаты и RU subscription management;
+- показывает Special Offer и позволяет подключить UI платёжного провайдера;
 - регистрирует UI dependencies через `BroadUIFlowsAssembly`.
 
 ## Почему paywall находится в UIFlows
@@ -82,7 +72,7 @@ UIFlows не выполняет оплату. Monetization не навязыва
 
 | Product | Platform | BroadApps dependencies | External dependency |
 |---|---|---|---|
-| `BroadUIFlows` | iOS 17+, iPhone | `BroadCore` from `2.0.0`; `BroadMonetization` from `4.0.0` | Swinject `2.10.0` |
+| `BroadUIFlows` | iOS 17+, iPhone | `BroadCore` from `3.0.0`; `BroadMonetization` from `5.0.0` | Swinject `2.10.0` |
 
 Host app подключает этот repository только по надобности. Обязательного
 `BroadPlatform` для приложения нет: оно может выбрать Core, Extensions,
@@ -95,7 +85,7 @@ Monetization, UIFlows или нужную комбинацию. Транзити
 dependencies: [
     .package(
         url: "https://github.com/BroadApps-official/broad-ui-flows-ios.git",
-        from: "4.1.0"
+        from: "5.0.0"
     )
 ]
 ```
@@ -110,7 +100,6 @@ dependencies: [
 - `BroadLoadableView`, `BroadLoaderView`, `BroadErrorView`, `BroadEmptyView`;
 - `BroadPaywallView` и `PaywallViewModel`;
 - `BroadTokenPaywallView` и `BroadTokenPaywallViewModel`;
-- `BroadRUSubscriptionManagementView`;
 - `BroadAppFlowView` и `AppFlowCoordinator`.
 
 ## Критические UI-контракты
@@ -261,45 +250,11 @@ let tokenAccount = BroadSupportEmailIdentifier(
 
 ## RU Billing UI
 
-```text
-тариф → способ оплаты → обязательные согласия → email для чека
-      → внешняя платёжная форма → backend reconciliation
-```
-
-<table>
-  <tr>
-    <td align="center"><img src="Documentation/Assets/README/References/5115-paywall-dark.png" alt="Выбор тарифа" width="100%"><br><strong>Тариф</strong></td>
-    <td align="center"><img src="Documentation/Assets/README/References/5115-payment-methods-dark.png" alt="Выбор Apple, СБП или карты" width="100%"><br><strong>Способ</strong></td>
-    <td align="center"><img src="Documentation/Assets/README/References/5115-payment-ready-dark.png" alt="Обязательные согласия" width="100%"><br><strong>Согласия</strong></td>
-    <td align="center"><img src="Documentation/Assets/README/References/5115-receipt-email-dark.png" alt="Email для чека" width="100%"><br><strong>Чек</strong></td>
-  </tr>
-</table>
-
-<table>
-  <tr>
-    <td align="center" width="50%"><img src="Documentation/Assets/README/References/5115-cloudpayments-light.png" alt="Внешняя форма банковской карты" width="100%"><br><strong>Карта</strong></td>
-    <td align="center" width="50%"><img src="Documentation/Assets/README/References/5115-hosted-checkout-light.png" alt="Внешняя hosted checkout форма" width="100%"><br><strong>Hosted checkout</strong></td>
-  </tr>
-</table>
-
-Эти кадры — reference последовательности, не обязательный визуальный стиль.
-RU UI появляется только после policy из `BroadMonetization`; сам экран не
-читает `ru_pay`, регион, язык или backend kill switch и не считает возврат из
-браузера подтверждением оплаты.
-
-<details>
-<summary><strong>Дополнительные fixture-состояния RU subscription</strong></summary>
-
-<table>
-  <tr>
-    <td align="center"><img src="Documentation/Assets/README/Screenshots/ru-payment-methods-v3.png" alt="Fixture выбора RU payment method" width="100%"><br><strong>Methods</strong></td>
-    <td align="center"><img src="Documentation/Assets/README/Screenshots/ru-payment-receipt-dark.png" alt="Fixture receipt email" width="100%"><br><strong>Receipt</strong></td>
-    <td align="center"><img src="Documentation/Assets/README/Screenshots/ru-subscription-active-dark.png" alt="RU subscription active" width="100%"><br><strong>Active</strong></td>
-    <td align="center"><img src="Documentation/Assets/README/Screenshots/ru-subscription-cancelled-dark.png" alt="RU subscription cancelled" width="100%"><br><strong>Cancelled</strong></td>
-  </tr>
-</table>
-
-</details>
+Add the optional [BroadRUBillingUI product](https://github.com/BroadApps-official/broad-ru-billing-ios)
+only to targets that need Russian payments. It owns `BroadRUPaywallView`,
+`BroadPaymentMethodSheet`, receipt email storage and subscription management.
+`BroadPaywallConfiguration` no longer stores RU settings. Pass them to
+`BroadRUPaywallView(configuration:)`. Plain `BroadPaywallView` keeps App Store checkout.
 
 ## Gallery
 

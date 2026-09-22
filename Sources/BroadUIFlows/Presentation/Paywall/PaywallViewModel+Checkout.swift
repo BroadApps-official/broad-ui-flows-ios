@@ -57,7 +57,7 @@ extension PaywallViewModel {
         }
 
         checkoutMethods = []
-        resolvedRUProduct = nil
+        checkoutResolution = nil
         beginCheckout(
             selection: selection,
             method: method,
@@ -72,7 +72,7 @@ extension PaywallViewModel {
         }
 
         checkoutMethods = []
-        resolvedRUProduct = nil
+        checkoutResolution = nil
     }
 
     public func restorePurchases() {
@@ -104,16 +104,16 @@ extension PaywallViewModel {
     ) {
         guard !isFinancialOperationPending else {
             checkoutMethods = []
-            resolvedRUProduct = nil
+            checkoutResolution = nil
             return
         }
 
         let methods = resolution.methods
-        resolvedRUProduct = resolution.ruProduct
+        checkoutResolution = resolution
 
         switch methods.count {
         case 0:
-            resolvedRUProduct = nil
+            checkoutResolution = nil
             inlineFeedback = .failure(checkoutUnavailableError)
         case 1:
             if let method = methods.first {
@@ -125,8 +125,7 @@ extension PaywallViewModel {
                         options: .standard
                     )
                 } else {
-                    // A single RU method still needs the legal-consent and
-                    // optional receipt step, so it must open the sheet.
+                    // External methods may require additional information.
                     checkoutMethods = methods
                 }
             }

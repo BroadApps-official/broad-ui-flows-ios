@@ -88,20 +88,6 @@ struct FixtureTokenPaywallScreen: View {
     }
 }
 
-@MainActor
-struct FixtureRUSubscriptionScreen: View {
-    @StateObject private var viewModel = BroadRUSubscriptionManagementViewModel(
-        dependencies: BroadRUSubscriptionDependencies(
-            loadStatus: FixtureRUSubscriptionLoader(),
-            cancelSubscription: FixtureRUSubscriptionCancellation()
-        )
-    )
-
-    var body: some View {
-        BroadRUSubscriptionManagementView(viewModel: viewModel)
-    }
-}
-
 enum FixtureCatalog {
     static func specialOfferAuthorization(
         for offerPayload: PaywallPayload
@@ -314,28 +300,5 @@ actor FixturePendingTokenStore: PendingTokenPurchaseStoreProtocol {
 struct FixtureTokenAccountRecovery: RecoverTokenAccountUseCaseProtocol {
     func callAsFunction() async -> TokenAccountRecoveryOutcome {
         .restored(TokenBalanceSnapshot(balance: 250, updatedAt: Date()))
-    }
-}
-
-struct FixtureRUSubscriptionLoader: LoadRUSubscriptionStatusUseCaseProtocol {
-    func callAsFunction() async -> RUSubscriptionManagementLoadOutcome {
-        .loaded(
-            RUSubscriptionManagementStatus(
-                subscriptionID: RUSubscriptionID(rawValue: "fixture-ru-subscription"),
-                planName: "Fixture RU plan",
-                isActive: true,
-                expiresAt: Date().addingTimeInterval(30 * 24 * 60 * 60),
-                isLifetime: false,
-                isAutoRenewalCancelled: false
-            )
-        )
-    }
-}
-
-struct FixtureRUSubscriptionCancellation: CancelRUSubscriptionUseCaseProtocol {
-    func callAsFunction(
-        subscriptionID _: RUSubscriptionID
-    ) async -> RUSubscriptionCancellationOutcome {
-        .alreadyInactive
     }
 }

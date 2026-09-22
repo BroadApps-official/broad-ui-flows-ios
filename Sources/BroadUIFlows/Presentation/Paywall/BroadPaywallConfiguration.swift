@@ -207,30 +207,15 @@ public struct BroadPaywallCopy: Equatable, Sendable {
     public struct Checkout: Equatable, Sendable {
         public let title: String
         public let appleTitle: String
-        public let sbpTitle: String
-        public let cardTitle: String
-
-        public init(
-            title: String,
-            appleTitle: String,
-            sbpTitle: String,
-            cardTitle: String
-        ) {
+        public let methodTitles: [CheckoutMethod: String]
+        public init(title: String, appleTitle: String, methodTitles: [CheckoutMethod: String] = [:]) {
             self.title = title
             self.appleTitle = appleTitle
-            self.sbpTitle = sbpTitle
-            self.cardTitle = cardTitle
+            self.methodTitles = methodTitles
         }
 
         public func title(for method: CheckoutMethod) -> String {
-            switch method {
-            case .apple:
-                appleTitle
-            case .sbp:
-                sbpTitle
-            case .card:
-                cardTitle
-            }
+            method == .apple ? appleTitle : methodTitles[method] ?? method.rawValue
         }
     }
 
@@ -287,9 +272,7 @@ public struct BroadPaywallCopy: Equatable, Sendable {
         ),
         checkout: Checkout(
             title: "Choose a payment method",
-            appleTitle: "App Store",
-            sbpTitle: "Fast Payments System",
-            cardTitle: "Bank card"
+            appleTitle: "App Store"
         )
     )
 }
@@ -300,7 +283,6 @@ public struct BroadPaywallConfiguration: Equatable, Sendable {
     public let access: BroadPaywallAccessConfiguration
     public let copy: BroadPaywallCopy
     public let legalLinks: [BroadPaywallLegalLink]
-    public let ruBilling: BroadRUBillingPresentationConfiguration?
     public let specialOfferCopy: BroadPaywallSpecialOfferCopy
     public let specialOfferAuthorization: SpecialOfferPresentationAuthorization?
 
@@ -314,7 +296,6 @@ public struct BroadPaywallConfiguration: Equatable, Sendable {
         access: BroadPaywallAccessConfiguration = BroadPaywallAccessConfiguration(),
         copy: BroadPaywallCopy = .standard,
         legalLinks: [BroadPaywallLegalLink] = [],
-        ruBilling: BroadRUBillingPresentationConfiguration? = nil,
         specialOfferCopy: BroadPaywallSpecialOfferCopy = .english,
         specialOfferAuthorization: SpecialOfferPresentationAuthorization? = nil
     ) {
@@ -327,7 +308,6 @@ public struct BroadPaywallConfiguration: Equatable, Sendable {
         self.access = access
         self.copy = copy
         self.legalLinks = legalLinks
-        self.ruBilling = ruBilling
         self.specialOfferCopy = specialOfferCopy
         self.specialOfferAuthorization = specialOfferAuthorization
     }

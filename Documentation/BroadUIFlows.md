@@ -38,10 +38,12 @@ display price. Special Offer UI показывается вторым paywall п
 persisted 24-часового окна, на нуле блокирует покупку и закрывает
 экран. Значение не зацикливается в 24:00:00.
 
-## Token и RU UI
+## Token UI и optional billing
 
-Token paywall и RU subscription management работают через public
-BroadMonetization protocols. Любой network/payment result остаётся типизированным;
+Token paywall работает через public BroadMonetization protocols.
+RU subscription management и payment sheet перенесены в отдельный продукт
+BroadRUBillingUI. Он подключается только в нужных target; базовый UI от него не зависит.
+Любой network/payment result остаётся типизированным;
 UI не считает timeout успехом и не повторяет financial action автоматически.
 
 ## Аналитика и поддержка

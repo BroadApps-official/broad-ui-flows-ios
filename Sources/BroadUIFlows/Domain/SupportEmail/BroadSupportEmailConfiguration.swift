@@ -1,16 +1,12 @@
 import Foundation
 
-public enum BroadSupportEmailGreeting: Equatable, Sendable {
-    case standard
-    case ruBilling
-
-    var text: String {
-        switch self {
-        case .standard:
-            "Hi! I need help with the app."
-        case .ruBilling:
-            "Hi! I need help with the app. (ukassa)"
-        }
+public struct BroadSupportEmailGreeting: Equatable, Sendable {
+    public static let standard = Self()
+    let text: String
+    public init(providerMarker: String? = nil) {
+        let marker = providerMarker?.components(separatedBy: .newlines).joined(separator: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        text = "Hi! I need help with the app." + (marker?.isEmpty == false ? " (\(marker!))" : "")
     }
 }
 
