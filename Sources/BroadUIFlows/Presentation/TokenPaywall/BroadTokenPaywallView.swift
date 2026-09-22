@@ -46,6 +46,9 @@ public struct BroadTokenPaywallView: View {
         .onAppear {
             viewModel.viewDidAppear()
         }
+        .onDisappear {
+            viewModel.viewDidDisappear()
+        }
     }
 }
 

@@ -152,7 +152,7 @@
 | Initializer | `init(identifier: String)` |
 | Initializer | `init(keyValueStore: any KeyValueStoreProtocol, keyPrefix: String = "app-flow")` |
 | Initializer | `init(loadPaywall: any LoadPaywallUseCaseProtocol, selectProduct: any SelectProductUseCaseProtocol, checkoutProduct: any CheckoutSelectedProductUseCaseProtocol, restorePurchases: any RestorePurchasesUseCaseProtocol, resolveCheckoutMethods: any ResolveCheckoutMethodsUseCaseProtocol, trackEvent: any TrackPaywallEventUseCaseProtocol, presentationLifecycle: any PaywallPresentationLifecycleProtocol, operationGate: MonetizationOperationGate)` |
-| Initializer | `init(loadPaywall: any LoadPaywallUseCaseProtocol, selectProduct: any SelectProductUseCaseProtocol, purchaseManager: TokenPurchaseManager, recoverTokenAccount: any RecoverTokenAccountUseCaseProtocol, onBalanceConfirmed: @escaping @MainActor @Sendable (TokenBalanceSnapshot) -> Void)` |
+| Initializer | `init(loadPaywall: any LoadPaywallUseCaseProtocol, selectProduct: any SelectProductUseCaseProtocol, purchaseManager: TokenPurchaseManager, recoverTokenAccount: any RecoverTokenAccountUseCaseProtocol, onBalanceConfirmed: @escaping @MainActor @Sendable (TokenBalanceSnapshot) -> Void, trackEvent: (any TrackPaywallEventUseCaseProtocol)? = nil)` |
 | Initializer | `init(loadPaywall: any LoadPaywallUseCaseProtocol, selectProduct: any SelectProductUseCaseProtocol, purchaseProduct: any PurchaseSelectedProductUseCaseProtocol, restorePurchases: any RestorePurchasesUseCaseProtocol, resolveCheckoutMethods: any ResolveCheckoutMethodsUseCaseProtocol, trackEvent: any TrackPaywallEventUseCaseProtocol, presentationLifecycle: any PaywallPresentationLifecycleProtocol, operationGate: MonetizationOperationGate)` |
 | Initializer | `init(loadStatus: any LoadRUSubscriptionStatusUseCaseProtocol, cancelSubscription: any CancelRUSubscriptionUseCaseProtocol)` |
 | Initializer | `init(loadingTitle: String, emptyTitle: String, emptyMessage: String, errorTitle: String, pendingMessage: String, cancelledMessage: String, creditedMessage: String, recoveredMessage: String)` |
@@ -167,7 +167,7 @@
 | Initializer | `init(placementID: PlacementID, defaultSelection: BroadPaywallDefaultSelection? = nil, access: BroadPaywallAccessConfiguration = BroadPaywallAccessConfiguration(), copy: BroadPaywallCopy = .standard, legalLinks: [BroadPaywallLegalLink] = [], ruBilling: BroadRUBillingPresentationConfiguration? = nil, specialOfferCopy: BroadPaywallSpecialOfferCopy = .english, specialOfferAuthorization: SpecialOfferPresentationAuthorization? = nil)` |
 | Initializer | `init(purchaseTitle: String, purchasingTitle: String, retryTitle: String, retryingTitle: String, recoverBalanceTitle: String, recoveringBalanceTitle: String, closeAccessibilityLabel: String)` |
 | Initializer | `init(purchaseTitle: String, restoreTitle: String, restoringTitle: String, retryTitle: String, closeAccessibilityLabel: String, cancelTitle: String)` |
-| Initializer | `init(recipient: String, subject: String, greeting: BroadSupportEmailGreeting, appName: String, appStoreVersion: String, installedVersion: String, buildNumber: String, bundleIdentifier: String, systemVersion: String, deviceModel: String, localeIdentifier: String, timeZoneIdentifier: String, adaptyProfileID: String, backendUserID: String, subscriptionStatus: String, supportLogData: Data, supportLogFileName: String = "support-log.txt")` |
+| Initializer | `init(recipient: String, subject: String, greeting: BroadSupportEmailGreeting, appName: String, appStoreVersion: String, installedVersion: String, buildNumber: String, bundleIdentifier: String, systemVersion: String, deviceModel: String, localeIdentifier: String, timeZoneIdentifier: String, adaptyProfileID: String, backendUserID: String, subscriptionStatus: String, tokenBalance: String? = nil, deviceID: String? = nil, supportLogData: Data, supportLogFileName: String = "support-log.txt")` |
 | Initializer | `init(screen: CGFloat, header: CGFloat, content: CGFloat, product: CGFloat, productContent: CGFloat, footer: CGFloat, text: CGFloat)` |
 | Initializer | `init(singular: String, plural: String)` |
 | Initializer | `init(spacing: BroadPaywallTheme.Spacing, sizing: BroadPaywallTheme.Sizing)` |
@@ -248,6 +248,7 @@
 | Instance Method | `func markPrompted() async` |
 | Instance Method | `func period(_ period: SubscriptionPeriod) -> String?` |
 | Instance Method | `func period(for product: MonetizationProduct) -> String?` |
+| Instance Method | `func price(_ amount: Decimal, styledLike product: MonetizationProduct) -> String?` |
 | Instance Method | `func price(for product: MonetizationProduct) -> String?` |
 | Instance Method | `func recordTargetAction(isSubscribed: Bool, context: BroadRateUsPromptContext = .main) async -> Bool` |
 | Instance Method | `func reset() async throws -> Int` |
@@ -365,6 +366,7 @@
 | Instance Property | `let defaultSelection: BroadPaywallDefaultSelection?` |
 | Instance Property | `let defaultSelectionIndex: Int` |
 | Instance Property | `let destination: OnboardingFooterDestination` |
+| Instance Property | `let deviceID: String?` |
 | Instance Property | `let deviceModel: String` |
 | Instance Property | `let emailPlaceholder: String` |
 | Instance Property | `let emailTitle: String` |
@@ -500,6 +502,7 @@
 | Instance Property | `let title: Font` |
 | Instance Property | `let title: String` |
 | Instance Property | `let titleFont: Font` |
+| Instance Property | `let tokenBalance: String?` |
 | Instance Property | `let trackingAuthorizationPolicy: OnboardingTrackingAuthorizationPolicy` |
 | Instance Property | `let unavailablePriceTitle: String` |
 | Instance Property | `let unknownTitle: String?` |

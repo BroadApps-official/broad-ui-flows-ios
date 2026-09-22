@@ -8,7 +8,22 @@ public struct BroadTokenPaywallViewModelDependencies: Sendable {
     let purchaseManager: TokenPurchaseManager
     let recoverTokenAccount: any RecoverTokenAccountUseCaseProtocol
     let onBalanceConfirmed: @MainActor @Sendable (TokenBalanceSnapshot) -> Void
+    let trackEvent: (any TrackPaywallEventUseCaseProtocol)?
 
+    /// Creates the token paywall dependencies.
+    ///
+    /// - Parameters:
+    ///   - loadPaywall: Loads the tokens placement.
+    ///   - selectProduct: Resolves a product occurrence into a selection.
+    ///   - purchaseManager: Owns purchase, fulfillment and pending recovery.
+    ///   - recoverTokenAccount: Reads the authoritative backend balance.
+    ///   - onBalanceConfirmed: Receives every confirmed full balance snapshot.
+    ///   - trackEvent: Provider analytics of the tokens placement. When set, the
+    ///     view model reports `paywallShown` once per presentation (the provider
+    ///     turns it into its paywall-view event) and `paywallClosed` on
+    ///     ``BroadTokenPaywallViewModel/viewDidDisappear()``, as `PaywallViewModel`
+    ///     does for subscription paywalls. Without it the tokens placement has no
+    ///     views and its conversion cannot be computed.
     public init(
         loadPaywall: any LoadPaywallUseCaseProtocol,
         selectProduct: any SelectProductUseCaseProtocol,
@@ -16,13 +31,15 @@ public struct BroadTokenPaywallViewModelDependencies: Sendable {
         recoverTokenAccount: any RecoverTokenAccountUseCaseProtocol,
         onBalanceConfirmed: @escaping @MainActor @Sendable (
             TokenBalanceSnapshot
-        ) -> Void
+        ) -> Void,
+        trackEvent: (any TrackPaywallEventUseCaseProtocol)? = nil
     ) {
         self.loadPaywall = loadPaywall
         self.selectProduct = selectProduct
         self.purchaseManager = purchaseManager
         self.recoverTokenAccount = recoverTokenAccount
         self.onBalanceConfirmed = onBalanceConfirmed
+        self.trackEvent = trackEvent
     }
 }
 
@@ -43,13 +60,16 @@ public final class BroadTokenPaywallViewModel: ObservableObject {
 
     public let configuration: BroadTokenPaywallConfiguration
 
-    private let dependencies: BroadTokenPaywallViewModelDependencies
+    let dependencies: BroadTokenPaywallViewModelDependencies
     private var selectedSelection: ProductSelection?
     private var loadTask: Task<Void, Never>?
     private var purchaseTask: Task<Void, Never>?
     private var pendingRecoveryTask: Task<Void, Never>?
     private var accountRecoveryTask: Task<Void, Never>?
     private var hasRecoveredAccountBalance = false
+    var isVisible = false
+    var shownContext: PaywallAnalyticsContext?
+    var lastShownPresentationID: PaywallPresentationID?
 
     public init(
         configuration: BroadTokenPaywallConfiguration,
@@ -90,6 +110,10 @@ public final class BroadTokenPaywallViewModel: ObservableObject {
     }
 
     public func viewDidAppear() {
+        isVisible = true
+        if case let .content(paywall) = state {
+            trackShownIfNeeded(paywall)
+        }
         loadIfNeeded()
         recoverAccountBalanceIfNeeded()
         recoverPendingPurchaseIfNeeded()
@@ -274,6 +298,9 @@ private extension BroadTokenPaywallViewModel {
             state = .content(paywall)
             record(.loadSucceeded)
             selectDefaultProduct(in: paywall)
+            if isVisible {
+                trackShownIfNeeded(paywall)
+            }
         case let .unavailable(error):
             state = .failure(error)
             record(.loadFailed)

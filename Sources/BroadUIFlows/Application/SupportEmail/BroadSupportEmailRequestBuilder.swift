@@ -29,7 +29,15 @@ public enum BroadSupportEmailRequestBuilder {
     private static func makeBody(
         configuration: BroadSupportEmailConfiguration
     ) -> String {
-        """
+        let optionalIDs = [
+            configuration.deviceID.map { "Device ID: \($0)" },
+            configuration.tokenBalance.map { "Token balance: \($0)" }
+        ]
+        .compactMap(\.self)
+        .map { "\n" + $0 }
+        .joined()
+
+        return """
         \(configuration.greeting.text)
 
         --- App info ---
@@ -47,7 +55,7 @@ public enum BroadSupportEmailRequestBuilder {
         --- IDs ---
         Adapty profileID: \(configuration.adaptyProfileID)
         Backend userID: \(configuration.backendUserID)
-        Subscription: \(configuration.subscriptionStatus)
+        Subscription: \(configuration.subscriptionStatus)\(optionalIDs)
 
         --- Diagnostics ---
         A support log is attached.
