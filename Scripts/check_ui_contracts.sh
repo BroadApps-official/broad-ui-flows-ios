@@ -219,10 +219,7 @@ require_pattern \
     "$source_root/Presentation/Paywall/PaywallViewModel+Checkout.swift" \
     'authorization\.gateRemoteConfiguration'
 
-require_pattern \
-    "RU payment copy uses the exact resolved backend product:" \
-    "$source_root/Presentation/Paywall/BroadPaymentMethodSheet.swift" \
-    'ruProduct\?\.displayPrice(?s:.*?)ruProduct\?\.price(?s:.*?)ruProduct\?\.subscriptionPeriod'
+
 
 for gallery_contract in \
     'Onboarding' \
@@ -230,7 +227,6 @@ for gallery_contract in \
     'Subscription paywall' \
     'Special Offer paywall' \
     'Token paywall' \
-    'RU subscription management' \
     'INFOPLIST_KEY_BroadAppsFixtureOnly:[[:space:]]+YES'
 do
     if ! rg -q -- "$gallery_contract" "$gallery_root"; then

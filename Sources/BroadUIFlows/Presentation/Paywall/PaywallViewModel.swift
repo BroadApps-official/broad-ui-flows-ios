@@ -33,8 +33,8 @@ public struct PaywallViewModelDependencies: Sendable {
         self.operationGate = operationGate
     }
 
-    /// Source-compatible Apple-only convenience. RU-enabled hosts should inject
-    /// `CheckoutSelectedProductUseCaseProtocol` from their RU composition.
+    /// Source-compatible Apple-only convenience. Hosts with external providers should inject
+    /// `CheckoutSelectedProductUseCaseProtocol` from their provider composition.
     public init(
         loadPaywall: any LoadPaywallUseCaseProtocol,
         selectProduct: any SelectProductUseCaseProtocol,
@@ -66,7 +66,7 @@ public final class PaywallViewModel: ObservableObject {
     @Published public internal(set) var selectedProductPresentationID: ProductPresentationID?
     @Published public internal(set) var inlineFeedback: BroadPaywallInlineFeedback?
     @Published public internal(set) var checkoutMethods: [CheckoutMethod] = []
-    @Published public internal(set) var resolvedRUProduct: RUCatalogProduct?
+    @Published public internal(set) var checkoutResolution: CheckoutMethodsResolution?
     @Published public internal(set) var completionEvent: BroadPaywallCompletionEvent?
     @Published public internal(set) var isCloseAvailable: Bool
     @Published public internal(set) var isResolvingCheckoutMethods = false
@@ -157,7 +157,7 @@ public final class PaywallViewModel: ObservableObject {
         checkoutTask?.cancel()
         checkoutTask = nil
         checkoutMethods = []
-        resolvedRUProduct = nil
+        checkoutResolution = nil
         isResolvingCheckoutMethods = false
         isFinancialOperationPending = true
         let gate = dependencies.operationGate
@@ -211,7 +211,7 @@ public final class PaywallViewModel: ObservableObject {
         financialStatusTask = nil
         financialStatusObservationTask = nil
         checkoutMethods = []
-        resolvedRUProduct = nil
+        checkoutResolution = nil
         isResolvingCheckoutMethods = false
 
         if wasLoading {

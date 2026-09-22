@@ -20,9 +20,6 @@ struct GalleryHomeView: View {
                     NavigationLink("Token paywall") {
                         FixtureTokenPaywallScreen()
                     }
-                    NavigationLink("RU subscription management") {
-                        FixtureRUSubscriptionScreen()
-                    }
                     NavigationLink("Support email") {
                         SupportEmailGallery()
                     }

@@ -1,7 +1,7 @@
 # ``BroadUIFlows``
 
-Version 4.1.0 adds token paywall visibility analytics and optional support diagnostics.
-It requires BroadCore 2.0.0 and BroadMonetization 4.0.0.
+Version 5.0.0 includes token paywall visibility analytics and optional support diagnostics.
+It requires BroadCore 3.0.0 and BroadMonetization 5.0.0.
 Update package constraints together. Temporary token fulfillment failures retain
 the existing purchase for safe retry. Host exhaustive switches handle the new
 `BroadLogEvent.host` and `TokenFulfillmentOutcome.rejected` cases.
@@ -17,10 +17,7 @@ identifier used to credit tokens, through `additionalIdentifiers`. Empty optiona
 fields are omitted and embedded newlines are flattened. Base email sections remain.
 AI consent placement/copy and Rate Us rules belong to the host application.
 
-The module supports the RU account-policy
-confirmation contract. Handle credited tokens separately from subscription access.
-Paywall configuration comes from the current placement; main fills missing keys.
-Products and variation remain attached to the screen's placement.
+Optional billing UI lives in the separate BroadRUBillingUI product. The base paywall accepts an optional checkout-content builder; the Apple-only app uses its normal initializer.
 
 Reusable SwiftUI flows and presentation boundaries for BroadApps iPhone applications.
 
@@ -52,7 +49,6 @@ Reusable SwiftUI flows and presentation boundaries for BroadApps iPhone applicat
 - ``BroadPaywallView``
 - ``PaywallViewModel``
 - ``BroadTokenPaywallView``
-- ``BroadRUSubscriptionManagementView``
 
 ### Support email
 

@@ -17,6 +17,7 @@ if [[ ! -d "$module_directory/$module_name.swiftmodule" ]]; then
         module_directory="$swiftbuild_directory"
     fi
 fi
+module_directory="${BROAD_MODULE_DIRECTORY:-$module_directory}"
 symbol_directory="$module_root/.build/PublicAPI/SymbolGraphs"
 current_report="$module_root/.build/PublicAPI/PublicAPI.md"
 committed_report="$module_root/Documentation/PublicAPI.md"

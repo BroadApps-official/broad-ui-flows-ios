@@ -1,5 +1,12 @@
 # Changelog
 
+## 5.0.0
+
+### Breaking
+
+- RU payment sheets, receipt storage and subscription management move to BroadRUBillingUI. Core paywalls expose a provider checkout-content builder and a generic checkout resolution. RU support greeting moves to the optional UI product.
+- Requires BroadCore 3.0.0 and BroadMonetization 5.0.0. Token analytics and optional support identifiers from the unreleased 4.1.0 remain included.
+
 ## 4.1.0
 
 ### Added

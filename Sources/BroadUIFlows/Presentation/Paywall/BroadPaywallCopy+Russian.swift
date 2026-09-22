@@ -33,9 +33,7 @@ public extension BroadPaywallCopy {
         ),
         checkout: Checkout(
             title: "Выберите способ оплаты",
-            appleTitle: "App Store",
-            sbpTitle: "СБП",
-            cardTitle: "Банковская карта"
+            appleTitle: "App Store"
         )
     )
 }
