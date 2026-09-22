@@ -23,6 +23,9 @@ struct GalleryHomeView: View {
                     NavigationLink("RU subscription management") {
                         FixtureRUSubscriptionScreen()
                     }
+                    NavigationLink("Support email") {
+                        SupportEmailGallery()
+                    }
                 }
 
                 Section("Safety") {

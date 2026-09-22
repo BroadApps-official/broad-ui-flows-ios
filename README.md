@@ -24,7 +24,7 @@ account policy. Remote Config читается из текущего placement; 
   <img alt="iOS 17+" src="https://img.shields.io/badge/iOS-17%2B-111827?logo=apple&amp;logoColor=white">
   <img alt="SwiftUI" src="https://img.shields.io/badge/UI-SwiftUI-0A84FF?logo=swift&amp;logoColor=white">
   <img alt="iPhone only" src="https://img.shields.io/badge/device-iPhone%20only-111827?logo=apple&amp;logoColor=white">
-  <img alt="Release 4.0.0" src="https://img.shields.io/badge/release-4.0.0-10B981">
+  <img alt="Release 4.1.0" src="https://img.shields.io/badge/release-4.1.0-10B981">
 </p>
 
 Готовые SwiftUI-сценарии BroadApps для AppFlow, onboarding, loadable states,
@@ -95,7 +95,7 @@ Monetization, UIFlows или нужную комбинацию. Транзити
 dependencies: [
     .package(
         url: "https://github.com/BroadApps-official/broad-ui-flows-ios.git",
-        from: "4.0.0"
+        from: "4.1.0"
     )
 ]
 ```
@@ -224,6 +224,40 @@ Reference показывает scrollable набор consumable packages и stic
 packages, тексты, изображение, скидка и цены принадлежат конкретному приложению.
 UI обновляет balance только после полного backend snapshot, а не после tap или
 локального purchase callback.
+
+## Границы ответственности приложения
+
+Согласие на обработку данных ИИ и правила показа Rate Us определяет приложение.
+Rate Us запрещён внутри onboarding. Цены берутся из product модели поставщика;
+UIFlows не выводит формат производной цены из строки `displayPrice`.
+
+## Аналитика токенного пейвола
+
+Передайте существующий `TrackPaywallEventUseCaseProtocol` через `trackEvent`
+в `BroadTokenPaywallViewModelDependencies`. Стандартный экран сообщает показ
+после загрузки видимого каталога и закрытие при исчезновении, один раз на
+`presentationID`, в порядке событий. Загрузка после ухода с экрана не считается
+показом. Для собственного экрана вызывайте `viewDidAppear()` /
+`viewDidDisappear()`. Создавайте новую модель для нового показа.
+
+## Письмо поддержки
+
+`BroadSupportEmailConfiguration` сохраняет обязательные Adapty profileID и
+Backend userID. Передавайте также доступный `deviceID` и все остальные
+идентификаторы текущего аккаунта через `additionalIdentifiers`, например:
+
+```swift
+let tokenAccount = BroadSupportEmailIdentifier(
+    label: "Token account ID",
+    value: accountIDUsedForTokenCredits
+)
+```
+
+В приложении с токенами передавайте подтверждённый `tokenBalance`. Если баланс
+неизвестен или токенов в приложении нет, передавайте `nil`, а не вымышленный ноль.
+Пустые дополнительные поля пропускаются; переводы строк в них заменяются пробелами.
+Порядок дополнительных ID соответствует массиву. Базовые секции письма и
+прикрепление support log сохраняются; новые строки добавляются в секцию IDs.
 
 ## RU Billing UI
 

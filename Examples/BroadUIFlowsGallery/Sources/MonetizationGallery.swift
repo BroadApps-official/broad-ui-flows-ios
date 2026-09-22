@@ -72,7 +72,8 @@ struct FixtureTokenPaywallScreen: View {
                     selectProduct: FixtureProductSelector(),
                     purchaseManager: purchaseManager,
                     recoverTokenAccount: FixtureTokenAccountRecovery(),
-                    onBalanceConfirmed: { _ in }
+                    onBalanceConfirmed: { _ in },
+                    trackEvent: FixturePaywallTracker()
                 )
             )
         )

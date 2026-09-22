@@ -1,5 +1,27 @@
 # Changelog
 
+## 4.1.0
+
+### Added
+
+- Optional `trackEvent` dependency for `BroadTokenPaywallViewModel`: reports
+  `paywallShown` once per loaded presentation when visible, and
+  `paywallClosed` when it disappears. Events use the existing
+  `TrackPaywallEventUseCaseProtocol` and retain emission order.
+- Optional `tokenBalance`, `deviceID` and `additionalIdentifiers` in
+  `BroadSupportEmailConfiguration`, with `BroadSupportEmailIdentifier` for
+  named account IDs. Include the account used to credit tokens; omit unknown
+  balances and empty optional fields. Existing calls and base email stay unchanged.
+- Gallery demonstrates support email with and without tokens and connects the
+  token paywall to a fixture analytics tracker.
+
+### Why
+
+Token paywalls need the same view/close analytics as subscription paywalls.
+Support needs the available account identifiers, particularly the account credited
+with tokens, and the confirmed balance when the app uses tokens.
+These additive APIs keep the 4.1.0 minor-version intent.
+
 ## 4.0.0
 
 ### Breaking

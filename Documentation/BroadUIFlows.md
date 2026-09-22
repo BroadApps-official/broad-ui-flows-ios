@@ -44,6 +44,16 @@ Token paywall и RU subscription management работают через public
 BroadMonetization protocols. Любой network/payment result остаётся типизированным;
 UI не считает timeout успехом и не повторяет financial action автоматически.
 
+## Аналитика и поддержка
+
+В 4.1.0 токенный пейвол принимает общий `trackEvent` для событий показа/закрытия.
+Support email принимает необязательный баланс, device ID и список
+`BroadSupportEmailIdentifier` для остальных ID текущего аккаунта, включая ID
+начисления токенов. Gallery показывает письмо с токенами и без них.
+Подробности — [README](../README.md#письмо-поддержки).
+
+Согласие ИИ и правила Rate Us принадлежат приложению; Rate Us в onboarding запрещён.
+
 ## Проверка
 
 ```bash

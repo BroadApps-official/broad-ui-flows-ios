@@ -30,6 +30,14 @@ public struct BroadSupportEmailConfiguration: Equatable, Sendable {
     public let adaptyProfileID: String
     public let backendUserID: String
     public let subscriptionStatus: String
+    /// Confirmed balance for apps with tokens. Use `nil` when absent or unknown;
+    /// do not substitute zero for an unavailable balance.
+    public let tokenBalance: String?
+    /// Device identifier the backend account is bound to; `nil` omits the line.
+    public let deviceID: String?
+    /// Other available IDs in display order, especially the account credited with tokens.
+    /// Empty labels or values are omitted from the email.
+    public let additionalIdentifiers: [BroadSupportEmailIdentifier]
     public let supportLogData: Data
     public let supportLogFileName: String
 
@@ -49,6 +57,9 @@ public struct BroadSupportEmailConfiguration: Equatable, Sendable {
         adaptyProfileID: String,
         backendUserID: String,
         subscriptionStatus: String,
+        tokenBalance: String? = nil,
+        deviceID: String? = nil,
+        additionalIdentifiers: [BroadSupportEmailIdentifier] = [],
         supportLogData: Data,
         supportLogFileName: String = "support-log.txt"
     ) {
@@ -67,6 +78,9 @@ public struct BroadSupportEmailConfiguration: Equatable, Sendable {
         self.adaptyProfileID = adaptyProfileID
         self.backendUserID = backendUserID
         self.subscriptionStatus = subscriptionStatus
+        self.tokenBalance = tokenBalance
+        self.deviceID = deviceID
+        self.additionalIdentifiers = additionalIdentifiers
         self.supportLogData = supportLogData
         self.supportLogFileName = supportLogFileName
     }
