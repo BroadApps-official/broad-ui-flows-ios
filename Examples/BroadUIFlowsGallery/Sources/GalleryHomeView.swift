@@ -23,11 +23,8 @@ struct GalleryHomeView: View {
                     NavigationLink("RU subscription management") {
                         FixtureRUSubscriptionScreen()
                     }
-                    NavigationLink("AI data consent") {
-                        FixtureAIDataConsentScreen()
-                    }
-                    NavigationLink("Rate Us rule") {
-                        FixtureRateUsPolicyScreen()
+                    NavigationLink("Support email") {
+                        SupportEmailGallery()
                     }
                 }
 

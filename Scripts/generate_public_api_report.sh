@@ -11,6 +11,12 @@ if [[ "$simulator_arch" == "x86_64" && "$translation_state" == "1" ]]; then
 fi
 
 module_directory="$module_root/.build/${simulator_arch}-apple-ios-simulator/debug/Modules"
+if [[ ! -d "$module_directory/$module_name.swiftmodule" ]]; then
+    swiftbuild_directory="$module_root/.build/out/Products/Debug-iphonesimulator"
+    if [[ -d "$swiftbuild_directory/$module_name.swiftmodule" ]]; then
+        module_directory="$swiftbuild_directory"
+    fi
+fi
 symbol_directory="$module_root/.build/PublicAPI/SymbolGraphs"
 current_report="$module_root/.build/PublicAPI/PublicAPI.md"
 committed_report="$module_root/Documentation/PublicAPI.md"
@@ -36,6 +42,9 @@ xcrun swift-symbolgraph-extract \
     kind = symbol.dig("kind", "displayName") || symbol.dig("kind", "identifier")
     declaration = symbol.fetch("declarationFragments", []).map { |fragment| fragment["spelling"] }.join
     declaration = symbol.dig("names", "title") if declaration.empty?
+    # Swift toolchains differ in whether they spell out the Sendable conformance
+    # already implied by a MainActor-isolated closure.
+    declaration = declaration.gsub(/@MainActor\s+@Sendable\b/, "@MainActor")
     [kind, declaration.gsub(/\s+/, " ").strip]
   end.uniq.sort
   File.open(output, "w") do |file|

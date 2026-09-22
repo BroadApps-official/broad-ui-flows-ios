@@ -22,8 +22,8 @@ public struct BroadTokenPaywallViewModelDependencies: Sendable {
     ///     view model reports `paywallShown` once per presentation (the provider
     ///     turns it into its paywall-view event) and `paywallClosed` on
     ///     ``BroadTokenPaywallViewModel/viewDidDisappear()``, as `PaywallViewModel`
-    ///     does for subscription paywalls. Without it the tokens placement has no
-    ///     views and its conversion cannot be computed.
+    ///     does for subscription paywalls. Pass the same tracker used by other
+    ///     paywalls; `nil` skips this tracking.
     public init(
         loadPaywall: any LoadPaywallUseCaseProtocol,
         selectProduct: any SelectProductUseCaseProtocol,
@@ -70,6 +70,7 @@ public final class BroadTokenPaywallViewModel: ObservableObject {
     var isVisible = false
     var shownContext: PaywallAnalyticsContext?
     var lastShownPresentationID: PaywallPresentationID?
+    var eventTask: Task<Void, Never>?
 
     public init(
         configuration: BroadTokenPaywallConfiguration,

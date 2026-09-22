@@ -10,10 +10,7 @@ public extension BroadTokenPaywallViewModel {
             return
         }
         shownContext = nil
-        guard let trackEvent = dependencies.trackEvent else {
-            return
-        }
-        Task { await trackEvent(.paywallClosed(context, reason: .dismissed)) }
+        track(.paywallClosed(context, reason: .dismissed))
     }
 }
 
@@ -25,9 +22,17 @@ extension BroadTokenPaywallViewModel {
         lastShownPresentationID = paywall.presentationID
         let context = PaywallAnalyticsContext(paywall: paywall)
         shownContext = context
+        track(.paywallShown(context))
+    }
+
+    func track(_ event: MonetizationAnalyticsEvent) {
         guard let trackEvent = dependencies.trackEvent else {
             return
         }
-        Task { await trackEvent(.paywallShown(context)) }
+        let previous = eventTask
+        eventTask = Task { [previous, trackEvent] in
+            await previous?.value
+            await trackEvent(event)
+        }
     }
 }

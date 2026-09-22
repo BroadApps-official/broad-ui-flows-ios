@@ -111,8 +111,6 @@ dependencies: [
 - `BroadPaywallView` и `PaywallViewModel`;
 - `BroadTokenPaywallView` и `BroadTokenPaywallViewModel`;
 - `BroadRUSubscriptionManagementView`;
-- `BroadAIDataConsentView` и `BroadAIDataConsentStore` — согласие на обработку данных ИИ;
-- `BroadRateUsPromptPolicy` — когда показывать собственный Rate Us;
 - `BroadAppFlowView` и `AppFlowCoordinator`.
 
 ## Критические UI-контракты
@@ -227,27 +225,39 @@ packages, тексты, изображение, скидка и цены при�
 UI обновляет balance только после полного backend snapshot, а не после tap или
 локального purchase callback.
 
-## AI data consent
+## Границы ответственности приложения
 
-Каждое AI-приложение до первой отправки контента провайдеру спрашивает согласие:
-App Review 5.1.1(i) и 5.1.2(i) требуют назвать каждого получателя данных и дать
-ссылку на его политику. `BroadAIDataConsentConfiguration` держит имя приложения,
-список `BroadAIProviderDisclosure` (провайдер, что он обрабатывает, его privacy
-policy), свои Privacy Policy и Terms of Use и тексты (`.english`, `.russian`).
-`BroadAIDataConsentView` — стандартный экран с обязательным чекбоксом и темой из
-токенов приложения; ответ хранит `BroadAIDataConsentStore` (дата первого согласия,
-повторное согласие её не переписывает). Отказ не тупик: host спрашивает снова при
-следующей отправке.
+Согласие на обработку данных ИИ и правила показа Rate Us определяет приложение.
+Rate Us запрещён внутри onboarding. Цены берутся из product модели поставщика;
+UIFlows не выводит формат производной цены из строки `displayPrice`.
 
-## Rate Us
+## Аналитика токенного пейвола
 
-Собственный Rate Us показывается после успешного целевого действия, один раз за
-установку и никогда внутри onboarding. `BroadRateUsPromptPolicy` считает действия
-в host key-value store и отвечает `true` ровно один раз: подписчику после
-`subscriberThreshold` (по умолчанию 2), бесплатному пользователю после
-`freeUserThreshold` (по умолчанию 1) — у бесплатного второго действия обычно нет,
-дальше пейвол. Контекст `.onboarding` всегда отвечает `false`. Системный запрос
-оценки остаётся в приложении: модуль не импортирует StoreKit.
+Передайте существующий `TrackPaywallEventUseCaseProtocol` через `trackEvent`
+в `BroadTokenPaywallViewModelDependencies`. Стандартный экран сообщает показ
+после загрузки видимого каталога и закрытие при исчезновении, один раз на
+`presentationID`, в порядке событий. Загрузка после ухода с экрана не считается
+показом. Для собственного экрана вызывайте `viewDidAppear()` /
+`viewDidDisappear()`. Создавайте новую модель для нового показа.
+
+## Письмо поддержки
+
+`BroadSupportEmailConfiguration` сохраняет обязательные Adapty profileID и
+Backend userID. Передавайте также доступный `deviceID` и все остальные
+идентификаторы текущего аккаунта через `additionalIdentifiers`, например:
+
+```swift
+let tokenAccount = BroadSupportEmailIdentifier(
+    label: "Token account ID",
+    value: accountIDUsedForTokenCredits
+)
+```
+
+В приложении с токенами передавайте подтверждённый `tokenBalance`. Если баланс
+неизвестен или токенов в приложении нет, передавайте `nil`, а не вымышленный ноль.
+Пустые дополнительные поля пропускаются; переводы строк в них заменяются пробелами.
+Порядок дополнительных ID соответствует массиву. Базовые секции письма и
+прикрепление support log сохраняются; новые строки добавляются в секцию IDs.
 
 ## RU Billing UI
 

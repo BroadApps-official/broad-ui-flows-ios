@@ -4,39 +4,23 @@
 
 ### Added
 
-- `BroadAIDataConsentView`, `BroadAIDataConsentConfiguration`,
-  `BroadAIProviderDisclosure`, `BroadAIDataConsentCopy` (`.english`, `.russian`),
-  `BroadAIDataConsentTheme` и `BroadAIDataConsentStore`: стандартный экран
-  согласия на обработку данных ИИ с обязательным чекбоксом, провайдерами и их
-  политиками и хранение даты первого согласия в host key-value store.
-- `BroadRateUsPromptPolicy`, `BroadRateUsPromptConfiguration` и
-  `BroadRateUsPromptContext`: правило собственного Rate Us — после N-го
-  успешного целевого действия (подписчик 2, бесплатный 1 по умолчанию), один
-  раз за установку, никогда в onboarding.
-- Gallery: «AI data consent» и «Rate Us rule» на fixtures, без сохранения и сети.
-- `BroadPaywallProductFormatter.price(_:styledLike:)`: производная сумма (цена
-  за неделю, зачёркнутая цена) в оформлении цены магазина — символ, разделитель
-  и дробная часть берутся из `displayPrice`, а не из локали устройства.
-- `BroadTokenPaywallViewModelDependencies(trackEvent:)` (optional) и
-  `BroadTokenPaywallViewModel.viewDidDisappear()`: пейвол токенов сообщает
-  provider-аналитике показ (один раз на presentation) и закрытие, как
-  `PaywallViewModel`; стандартный `BroadTokenPaywallView` вызывает оба хука.
-- `BroadSupportEmailConfiguration(tokenBalance:deviceID:)` (optional): строки
-  «Token balance» и «Device ID» в блоке IDs письма поддержки.
+- Optional `trackEvent` dependency for `BroadTokenPaywallViewModel`: reports
+  `paywallShown` once per loaded presentation when visible, and
+  `paywallClosed` when it disappears. Events use the existing
+  `TrackPaywallEventUseCaseProtocol` and retain emission order.
+- Optional `tokenBalance`, `deviceID` and `additionalIdentifiers` in
+  `BroadSupportEmailConfiguration`, with `BroadSupportEmailIdentifier` for
+  named account IDs. Include the account used to credit tokens; omit unknown
+  balances and empty optional fields. Existing calls and base email stay unchanged.
+- Gallery demonstrates support email with and without tokens and connects the
+  token paywall to a fixture analytics tracker.
 
-### Почему
+### Why
 
-Пробелы найдены при переводе 5139 на компоненты платформы: форматирование
-производной цены и учёт показов пейвола токенов 5132 и 5139 писали у себя, а
-баланс токенов по правилу команды обязателен в письме поддержки, но в шаблоне
-для него не было места. Все новые параметры необязательные — существующие
-вызовы компилируются без изменений.
-
-Экран согласия и Rate Us каждое AI-приложение команды писало заново. Без согласия с
-названными провайдерами App Review отклоняет приложение по 5.1.1(i)/5.1.2(i)
-(так было у 5142), а пункт «кастомный Rate Us после успешного целевого
-действия» стоит в чек-листе отправки каждой карточки. Правило запрета Rate Us в
-onboarding теперь выражено в API, а не только в тексте правил.
+Token paywalls need the same view/close analytics as subscription paywalls.
+Support needs the available account identifiers, particularly the account credited
+with tokens, and the confirmed balance when the app uses tokens.
+These additive APIs keep the 4.1.0 minor-version intent.
 
 ## 4.0.0
 
