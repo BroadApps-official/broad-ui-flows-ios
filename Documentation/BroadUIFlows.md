@@ -44,6 +44,15 @@ Token paywall и RU subscription management работают через public
 BroadMonetization protocols. Любой network/payment result остаётся типизированным;
 UI не считает timeout успехом и не повторяет financial action автоматически.
 
+## AI data consent и Rate Us
+
+`BroadAIDataConsentView` + `BroadAIDataConsentStore` — согласие до первой
+отправки контента ИИ-провайдеру: каждый провайдер назван и связан со своей
+политикой, чекбокс обязателен, хранится дата первого согласия.
+`BroadRateUsPromptPolicy` — один показ собственного Rate Us за установку после
+успешного целевого действия; в onboarding всегда `false`. Подробности —
+[README](../README.md#ai-data-consent).
+
 ## Проверка
 
 ```bash

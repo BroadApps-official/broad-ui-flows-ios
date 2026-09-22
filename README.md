@@ -24,7 +24,7 @@ account policy. Remote Config читается из текущего placement; 
   <img alt="iOS 17+" src="https://img.shields.io/badge/iOS-17%2B-111827?logo=apple&amp;logoColor=white">
   <img alt="SwiftUI" src="https://img.shields.io/badge/UI-SwiftUI-0A84FF?logo=swift&amp;logoColor=white">
   <img alt="iPhone only" src="https://img.shields.io/badge/device-iPhone%20only-111827?logo=apple&amp;logoColor=white">
-  <img alt="Release 4.0.0" src="https://img.shields.io/badge/release-4.0.0-10B981">
+  <img alt="Release 4.1.0" src="https://img.shields.io/badge/release-4.1.0-10B981">
 </p>
 
 Готовые SwiftUI-сценарии BroadApps для AppFlow, onboarding, loadable states,
@@ -95,7 +95,7 @@ Monetization, UIFlows или нужную комбинацию. Транзити
 dependencies: [
     .package(
         url: "https://github.com/BroadApps-official/broad-ui-flows-ios.git",
-        from: "4.0.0"
+        from: "4.1.0"
     )
 ]
 ```
@@ -111,6 +111,8 @@ dependencies: [
 - `BroadPaywallView` и `PaywallViewModel`;
 - `BroadTokenPaywallView` и `BroadTokenPaywallViewModel`;
 - `BroadRUSubscriptionManagementView`;
+- `BroadAIDataConsentView` и `BroadAIDataConsentStore` — согласие на обработку данных ИИ;
+- `BroadRateUsPromptPolicy` — когда показывать собственный Rate Us;
 - `BroadAppFlowView` и `AppFlowCoordinator`.
 
 ## Критические UI-контракты
@@ -224,6 +226,28 @@ Reference показывает scrollable набор consumable packages и stic
 packages, тексты, изображение, скидка и цены принадлежат конкретному приложению.
 UI обновляет balance только после полного backend snapshot, а не после tap или
 локального purchase callback.
+
+## AI data consent
+
+Каждое AI-приложение до первой отправки контента провайдеру спрашивает согласие:
+App Review 5.1.1(i) и 5.1.2(i) требуют назвать каждого получателя данных и дать
+ссылку на его политику. `BroadAIDataConsentConfiguration` держит имя приложения,
+список `BroadAIProviderDisclosure` (провайдер, что он обрабатывает, его privacy
+policy), свои Privacy Policy и Terms of Use и тексты (`.english`, `.russian`).
+`BroadAIDataConsentView` — стандартный экран с обязательным чекбоксом и темой из
+токенов приложения; ответ хранит `BroadAIDataConsentStore` (дата первого согласия,
+повторное согласие её не переписывает). Отказ не тупик: host спрашивает снова при
+следующей отправке.
+
+## Rate Us
+
+Собственный Rate Us показывается после успешного целевого действия, один раз за
+установку и никогда внутри onboarding. `BroadRateUsPromptPolicy` считает действия
+в host key-value store и отвечает `true` ровно один раз: подписчику после
+`subscriberThreshold` (по умолчанию 2), бесплатному пользователю после
+`freeUserThreshold` (по умолчанию 1) — у бесплатного второго действия обычно нет,
+дальше пейвол. Контекст `.onboarding` всегда отвечает `false`. Системный запрос
+оценки остаётся в приложении: модуль не импортирует StoreKit.
 
 ## RU Billing UI
 

@@ -1,5 +1,28 @@
 # Changelog
 
+## 4.1.0
+
+### Added
+
+- `BroadAIDataConsentView`, `BroadAIDataConsentConfiguration`,
+  `BroadAIProviderDisclosure`, `BroadAIDataConsentCopy` (`.english`, `.russian`),
+  `BroadAIDataConsentTheme` и `BroadAIDataConsentStore`: стандартный экран
+  согласия на обработку данных ИИ с обязательным чекбоксом, провайдерами и их
+  политиками и хранение даты первого согласия в host key-value store.
+- `BroadRateUsPromptPolicy`, `BroadRateUsPromptConfiguration` и
+  `BroadRateUsPromptContext`: правило собственного Rate Us — после N-го
+  успешного целевого действия (подписчик 2, бесплатный 1 по умолчанию), один
+  раз за установку, никогда в onboarding.
+- Gallery: «AI data consent» и «Rate Us rule» на fixtures, без сохранения и сети.
+
+### Почему
+
+Оба сценария каждое AI-приложение команды писало заново. Без согласия с
+названными провайдерами App Review отклоняет приложение по 5.1.1(i)/5.1.2(i)
+(так было у 5142), а пункт «кастомный Rate Us после успешного целевого
+действия» стоит в чек-листе отправки каждой карточки. Правило запрета Rate Us в
+onboarding теперь выражено в API, а не только в тексте правил.
+
 ## 4.0.0
 
 ### Breaking

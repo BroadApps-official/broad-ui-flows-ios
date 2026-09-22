@@ -5,10 +5,12 @@
 
 | Kind | Declaration |
 |---|---|
+| Case | `case agreed` |
 | Case | `case balanceRecovered` |
 | Case | `case cancelled` |
 | Case | `case content(PaywallPayload)` |
 | Case | `case credited(TokenBalanceSnapshot)` |
+| Case | `case declined` |
 | Case | `case disabled` |
 | Case | `case duplicateFooterDestination` |
 | Case | `case duplicatePageID` |
@@ -64,17 +66,21 @@
 | Class | `@MainActor final class Coordinator` |
 | Class | `@MainActor final class OnboardingViewModel` |
 | Class | `@MainActor final class PaywallViewModel` |
+| Class | `actor BroadAIDataConsentStore` |
+| Class | `actor BroadRateUsPromptPolicy` |
 | Class | `actor KeyValueAppFlowProgressRepository` |
 | Class | `final class BroadUIFlowsAssembly` |
 | Enumeration | `enum AppFlowCheckpoint` |
 | Enumeration | `enum AppFlowInitialPaywallPolicy` |
 | Enumeration | `enum AppFlowRoute` |
 | Enumeration | `enum AppFlowStepPolicy` |
+| Enumeration | `enum BroadAIDataConsentDecision` |
 | Enumeration | `enum BroadPaywallCompletion` |
 | Enumeration | `enum BroadPaywallDefaultSelection` |
 | Enumeration | `enum BroadPaywallInlineFeedback` |
 | Enumeration | `enum BroadPaywallViewState` |
 | Enumeration | `enum BroadRUSubscriptionManagementViewState` |
+| Enumeration | `enum BroadRateUsPromptContext` |
 | Enumeration | `enum BroadSupportEmailComposerResult` |
 | Enumeration | `enum BroadSupportEmailGreeting` |
 | Enumeration | `enum BroadSupportEmailRequestBuilder` |
@@ -87,6 +93,7 @@
 | Initializer | `@MainActor init(accessibilityLabel: String)` |
 | Initializer | `@MainActor init(accessibilityLabel: String, theme: BroadLoadableTheme)` |
 | Initializer | `@MainActor init(configuration: AppFlowConfiguration, progressRepository: any AppFlowProgressRepositoryProtocol, entitlementStatusProvider: any EntitlementStatusProviderProtocol)` |
+| Initializer | `@MainActor init(configuration: BroadAIDataConsentConfiguration, theme: BroadAIDataConsentTheme = .standard, onDecision: @escaping @MainActor (BroadAIDataConsentDecision) -> Void)` |
 | Initializer | `@MainActor init(configuration: BroadActionConfiguration, tint: Color)` |
 | Initializer | `@MainActor init(configuration: BroadActionConfiguration, tint: Color, theme: BroadLoadableTheme)` |
 | Initializer | `@MainActor init(configuration: BroadPaywallConfiguration, dependencies: PaywallViewModelDependencies, initialPayload: PaywallPayload? = nil)` |
@@ -122,9 +129,12 @@
 | Initializer | `@MainActor init(viewModel: PaywallViewModel, receiptEmailStore: (any BroadReceiptEmailStoreProtocol)? = nil, onClose: @escaping @MainActor () -> Void, onCompleted: @escaping @MainActor (BroadPaywallCompletion) -> Void)` |
 | Initializer | `@MainActor init(viewModel: PaywallViewModel, theme: BroadPaywallTheme, productFormatter: BroadPaywallProductFormatter, receiptEmailStore: (any BroadReceiptEmailStoreProtocol)? = nil, onClose: @escaping @MainActor () -> Void, onCompleted: @escaping @MainActor (BroadPaywallCompletion) -> Void)` |
 | Initializer | `init()` |
+| Initializer | `init(appName: String, providers: [BroadAIProviderDisclosure], privacyPolicyURL: URL, termsOfUseURL: URL, copy: BroadAIDataConsentCopy = .english)` |
 | Initializer | `init(background: Color, surface: Color, primaryText: Color, secondaryText: Color, accent: Color, actionForeground: Color, border: Color, selectedBorder: Color, selectedSurface: Color)` |
 | Initializer | `init(background: Color, surface: Color, primaryText: Color, secondaryText: Color, accent: Color, actionForeground: Color, progressInactive: Color, border: Color)` |
+| Initializer | `init(background: Color, surface: Color, primaryText: Color, secondaryText: Color, link: Color, accent: Color, actionForeground: Color, border: Color, titleFont: Font, bodyFont: Font, linkFont: Font, actionFont: Font)` |
 | Initializer | `init(configuration: AppFlowConfiguration)` |
+| Initializer | `init(configuration: BroadRateUsPromptConfiguration = BroadRateUsPromptConfiguration(), store: any KeyValueStoreProtocol)` |
 | Initializer | `init(contentSpacing: CGFloat, textSpacing: CGFloat, padding: CGFloat, cornerRadius: CGFloat, iconSize: CGFloat, borderWidth: CGFloat, minimumActionHeight: CGFloat, compactPadding: CGFloat)` |
 | Initializer | `init(continueTitle: String, offerConsentTitle: String, recurringConsentPrefix: String, receiptTitle: String, emailTitle: String, emailPlaceholder: String, invalidEmailMessage: String, requiredMark: String = "Обязательно")` |
 | Initializer | `init(copy: BroadRUBillingCopy = .russian, receiptEmailStorageKey: String = "broad.ru-billing.receipt-email")` |
@@ -142,12 +152,13 @@
 | Initializer | `init(identifier: String)` |
 | Initializer | `init(keyValueStore: any KeyValueStoreProtocol, keyPrefix: String = "app-flow")` |
 | Initializer | `init(loadPaywall: any LoadPaywallUseCaseProtocol, selectProduct: any SelectProductUseCaseProtocol, checkoutProduct: any CheckoutSelectedProductUseCaseProtocol, restorePurchases: any RestorePurchasesUseCaseProtocol, resolveCheckoutMethods: any ResolveCheckoutMethodsUseCaseProtocol, trackEvent: any TrackPaywallEventUseCaseProtocol, presentationLifecycle: any PaywallPresentationLifecycleProtocol, operationGate: MonetizationOperationGate)` |
-| Initializer | `init(loadPaywall: any LoadPaywallUseCaseProtocol, selectProduct: any SelectProductUseCaseProtocol, purchaseManager: TokenPurchaseManager, recoverTokenAccount: any RecoverTokenAccountUseCaseProtocol, onBalanceConfirmed: @escaping @MainActor (TokenBalanceSnapshot) -> Void)` |
+| Initializer | `init(loadPaywall: any LoadPaywallUseCaseProtocol, selectProduct: any SelectProductUseCaseProtocol, purchaseManager: TokenPurchaseManager, recoverTokenAccount: any RecoverTokenAccountUseCaseProtocol, onBalanceConfirmed: @escaping @MainActor @Sendable (TokenBalanceSnapshot) -> Void)` |
 | Initializer | `init(loadPaywall: any LoadPaywallUseCaseProtocol, selectProduct: any SelectProductUseCaseProtocol, purchaseProduct: any PurchaseSelectedProductUseCaseProtocol, restorePurchases: any RestorePurchasesUseCaseProtocol, resolveCheckoutMethods: any ResolveCheckoutMethodsUseCaseProtocol, trackEvent: any TrackPaywallEventUseCaseProtocol, presentationLifecycle: any PaywallPresentationLifecycleProtocol, operationGate: MonetizationOperationGate)` |
 | Initializer | `init(loadStatus: any LoadRUSubscriptionStatusUseCaseProtocol, cancelSubscription: any CancelRUSubscriptionUseCaseProtocol)` |
 | Initializer | `init(loadingTitle: String, emptyTitle: String, emptyMessage: String, errorTitle: String, pendingMessage: String, cancelledMessage: String, creditedMessage: String, recoveredMessage: String)` |
 | Initializer | `init(loadingTitle: String, errorTitle: String, emptyTitle: String, emptyMessage: String, checkoutUnavailableMessage: String, nothingToRestoreMessage: String, purchase: BroadPaywallPurchaseStateCopy)` |
 | Initializer | `init(locale: Locale = .autoupdatingCurrent, periodCopy: BroadPaywallPeriodCopy = .english)` |
+| Initializer | `init(name: String, purpose: String, privacyPolicyURL: URL)` |
 | Initializer | `init(onboarding: AppFlowStepPolicy, initialPaywall: AppFlowInitialPaywallPolicy)` |
 | Initializer | `init(pageSpacing: CGFloat, textSpacing: CGFloat, controlSpacing: CGFloat, screenPadding: CGFloat, surfacePadding: CGFloat, cornerRadius: CGFloat, progressSpacing: CGFloat, progressHeight: CGFloat, borderWidth: CGFloat, minimumActionHeight: CGFloat)` |
 | Initializer | `init(pages: [OnboardingPageConfiguration], continueTitle: String, completionTitle: String, progressAccessibilityLabel: String, footerLinks: [OnboardingFooterLinkConfiguration] = [], trackingAuthorizationPolicy: OnboardingTrackingAuthorizationPolicy = .disabled)` |
@@ -160,7 +171,9 @@
 | Initializer | `init(screen: CGFloat, header: CGFloat, content: CGFloat, product: CGFloat, productContent: CGFloat, footer: CGFloat, text: CGFloat)` |
 | Initializer | `init(singular: String, plural: String)` |
 | Initializer | `init(spacing: BroadPaywallTheme.Spacing, sizing: BroadPaywallTheme.Sizing)` |
+| Initializer | `init(store: any KeyValueStoreProtocol, key: String = "broad.ai-data-consent.accepted-at.v1")` |
 | Initializer | `init(store: any KeyValueStoreProtocol, maximumUTF8Length: Int = 320)` |
+| Initializer | `init(subscriberThreshold: Int = 2, freeUserThreshold: Int = 1, storageKeyPrefix: String = "broad.rate-us")` |
 | Initializer | `init(surface: Color, primaryText: Color, secondaryText: Color, accent: Color, warning: Color, failure: Color, border: Color, actionForeground: Color)` |
 | Initializer | `init(title: Font, message: Font, action: Font, icon: Font)` |
 | Initializer | `init(title: Font, subtitle: Font, action: Font, footer: Font)` |
@@ -168,6 +181,7 @@
 | Initializer | `init(title: String, appleTitle: String, sbpTitle: String, cardTitle: String)` |
 | Initializer | `init(title: String, currentPlanTitle: String, fallbackPlanTitle: String, activeTitle: String, inactiveTitle: String, activeUntilTitle: String, autoRenewalOffTitle: String, lifetimeTitle: String, cancelTitle: String, cancellingTitle: String, cancelConfirmationTitle: String, cancelConfirmationMessage: String, keepTitle: String, retryTitle: String, loadingTitle: String)` |
 | Initializer | `init(title: String, emptyMessage: String)` |
+| Initializer | `init(title: String, intro: String, processing: String, retention: String, noSale: String, checkbox: String, privacyPolicyTitle: String, termsOfUseTitle: String, agreeTitle: String, declineTitle: String)` |
 | Initializer | `init(title: String, message: String? = nil, systemImageName: String? = nil)` |
 | Initializer | `init(title: String, subtitle: String, balanceTitle: String)` |
 | Initializer | `init(title: String, subtitle: String? = nil)` |
@@ -224,12 +238,18 @@
 | Instance Method | `@discardableResult mutating func resolve(checkpoint: AppFlowCheckpoint, entitlementStatus: EntitlementStatus?) -> AppFlowRoute` |
 | Instance Method | `@discardableResult mutating func restart() -> AppFlowRoute` |
 | Instance Method | `@discardableResult mutating func subscriptionDidBecomeActive() -> AppFlowRoute` |
+| Instance Method | `func accept(at date: Date = Date()) async` |
+| Instance Method | `func acceptedAt() async -> Date?` |
 | Instance Method | `func assemble(container: Container)` |
+| Instance Method | `func hasAccepted() async -> Bool` |
+| Instance Method | `func hasPrompted() async -> Bool` |
 | Instance Method | `func loadCheckpoint() async -> AppFlowCheckpoint` |
 | Instance Method | `func loadEmail(forKey key: String) async -> String?` |
+| Instance Method | `func markPrompted() async` |
 | Instance Method | `func period(_ period: SubscriptionPeriod) -> String?` |
 | Instance Method | `func period(for product: MonetizationProduct) -> String?` |
 | Instance Method | `func price(for product: MonetizationProduct) -> String?` |
+| Instance Method | `func recordTargetAction(isSubscribed: Bool, context: BroadRateUsPromptContext = .main) async -> Bool` |
 | Instance Method | `func reset() async throws -> Int` |
 | Instance Method | `func saveEmail(_ email: String, forKey key: String) async` |
 | Instance Method | `func title(for method: CheckoutMethod) -> String` |
@@ -288,12 +308,14 @@
 | Instance Property | `let access: BroadPaywallAccessConfiguration` |
 | Instance Property | `let accessibilityLabel: String?` |
 | Instance Property | `let action: Font` |
+| Instance Property | `let actionFont: Font` |
 | Instance Property | `let actionForeground: Color` |
 | Instance Property | `let actions: BroadPaywallCopy.Actions` |
 | Instance Property | `let actions: BroadTokenPaywallCopy.Actions` |
 | Instance Property | `let activeTitle: String` |
 | Instance Property | `let activeUntilTitle: String` |
 | Instance Property | `let adaptyProfileID: String` |
+| Instance Property | `let agreeTitle: String` |
 | Instance Property | `let analytics: BroadTokenPaywallCopy.Analytics` |
 | Instance Property | `let appName: String` |
 | Instance Property | `let appStoreVersion: String` |
@@ -303,6 +325,7 @@
 | Instance Property | `let background: Color` |
 | Instance Property | `let balanceTitle: String` |
 | Instance Property | `let body: String` |
+| Instance Property | `let bodyFont: Font` |
 | Instance Property | `let border: Color` |
 | Instance Property | `let borderWidth: CGFloat` |
 | Instance Property | `let buildNumber: String` |
@@ -313,6 +336,7 @@
 | Instance Property | `let cancelledMessage: String` |
 | Instance Property | `let cancellingTitle: String` |
 | Instance Property | `let cardTitle: String` |
+| Instance Property | `let checkbox: String` |
 | Instance Property | `let checkout: BroadPaywallCopy.Checkout` |
 | Instance Property | `let checkoutUnavailableMessage: String` |
 | Instance Property | `let closeAccessibilityLabel: String` |
@@ -326,6 +350,7 @@
 | Instance Property | `let contentSpacing: CGFloat` |
 | Instance Property | `let continueTitle: String` |
 | Instance Property | `let controlSpacing: CGFloat` |
+| Instance Property | `let copy: BroadAIDataConsentCopy` |
 | Instance Property | `let copy: BroadPaywallCopy` |
 | Instance Property | `let copy: BroadRUBillingCopy` |
 | Instance Property | `let copy: BroadTokenPaywallCopy` |
@@ -335,6 +360,7 @@
 | Instance Property | `let crossedValueAccessibilityLabel: String` |
 | Instance Property | `let currentPlanTitle: String` |
 | Instance Property | `let day: BroadPaywallPeriodCopy.UnitCopy` |
+| Instance Property | `let declineTitle: String` |
 | Instance Property | `let defaultPolicy: PaywallAccessPolicy` |
 | Instance Property | `let defaultSelection: BroadPaywallDefaultSelection?` |
 | Instance Property | `let defaultSelectionIndex: Int` |
@@ -354,6 +380,7 @@
 | Instance Property | `let footer: CGFloat` |
 | Instance Property | `let footer: Font` |
 | Instance Property | `let footerLinks: [OnboardingFooterLinkConfiguration]` |
+| Instance Property | `let freeUserThreshold: Int` |
 | Instance Property | `let greeting: BroadSupportEmailGreeting` |
 | Instance Property | `let hardPaywallCloseDelay: TimeInterval?` |
 | Instance Property | `let header: BroadPaywallCopy.Header` |
@@ -367,10 +394,13 @@
 | Instance Property | `let inactiveTitle: String` |
 | Instance Property | `let initialPaywall: AppFlowInitialPaywallPolicy` |
 | Instance Property | `let installedVersion: String` |
+| Instance Property | `let intro: String` |
 | Instance Property | `let invalidEmailMessage: String` |
 | Instance Property | `let keepTitle: String` |
 | Instance Property | `let legalLinks: [BroadPaywallLegalLink]` |
 | Instance Property | `let lifetimeTitle: String` |
+| Instance Property | `let link: Color` |
+| Instance Property | `let linkFont: Font` |
 | Instance Property | `let loadingTitle: String` |
 | Instance Property | `let locale: Locale` |
 | Instance Property | `let localeIdentifier: String` |
@@ -384,6 +414,8 @@
 | Instance Property | `let monetizationIdentifier: String` |
 | Instance Property | `let month: BroadPaywallPeriodCopy.UnitCopy` |
 | Instance Property | `let multiplierAccessibilityLabel: String` |
+| Instance Property | `let name: String` |
+| Instance Property | `let noSale: String` |
 | Instance Property | `let nothingToRestoreMessage: String` |
 | Instance Property | `let offerConsentTitle: String` |
 | Instance Property | `let onboarding: AppFlowStepPolicy` |
@@ -397,6 +429,9 @@
 | Instance Property | `let plural: String` |
 | Instance Property | `let price: String` |
 | Instance Property | `let primaryText: Color` |
+| Instance Property | `let privacyPolicyTitle: String` |
+| Instance Property | `let privacyPolicyURL: URL` |
+| Instance Property | `let processing: String` |
 | Instance Property | `let product: CGFloat` |
 | Instance Property | `let productContent: CGFloat` |
 | Instance Property | `let productDetail: Font` |
@@ -408,9 +443,11 @@
 | Instance Property | `let progressHeight: CGFloat` |
 | Instance Property | `let progressInactive: Color` |
 | Instance Property | `let progressSpacing: CGFloat` |
+| Instance Property | `let providers: [BroadAIProviderDisclosure]` |
 | Instance Property | `let purchase: BroadPaywallPurchaseStateCopy` |
 | Instance Property | `let purchaseTitle: String` |
 | Instance Property | `let purchasingTitle: String` |
+| Instance Property | `let purpose: String` |
 | Instance Property | `let receiptEmailStorageKey: String` |
 | Instance Property | `let receiptTitle: String` |
 | Instance Property | `let recipient: String` |
@@ -424,6 +461,7 @@
 | Instance Property | `let requiredMark: String` |
 | Instance Property | `let restoreTitle: String` |
 | Instance Property | `let restoringTitle: String` |
+| Instance Property | `let retention: String` |
 | Instance Property | `let retryTitle: String` |
 | Instance Property | `let retryingTitle: String` |
 | Instance Property | `let ruBilling: BroadRUBillingPresentationConfiguration?` |
@@ -441,7 +479,9 @@
 | Instance Property | `let specialOfferCopy: BroadPaywallSpecialOfferCopy` |
 | Instance Property | `let states: BroadPaywallCopy.States` |
 | Instance Property | `let states: BroadTokenPaywallCopy.States` |
+| Instance Property | `let storageKeyPrefix: String` |
 | Instance Property | `let subject: String` |
+| Instance Property | `let subscriberThreshold: Int` |
 | Instance Property | `let subscriptionStatus: String` |
 | Instance Property | `let subtitle: Font` |
 | Instance Property | `let subtitle: String` |
@@ -452,11 +492,14 @@
 | Instance Property | `let surfacePadding: CGFloat` |
 | Instance Property | `let systemImageName: String?` |
 | Instance Property | `let systemVersion: String` |
+| Instance Property | `let termsOfUseTitle: String` |
+| Instance Property | `let termsOfUseURL: URL` |
 | Instance Property | `let text: CGFloat` |
 | Instance Property | `let textSpacing: CGFloat` |
 | Instance Property | `let timeZoneIdentifier: String` |
 | Instance Property | `let title: Font` |
 | Instance Property | `let title: String` |
+| Instance Property | `let titleFont: Font` |
 | Instance Property | `let trackingAuthorizationPolicy: OnboardingTrackingAuthorizationPolicy` |
 | Instance Property | `let unavailablePriceTitle: String` |
 | Instance Property | `let unknownTitle: String?` |
@@ -470,6 +513,7 @@
 | Instance Property | `var hasCompletedOnboarding: Bool { get }` |
 | Instance Property | `var hasResolvedInitialPaywall: Bool { get }` |
 | Instance Property | `var id: OnboardingFooterDestination { get }` |
+| Instance Property | `var id: String { get }` |
 | Instance Property | `var isValid: Bool { get }` |
 | Instance Property | `var payload: PaywallPayload? { get }` |
 | Instance Property | `var request: PaywallLoadRequest { get }` |
@@ -478,6 +522,7 @@
 | Instance Property | `var specialOfferExpiresAt: Date? { get }` |
 | Protocol | `protocol AppFlowProgressRepositoryProtocol : Sendable` |
 | Protocol | `protocol BroadReceiptEmailStoreProtocol : Sendable` |
+| Structure | `@MainActor struct BroadAIDataConsentView` |
 | Structure | `@MainActor struct BroadActionButton` |
 | Structure | `@MainActor struct BroadActionConfiguration` |
 | Structure | `@MainActor struct BroadAppFlowView<LaunchContent, OnboardingContent, PaywallContent, MainContent> where LaunchContent : View, OnboardingContent : View, PaywallContent : View, MainContent : View` |
@@ -507,6 +552,10 @@
 | Structure | `struct Analytics` |
 | Structure | `struct AppFlowConfiguration` |
 | Structure | `struct AppFlowStateMachine` |
+| Structure | `struct BroadAIDataConsentConfiguration` |
+| Structure | `struct BroadAIDataConsentCopy` |
+| Structure | `struct BroadAIDataConsentTheme` |
+| Structure | `struct BroadAIProviderDisclosure` |
 | Structure | `struct BroadKeyValueReceiptEmailStore` |
 | Structure | `struct BroadPaywallAccessConfiguration` |
 | Structure | `struct BroadPaywallCompletionEvent` |
@@ -521,6 +570,7 @@
 | Structure | `struct BroadRUBillingPresentationConfiguration` |
 | Structure | `struct BroadRUSubscriptionDependencies` |
 | Structure | `struct BroadRUSubscriptionManagementCopy` |
+| Structure | `struct BroadRateUsPromptConfiguration` |
 | Structure | `struct BroadSelectableProductContent` |
 | Structure | `struct BroadStateContent` |
 | Structure | `struct BroadSupportEmailConfiguration` |
@@ -554,11 +604,13 @@
 | Type Property | `@MainActor static var canSendMail: Bool { get }` |
 | Type Property | `static let defaultHardPaywallCloseDelay: TimeInterval` |
 | Type Property | `static let disabled: OnboardingTrackingAuthorizationPolicy` |
+| Type Property | `static let english: BroadAIDataConsentCopy` |
 | Type Property | `static let english: BroadPaywallPeriodCopy` |
 | Type Property | `static let english: BroadPaywallSpecialOfferCopy` |
 | Type Property | `static let mainOnly: AppFlowConfiguration` |
 | Type Property | `static let maximumHardPaywallCloseDelay: TimeInterval` |
 | Type Property | `static let minimumInteractiveDimension: CGFloat` |
+| Type Property | `static let russian: BroadAIDataConsentCopy` |
 | Type Property | `static let russian: BroadPaywallCopy` |
 | Type Property | `static let russian: BroadPaywallPeriodCopy` |
 | Type Property | `static let russian: BroadPaywallSpecialOfferCopy` |
@@ -566,3 +618,4 @@
 | Type Property | `static let russian: BroadRUSubscriptionManagementCopy` |
 | Type Property | `static let russian: BroadTokenPaywallCopy` |
 | Type Property | `static let standard: BroadPaywallCopy` |
+| Type Property | `static var standard: BroadAIDataConsentTheme { get }` |
