@@ -58,7 +58,6 @@ fi
 
 echo "[5/9] Swift Package, Debug iPhone Simulator"
 swift build \
-    --disable-sandbox \
     --quiet \
     --package-path "$module_root" \
     --cache-path "$swiftpm_cache" \
@@ -79,9 +78,6 @@ echo "[7/9] Standalone iPhone gallery, Debug Simulator"
 bash "$module_root/Scripts/generate_sandbox.sh"
 xcodebuild \
     -quiet \
-    -IDEPackageSupportDisableManifestSandbox=1 \
-    -IDEPackageSupportDisablePluginExecutionSandbox=1 \
-    'OTHER_SWIFT_FLAGS=$(inherited) -disable-sandbox' \
     -project "$module_root/Examples/$sandbox_name/$sandbox_name.xcodeproj" \
     -scheme "$sandbox_name" \
     -configuration Debug \
@@ -93,9 +89,6 @@ xcodebuild \
 echo "[8/9] Standalone iPhone gallery, Release generic iOS (unsigned)"
 xcodebuild \
     -quiet \
-    -IDEPackageSupportDisableManifestSandbox=1 \
-    -IDEPackageSupportDisablePluginExecutionSandbox=1 \
-    'OTHER_SWIFT_FLAGS=$(inherited) -disable-sandbox' \
     -project "$module_root/Examples/$sandbox_name/$sandbox_name.xcodeproj" \
     -scheme "$sandbox_name" \
     -configuration Release \
@@ -108,10 +101,6 @@ echo "[9/9] DocC and module scheme, generic iOS Simulator"
 docc_log="$module_root/.build/DocCBuild.log"
 xcodebuild \
     -quiet \
-    -IDEPackageSupportDisableManifestSandbox=1 \
-    -IDEPackageSupportDisablePluginExecutionSandbox=1 \
-    'OTHER_SWIFT_FLAGS=$(inherited) -disable-sandbox' \
-    -project "$module_root/Examples/$sandbox_name/$sandbox_name.xcodeproj" \
     -scheme "$module_name" \
     -destination 'generic/platform=iOS Simulator' \
     -derivedDataPath "$derived_data" \

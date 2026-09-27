@@ -4,12 +4,25 @@ import Foundation
 public struct BroadAppStoreLookupClient: BroadAppStoreLookupProtocol {
     public init() {}
 
+    /// Looks the app up in the storefront of the device region first: the default
+    /// US storefront has no listing for apps not sold there. Falls back to it.
     public func lookup(bundleID: String) async throws -> BroadAppStoreListing? {
         guard !bundleID.isEmpty else { return nil }
+        if let country = Locale.current.region?.identifier.lowercased(),
+           let listing = try await lookup(bundleID: bundleID, country: country) {
+            return listing
+        }
+        return try await lookup(bundleID: bundleID, country: nil)
+    }
+
+    private func lookup(bundleID: String, country: String?) async throws -> BroadAppStoreListing? {
         var components = URLComponents(string: "https://itunes.apple.com/lookup")
         components?.queryItems = [URLQueryItem(name: "bundleId", value: bundleID)]
+            + (country.map { [URLQueryItem(name: "country", value: $0)] } ?? [])
         guard let url = components?.url else { return nil }
-        let (data, response) = try await URLSession.shared.data(from: url)
+        // A cached answer can hide a fresh release.
+        let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
+        let (data, response) = try await URLSession.shared.data(for: request)
         guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
             return nil
         }

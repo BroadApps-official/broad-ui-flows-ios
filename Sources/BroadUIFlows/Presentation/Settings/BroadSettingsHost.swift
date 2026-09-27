@@ -23,6 +23,7 @@ public struct BroadSettingsHost<Content: View>: View {
         self.content = content
         _state = StateObject(wrappedValue: BroadSettingsState(
             restorePurchases: restorePurchases,
+            copy: configuration.copy,
             onRestored: onRestored
         ))
     }
@@ -52,6 +53,7 @@ public struct BroadSettingsHost<Content: View>: View {
             restoreResult: state.restoreResult,
             restoreMessage: state.restoreMessage,
             canContactSupport: configuration.supportEmail.flatMap(BroadSupportEmailRequestBuilder.makeRequest) != nil,
+            isUserIDCopied: state.isUserIDCopied,
             actions: .init(
                 restore: { state.restore() },
                 manageSubscription: {
@@ -71,7 +73,7 @@ public struct BroadSettingsHost<Content: View>: View {
                     state.perform { openSupport() }
                 },
                 copyUserID: {
-                    state.perform { UIPasteboard.general.string = configuration.userID }
+                    state.perform { state.copyUserID(configuration.userID) }
                 },
                 rateApp: {
                     state.perform {
@@ -115,17 +117,39 @@ private final class BroadSettingsState: ObservableObject {
     @Published private(set) var isRestoring = false
     @Published private(set) var restoreResult: BroadSettingsRestoreResult?
     @Published private(set) var restoreMessage: String?
+    @Published private(set) var isUserIDCopied = false
 
     private let restorePurchases: any RestorePurchasesUseCaseProtocol
+    private let copy: BroadSettingsCopy
     private let onRestored: @MainActor (EntitlementSnapshot) -> Void
     private var nextActionAt = Date.distantPast
+    private var copiedResetTask: Task<Void, Never>?
 
     init(
         restorePurchases: any RestorePurchasesUseCaseProtocol,
+        copy: BroadSettingsCopy,
         onRestored: @escaping @MainActor (EntitlementSnapshot) -> Void
     ) {
         self.restorePurchases = restorePurchases
+        self.copy = copy
         self.onRestored = onRestored
+    }
+
+    deinit {
+        copiedResetTask?.cancel()
+    }
+
+    /// Copies the ID and raises `isUserIDCopied` for two seconds, so the layout
+    /// can confirm the copy.
+    func copyUserID(_ userID: String) {
+        UIPasteboard.general.string = userID
+        isUserIDCopied = true
+        copiedResetTask?.cancel()
+        copiedResetTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else { return }
+            self?.isUserIDCopied = false
+        }
     }
 
     func perform(_ action: () -> Void) {
@@ -148,11 +172,11 @@ private final class BroadSettingsState: ObservableObject {
                 switch outcome {
                 case let .restored(snapshot):
                     restoreResult = .restored
-                    restoreMessage = "Purchases restored."
+                    restoreMessage = copy.restoredMessage
                     onRestored(snapshot)
                 case .nothingFound:
                     restoreResult = .nothingToRestore
-                    restoreMessage = "No purchases were found to restore."
+                    restoreMessage = copy.nothingToRestoreMessage
                 case let .unavailable(error), let .failed(error):
                     restoreResult = .failed(error)
                     restoreMessage = error.userMessage

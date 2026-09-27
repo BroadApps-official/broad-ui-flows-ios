@@ -52,7 +52,7 @@ do
     fi
 done
 
-if ! swift package --disable-sandbox --package-path "$module_root" dump-package >/dev/null; then
+if ! swift package --package-path "$module_root" dump-package >/dev/null; then
     record_failure "Package.swift cannot be parsed by SwiftPM."
 fi
 

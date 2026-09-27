@@ -19,6 +19,8 @@ public struct BroadSettingsScreen {
     public let restoreResult: BroadSettingsRestoreResult?
     public let restoreMessage: String?
     public let canContactSupport: Bool
+    /// True for two seconds after ``copyUserID()``, to show "Copied".
+    public let isUserIDCopied: Bool
 
     let actions: Actions
 
@@ -54,7 +56,9 @@ public struct BroadSettingsScreen {
         actions.shareApp()
     }
 
-    init(
+    /// Builds a screen with the given values; actions default to no-ops, for
+    /// previews of an app's own layout.
+    public init(
         userID: String,
         version: String,
         build: String,
@@ -62,7 +66,31 @@ public struct BroadSettingsScreen {
         restoreResult: BroadSettingsRestoreResult? = nil,
         restoreMessage: String? = nil,
         canContactSupport: Bool = false,
-        actions: Actions = Actions()
+        isUserIDCopied: Bool = false
+    ) {
+        self.init(
+            userID: userID,
+            version: version,
+            build: build,
+            isRestoring: isRestoring,
+            restoreResult: restoreResult,
+            restoreMessage: restoreMessage,
+            canContactSupport: canContactSupport,
+            isUserIDCopied: isUserIDCopied,
+            actions: Actions()
+        )
+    }
+
+    init(
+        userID: String,
+        version: String,
+        build: String,
+        isRestoring: Bool,
+        restoreResult: BroadSettingsRestoreResult?,
+        restoreMessage: String?,
+        canContactSupport: Bool,
+        isUserIDCopied: Bool,
+        actions: Actions
     ) {
         self.userID = userID
         self.version = version
@@ -71,6 +99,7 @@ public struct BroadSettingsScreen {
         self.restoreResult = restoreResult
         self.restoreMessage = restoreMessage
         self.canContactSupport = canContactSupport
+        self.isUserIDCopied = isUserIDCopied
         self.actions = actions
     }
 

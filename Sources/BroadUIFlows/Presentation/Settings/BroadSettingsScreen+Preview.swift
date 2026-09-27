@@ -21,10 +21,10 @@ public extension BroadSettingsScreen {
             message = nil
         case .restored:
             result = .restored
-            message = "Purchases restored."
+            message = BroadSettingsCopy.russian.restoredMessage
         case .nothingToRestore:
             result = .nothingToRestore
-            message = "No purchases were found to restore."
+            message = BroadSettingsCopy.russian.nothingToRestoreMessage
         case .failed:
             result = .failed(AppError(
                 kind: .unavailable,
