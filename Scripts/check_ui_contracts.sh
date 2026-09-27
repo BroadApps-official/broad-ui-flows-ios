@@ -142,6 +142,24 @@ elif grep -v '^[[:space:]]*//' <<<"$token_retry_body" | grep -q "purchaseSelecte
 fi
 
 require_pattern \
+    "Token screen confirm() must run the safe check, never a purchase:" \
+    "$source_root/Presentation/TokenPaywall/BroadTokenPaywallScreen.swift" \
+    'confirm:[[:space:]]*\{[[:space:]]*\[weak self\][[:space:]]*in[[:space:]]*self\?\.retrySafely\(\)[[:space:]]*\}'
+
+for token_screen in BroadTokenPaywallView.swift BroadTokenPaywallHost.swift; do
+    require_pattern \
+        "Token paywall screens must share BroadTokenPaywallLifecycle:" \
+        "$source_root/Presentation/TokenPaywall/$token_screen" \
+        'BroadTokenPaywallLifecycle\('
+done
+
+scan_forbidden \
+    "Token paywall UI must take words from BroadTokenPaywallCopy, not hard-code them:" \
+    '"[^"]*(токен|Баланс|backend|fixture)[^"]*"' \
+    "$source_root/Presentation/TokenPaywall" --glob '*.swift' \
+    --glob '!BroadTokenPaywallConfiguration.swift' --glob '!BroadTokenPaywallViewModel.swift'
+
+require_pattern \
     "OnboardingConfiguration.pages must remain the single page source:" \
     "$source_root/Domain/Onboarding/OnboardingConfiguration.swift" \
     'public[[:space:]]+let[[:space:]]+pages:[[:space:]]*\[OnboardingPageConfiguration\]'
@@ -254,6 +272,8 @@ for gallery_contract in \
     'Subscription paywall' \
     'Special Offer paywall' \
     'Token paywall' \
+    'Custom paywall \(host\)' \
+    'Custom token paywall \(host\)' \
     'INFOPLIST_KEY_BroadAppsFixtureOnly:[[:space:]]+YES'
 do
     if ! rg -q -- "$gallery_contract" "$gallery_root"; then

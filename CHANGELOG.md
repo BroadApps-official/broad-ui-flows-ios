@@ -1,5 +1,43 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `BroadTokenPaywallHost`: runs a token paywall for a screen drawn by the app.
+  The host owns loading, selection, the purchase and its server credit, the
+  safe check of a saved purchase, the balance and closing while busy; the screen
+  receives `BroadTokenPaywallScreen`.
+- `BroadTokenPaywallScreen` and `BroadTokenPackage`: packages ready to draw —
+  price, token amount from the app's `tokenAmount`, selection — plus the phase
+  (`purchasing`, `confirming`, `refreshingBalance`), the balance as a locale
+  number, `needsConfirmation`, a typed notice and actions. `confirm()` runs
+  `retrySafely()` and never charges again.
+- `BroadTokenPaywallScreen.preview(_:)`: every state for Xcode Previews.
+- `BroadTokenPaywallViewModel.dismissFeedback()` and `message(for:)`.
+- `BroadTokenPaywallCopy.Actions.confirmTitle` / `confirmingTitle` (defaulted):
+  the main action while a purchase waits for its credit.
+- `BroadTokenPaywallConfiguration.showsAnalytics` (default `false`).
+- Gallery: a custom token store on the host, live on fixtures and in every
+  preview state.
+
+### Changed
+
+- `BroadTokenPaywallView` hides the event log panel unless `showsAnalytics` is on;
+  it was a demo panel visible to users.
+- `BroadTokenPaywallCopy.russian` speaks to users: no "backend", "fixture" or
+  "token placement". The load retry reads «Повторить», the pending check
+  «Проверить покупку».
+- The ready token view shows the balance as a number without a hard-coded
+  «токенов», and notices without an appended «Баланс:»; a contract check keeps
+  such words in the copy.
+
+### Why
+
+Apps wrapped the token view model in their own purchase logic and hard-coded
+words the module had fixed in Russian. The host gives a Figma screen everything
+it draws, and the default copy no longer shows technical terms to people.
+
 ## 6.1.0
 
 ### Added

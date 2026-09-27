@@ -243,6 +243,30 @@ public final class BroadTokenPaywallViewModel: ObservableObject {
         }
     }
 
+    /// Hides the current notice. A purchase that waits for its credit keeps
+    /// ``isRetrySuggested``, so the check stays available.
+    public func dismissFeedback() {
+        feedback = nil
+    }
+
+    /// Text for a notice from the configured copy; failures use the safe
+    /// ``AppError/userMessage``.
+    public func message(for feedback: BroadTokenPaywallFeedback) -> String {
+        let states = configuration.copy.states
+        return switch feedback {
+        case .credited:
+            states.creditedMessage
+        case .pending:
+            states.pendingMessage
+        case .cancelled:
+            states.cancelledMessage
+        case .recovered:
+            states.recoveredMessage
+        case let .failed(error):
+            error.userMessage
+        }
+    }
+
     public func recoverAccountBalance() {
         hasRecoveredAccountBalance = false
         recoverAccountBalanceIfNeeded()
@@ -278,7 +302,7 @@ public final class BroadTokenPaywallViewModel: ObservableObject {
 private extension BroadTokenPaywallViewModel {
     static let unexpectedPlacementError = AppError(
         kind: .unavailable,
-        userMessage: "Token placement вернул неподходящий или subscription-каталог.",
+        userMessage: "Пакеты токенов сейчас недоступны. Попробуйте позже.",
         diagnosticCode: "ui-flows.token-paywall.unexpected-placement",
         isRetryable: true
     )

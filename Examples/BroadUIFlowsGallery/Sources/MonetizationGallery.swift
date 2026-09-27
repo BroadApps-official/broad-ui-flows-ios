@@ -55,6 +55,11 @@ struct FixtureTokenPaywallScreen: View {
     @StateObject private var viewModel: BroadTokenPaywallViewModel
 
     init() {
+        _viewModel = StateObject(wrappedValue: Self.makeViewModel(showsAnalytics: true))
+    }
+
+    /// A token paywall on fixtures: purchases credit a local ledger, nothing is charged.
+    static func makeViewModel(showsAnalytics: Bool) -> BroadTokenPaywallViewModel {
         let payload = FixtureCatalog.tokenPayload()
         let operationGate = MonetizationOperationGate()
         let purchaseManager = TokenPurchaseManager(
@@ -64,17 +69,18 @@ struct FixtureTokenPaywallScreen: View {
             pendingStore: FixturePendingTokenStore(),
             operationGate: operationGate
         )
-        _viewModel = StateObject(
-            wrappedValue: BroadTokenPaywallViewModel(
-                configuration: BroadTokenPaywallConfiguration(copy: .russian),
-                dependencies: BroadTokenPaywallViewModelDependencies(
-                    loadPaywall: FixturePaywallLoader(payload: payload),
-                    selectProduct: FixtureProductSelector(),
-                    purchaseManager: purchaseManager,
-                    recoverTokenAccount: FixtureTokenAccountRecovery(),
-                    onBalanceConfirmed: { _ in },
-                    trackEvent: FixturePaywallTracker()
-                )
+        return BroadTokenPaywallViewModel(
+            configuration: BroadTokenPaywallConfiguration(
+                copy: .russian,
+                showsAnalytics: showsAnalytics
+            ),
+            dependencies: BroadTokenPaywallViewModelDependencies(
+                loadPaywall: FixturePaywallLoader(payload: payload),
+                selectProduct: FixtureProductSelector(),
+                purchaseManager: purchaseManager,
+                recoverTokenAccount: FixtureTokenAccountRecovery(),
+                onBalanceConfirmed: { _ in },
+                trackEvent: FixturePaywallTracker()
             )
         )
     }

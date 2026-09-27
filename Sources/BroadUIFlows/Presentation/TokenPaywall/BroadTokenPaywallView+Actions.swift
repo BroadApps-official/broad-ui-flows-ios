@@ -6,8 +6,8 @@ extension BroadTokenPaywallView {
     var primaryActionTitle: String {
         if viewModel.isRetrySuggested {
             return viewModel.isRecoveringPendingPurchase
-                ? copy.actions.retryingTitle
-                : copy.actions.retryTitle
+                ? copy.actions.confirmingTitle
+                : copy.actions.confirmTitle
         }
         return viewModel.isPurchaseInFlight
             ? copy.actions.purchasingTitle
@@ -28,28 +28,13 @@ extension BroadTokenPaywallView {
         }
     }
 
+    /// The confirmed balance as a locale number without a unit, so no plural
+    /// form of "tokens" is hard-coded.
     var balanceText: String {
-        guard let snapshot = viewModel.balanceSnapshot else {
-            return "—"
-        }
-        return "\(NSDecimalNumber(decimal: snapshot.balance)) токенов"
-    }
-
-    func feedbackMessage(_ feedback: BroadTokenPaywallFeedback) -> String {
-        switch feedback {
-        case let .credited(snapshot):
-            "\(copy.states.creditedMessage) Баланс: "
-                + "\(NSDecimalNumber(decimal: snapshot.balance))."
-        case .pending:
-            copy.states.pendingMessage
-        case .cancelled:
-            copy.states.cancelledMessage
-        case let .recovered(snapshot):
-            "\(copy.states.recoveredMessage) Баланс: "
-                + "\(NSDecimalNumber(decimal: snapshot.balance))."
-        case let .failed(error):
-            error.userMessage
-        }
+        BroadTokenPaywallScreen.balanceText(
+            viewModel.balanceSnapshot?.balance,
+            locale: productFormatter.locale
+        ) ?? "—"
     }
 }
 

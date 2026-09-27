@@ -43,12 +43,7 @@ public struct BroadTokenPaywallView: View {
                 Spacer(minLength: 0)
             }
         }
-        .onAppear {
-            viewModel.viewDidAppear()
-        }
-        .onDisappear {
-            viewModel.viewDidDisappear()
-        }
+        .modifier(BroadTokenPaywallLifecycle(viewModel: viewModel))
     }
 }
 
@@ -183,7 +178,9 @@ extension BroadTokenPaywallView {
             }
 
             feedbackContent
-            analyticsContent
+            if viewModel.configuration.showsAnalytics {
+                analyticsContent
+            }
         }
     }
 
@@ -253,7 +250,7 @@ extension BroadTokenPaywallView {
                     .font(theme.typography.productPrice)
                     .foregroundStyle(feedback.tint(theme: theme))
                     .accessibilityHidden(true)
-                Text(feedbackMessage(feedback))
+                Text(viewModel.message(for: feedback))
                     .font(theme.typography.subtitle)
                     .foregroundStyle(theme.palette.primaryText)
                     .multilineTextAlignment(.center)

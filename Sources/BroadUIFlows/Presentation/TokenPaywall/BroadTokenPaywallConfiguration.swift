@@ -42,7 +42,13 @@ public struct BroadTokenPaywallCopy: Equatable, Sendable {
         public let recoverBalanceTitle: String
         public let recoveringBalanceTitle: String
         public let closeAccessibilityLabel: String
+        /// Main action while a saved purchase waits for its credit.
+        public let confirmTitle: String
+        public let confirmingTitle: String
 
+        /// - Parameters:
+        ///   - retryTitle: Reloads the packages after an error.
+        ///   - confirmTitle: Checks a saved purchase; never charges again.
         public init(
             purchaseTitle: String,
             purchasingTitle: String,
@@ -50,7 +56,9 @@ public struct BroadTokenPaywallCopy: Equatable, Sendable {
             retryingTitle: String,
             recoverBalanceTitle: String,
             recoveringBalanceTitle: String,
-            closeAccessibilityLabel: String
+            closeAccessibilityLabel: String,
+            confirmTitle: String = "Проверить покупку",
+            confirmingTitle: String = "Проверяем покупку…"
         ) {
             self.purchaseTitle = purchaseTitle
             self.purchasingTitle = purchasingTitle
@@ -59,6 +67,8 @@ public struct BroadTokenPaywallCopy: Equatable, Sendable {
             self.recoverBalanceTitle = recoverBalanceTitle
             self.recoveringBalanceTitle = recoveringBalanceTitle
             self.closeAccessibilityLabel = closeAccessibilityLabel
+            self.confirmTitle = confirmTitle
+            self.confirmingTitle = confirmingTitle
         }
     }
 
@@ -128,8 +138,8 @@ public extension BroadTokenPaywallCopy {
     static let russian = BroadTokenPaywallCopy(
         header: Header(
             title: "Пополнить токены",
-            subtitle: "Consumable-пакеты не открывают premium и подтверждаются backend.",
-            balanceTitle: "Подтверждённый баланс"
+            subtitle: "Токены зачисляются на баланс сразу после покупки.",
+            balanceTitle: "Баланс"
         ),
         products: Products(
             fallbackTitle: "Пакет токенов",
@@ -137,23 +147,25 @@ public extension BroadTokenPaywallCopy {
             selectedAccessibilityValue: "Выбрано"
         ),
         actions: Actions(
-            purchaseTitle: "Купить fixture-пакет",
-            purchasingTitle: "Проверяем покупку…",
-            retryTitle: "Повторить подтверждение",
-            retryingTitle: "Сверяем с backend…",
-            recoverBalanceTitle: "Восстановить баланс с backend",
-            recoveringBalanceTitle: "Восстанавливаем баланс…",
-            closeAccessibilityLabel: "Закрыть token paywall"
+            purchaseTitle: "Купить",
+            purchasingTitle: "Покупаем…",
+            retryTitle: "Повторить",
+            retryingTitle: "Загружаем…",
+            recoverBalanceTitle: "Обновить баланс",
+            recoveringBalanceTitle: "Обновляем баланс…",
+            closeAccessibilityLabel: "Закрыть",
+            confirmTitle: "Проверить покупку",
+            confirmingTitle: "Проверяем покупку…"
         ),
         states: States(
-            loadingTitle: "Загружаем token placement",
+            loadingTitle: "Загружаем пакеты…",
             emptyTitle: "Пакеты токенов не найдены",
             emptyMessage: "Закройте экран или повторите загрузку позже.",
-            errorTitle: "Token paywall недоступен",
-            pendingMessage: "Покупка сохранена и ждёт backend-подтверждения.",
+            errorTitle: "Покупка токенов недоступна",
+            pendingMessage: "Покупка сохранена. Токены придут после подтверждения.",
             cancelledMessage: "Покупка отменена. Баланс не изменился.",
-            creditedMessage: "Backend подтвердил новый баланс.",
-            recoveredMessage: "Баланс восстановлен из backend account ledger."
+            creditedMessage: "Токены зачислены.",
+            recoveredMessage: "Баланс обновлён."
         ),
         analytics: Analytics(
             title: "Token-аналитика этого запуска",
@@ -165,10 +177,13 @@ public extension BroadTokenPaywallCopy {
 public struct BroadTokenPaywallConfiguration: Equatable, Sendable {
     public let copy: BroadTokenPaywallCopy
     public let defaultSelectionIndex: Int
+    /// Shows the event log panel in ``BroadTokenPaywallView``; for demos only.
+    public let showsAnalytics: Bool
 
     public init(
         copy: BroadTokenPaywallCopy,
-        defaultSelectionIndex: Int = 0
+        defaultSelectionIndex: Int = 0,
+        showsAnalytics: Bool = false
     ) {
         precondition(
             defaultSelectionIndex >= 0,
@@ -176,6 +191,7 @@ public struct BroadTokenPaywallConfiguration: Equatable, Sendable {
         )
         self.copy = copy
         self.defaultSelectionIndex = defaultSelectionIndex
+        self.showsAnalytics = showsAnalytics
     }
 
     public var request: PaywallLoadRequest {

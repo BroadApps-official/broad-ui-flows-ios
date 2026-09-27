@@ -103,7 +103,10 @@ dependencies: [
   оффера, а экран получает готовый `BroadPaywallScreen` (тарифы с ценой за неделю
   и бейджем, этап, типизированное сообщение) и только рисует;
 - `BroadPaywallView` (готовый экран) и `PaywallViewModel`;
-- `BroadTokenPaywallView` и `BroadTokenPaywallViewModel`;
+- `BroadTokenPaywallHost` — свой экран покупки токенов: хост ведёт загрузку,
+  выбор пакета, покупку и зачисление, безопасную проверку сохранённой покупки и
+  баланс; экран получает готовый `BroadTokenPaywallScreen` и только рисует;
+- `BroadTokenPaywallView` (готовый экран) и `BroadTokenPaywallViewModel`;
 - `BroadAppFlowView` и `AppFlowCoordinator`.
 
 ## Критические UI-контракты
@@ -219,6 +222,25 @@ Special Offer никогда не заменяет initial paywall. Confirmed pu
 до `expiresAt`, на нуле закрывает экран и не зацикливается. RU-цена
 показывается из точной backend-строки `isSpecialOffer = true`.
 
+## Свой экран токенов
+
+```swift
+BroadTokenPaywallHost(
+    viewModel: viewModel,
+    tokenAmount: { product in amounts[product.productID.rawValue] },
+    onClose: close
+) { screen in
+    MyTokenStore(screen: screen)
+}
+```
+
+`MyTokenStore` рисует `screen.packages` (цена, число токенов, выбран ли пакет),
+`screen.balanceText` и `screen.noticeMessage`. Главная кнопка: `screen.purchase()`,
+а если `screen.needsConfirmation` — `screen.confirm()`: проверка сохранённой
+покупки, которая никогда не списывает деньги повторно. Ещё `select(package)`,
+`refreshBalance()`, `retry()`, `close()`, `dismissNotice()`. Превью без Adapty:
+`BroadTokenPaywallScreen.preview(.pending)`.
+
 ## Token paywall
 
 <p align="center">
@@ -243,7 +265,8 @@ UIFlows не выводит формат производной цены из с
 после загрузки видимого каталога и закрытие при исчезновении, один раз на
 `presentationID`, в порядке событий. Загрузка после ухода с экрана не считается
 показом. Для собственного экрана вызывайте `viewDidAppear()` /
-`viewDidDisappear()`. Создавайте новую модель для нового показа.
+`viewDidDisappear()` — `BroadTokenPaywallHost` делает это сам. Создавайте новую
+модель для нового показа.
 
 ## Письмо поддержки
 
@@ -279,7 +302,8 @@ bash Scripts/generate_sandbox.sh
 open Examples/BroadUIFlowsGallery/BroadUIFlowsGallery.xcodeproj
 ```
 
-Gallery показывает fixture-only onboarding и библиотеку loadable/UI states.
+Gallery показывает fixture-only onboarding, библиотеку loadable/UI states и
+свои экраны на хостах: «Custom paywall (host)» и «Custom token paywall (host)».
 Financial SDK не активируется, внешние операции не выполняются.
 
 ## Проверка
