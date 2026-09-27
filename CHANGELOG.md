@@ -1,5 +1,27 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `BroadPaywallScreen.dismissNotice()` / `PaywallViewModel.dismissNotice()`: the
+  screen hides a notice without keeping its own alert state.
+- `BroadPaywallPlan.regularPrice` and `discountPercent` for a Special Offer, from
+  `BroadPaywallConfiguration(referenceProducts:)` — the regular plan with the same
+  period and currency and a higher price (the cheapest such); 1…99 % or `nil`.
+- `BroadAppFlowView(route:transition:)` with `BroadAppFlowTransition.slide`: routes
+  slide like onboarding pages (fade with Reduce Motion). Default stays `.none`.
+- `BroadTokenPackage.priceAmount`, `savingsPercent`, `isBestValue`: per-token saving
+  against the most expensive package when every package has tokens and a price in
+  one currency.
+- `AppFlowRoute` is `Hashable`.
+
+### Why
+
+Building app 5153 on the hosts showed what screens still computed themselves: the
+crossed-out Special Offer price, the token "SAVE %" badge, closing a notice and the
+paywall entrance animation the company QA checklist requires.
+
 ## 6.2.0
 
 ### Added
