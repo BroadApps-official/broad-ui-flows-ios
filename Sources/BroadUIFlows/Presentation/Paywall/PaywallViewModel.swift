@@ -142,6 +142,16 @@ public final class PaywallViewModel: ObservableObject {
             && !isBusy && !isFinancialOperationPending
     }
 
+    /// Products in display order for a custom paywall screen.
+    public var displayedProducts: [MonetizationProduct] {
+        state.payload.map(displayedProducts(in:)) ?? []
+    }
+
+    /// Products of the payload in display order; the payload itself is not changed.
+    public func displayedProducts(in payload: PaywallPayload) -> [MonetizationProduct] {
+        configuration.productOrder.arrange(payload.products)
+    }
+
     public func viewDidAppear() {
         observeFinancialOperationStatus()
         refreshFinancialOperationStatus()

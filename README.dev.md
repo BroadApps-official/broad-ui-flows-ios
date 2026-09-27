@@ -24,7 +24,8 @@ Scripts                             structural and executable source contracts
 - Стандартный и custom onboarding используют общий lifecycle host.
 - Rate Us не находится в onboarding.
 - Presentation не импортирует provider SDK и не получает resolver.
-- Paywall не фильтрует, не сортирует и не схлопывает products.
+- Paywall не фильтрует и не схлопывает products. Порядок показа — только `BroadPaywallProductOrder`:
+  по умолчанию от длинного периода к короткому, одинаковые — в порядке Adapty.
 - UI не содержит app-owned price/SKU/placement и не создаёт raw product.
 - Special Offer countdown не является eligibility/expiration boundary.
 - Product/primary actions не имеют pressed visual effect; hit target ≥ 44 points.

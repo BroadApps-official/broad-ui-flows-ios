@@ -1,5 +1,26 @@
 # Changelog
 
+## 6.0.0
+
+### Breaking
+
+- Paywall shows subscriptions from the longest period to the shortest and selects
+  the longest eligible one on open. Equal periods and products without a known
+  period keep the provider order; the payload itself is unchanged. Pass
+  `productOrder: .provider` to keep the previous order.
+
+### Added
+
+- `BroadPaywallProductOrder` and `BroadPaywallConfiguration.productOrder`.
+- `PaywallViewModel.displayedProducts` and `displayedProducts(in:)` for custom
+  paywall screens: products in display order without sorting in the view.
+
+### Why
+
+Company rule: subscriptions go from the longest period to the shortest, and the
+longest one is selected when the paywall opens. Apps sorted products on their own
+screens and reordered payloads to preselect a plan; the order now lives in one place.
+
 ## 5.0.1
 
 ### Changed

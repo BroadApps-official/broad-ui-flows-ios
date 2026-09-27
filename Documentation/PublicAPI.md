@@ -30,6 +30,7 @@
 | Case | `case loadStarted` |
 | Case | `case loadSucceeded` |
 | Case | `case loading` |
+| Case | `case longestPeriodFirst` |
 | Case | `case main` |
 | Case | `case noPages` |
 | Case | `case notice(String)` |
@@ -41,6 +42,7 @@
 | Case | `case privacyPolicy` |
 | Case | `case productID(ProductID)` |
 | Case | `case productSelected` |
+| Case | `case provider` |
 | Case | `case purchaseCancelled` |
 | Case | `case purchaseCredited` |
 | Case | `case purchaseFailed` |
@@ -69,6 +71,7 @@
 | Enumeration | `enum BroadPaywallCompletion` |
 | Enumeration | `enum BroadPaywallDefaultSelection` |
 | Enumeration | `enum BroadPaywallInlineFeedback` |
+| Enumeration | `enum BroadPaywallProductOrder` |
 | Enumeration | `enum BroadPaywallViewState` |
 | Enumeration | `enum BroadSupportEmailComposerResult` |
 | Enumeration | `enum BroadSupportEmailRequestBuilder` |
@@ -141,7 +144,7 @@
 | Initializer | `init(pages: [OnboardingPageConfiguration], continueTitle: String, completionTitle: String, progressAccessibilityLabel: String, footerLinks: [OnboardingFooterLinkConfiguration] = [], trackingAuthorizationPolicy: OnboardingTrackingAuthorizationPolicy = .disabled)` |
 | Initializer | `init(pendingMessage: String, completedMessage: String = "The purchase completed.", completedButUnverifiedMessage: String)` |
 | Initializer | `init(perPrefix: String, everyPrefix: String, day: BroadPaywallPeriodCopy.UnitCopy, week: BroadPaywallPeriodCopy.UnitCopy, month: BroadPaywallPeriodCopy.UnitCopy, year: BroadPaywallPeriodCopy.UnitCopy, unknownTitle: String? = nil)` |
-| Initializer | `init(placementID: PlacementID, defaultSelection: BroadPaywallDefaultSelection? = nil, access: BroadPaywallAccessConfiguration = BroadPaywallAccessConfiguration(), copy: BroadPaywallCopy = .standard, legalLinks: [BroadPaywallLegalLink] = [], specialOfferCopy: BroadPaywallSpecialOfferCopy = .english, specialOfferAuthorization: SpecialOfferPresentationAuthorization? = nil)` |
+| Initializer | `init(placementID: PlacementID, defaultSelection: BroadPaywallDefaultSelection? = nil, access: BroadPaywallAccessConfiguration = BroadPaywallAccessConfiguration(), copy: BroadPaywallCopy = .standard, legalLinks: [BroadPaywallLegalLink] = [], specialOfferCopy: BroadPaywallSpecialOfferCopy = .english, specialOfferAuthorization: SpecialOfferPresentationAuthorization? = nil, productOrder: BroadPaywallProductOrder = .longestPeriodFirst)` |
 | Initializer | `init(providerMarker: String? = nil)` |
 | Initializer | `init(purchaseTitle: String, purchasingTitle: String, retryTitle: String, retryingTitle: String, recoverBalanceTitle: String, recoveringBalanceTitle: String, closeAccessibilityLabel: String)` |
 | Initializer | `init(purchaseTitle: String, restoreTitle: String, restoringTitle: String, retryTitle: String, closeAccessibilityLabel: String, cancelTitle: String)` |
@@ -166,6 +169,7 @@
 | Instance Method | `@MainActor func chooseCheckoutMethod(_ method: CheckoutMethod)` |
 | Instance Method | `@MainActor func completeInvalidConfigurationIfNeeded() -> Bool` |
 | Instance Method | `@MainActor func consumeCompletionEvent(id: UUID)` |
+| Instance Method | `@MainActor func displayedProducts(in payload: PaywallPayload) -> [MonetizationProduct]` |
 | Instance Method | `@MainActor func firstSlideDidAppear()` |
 | Instance Method | `@MainActor func firstSlideDidDisappear()` |
 | Instance Method | `@MainActor func initialPaywallDismissed()` |
@@ -209,6 +213,7 @@
 | Instance Method | `@discardableResult mutating func resolve(checkpoint: AppFlowCheckpoint, entitlementStatus: EntitlementStatus?) -> AppFlowRoute` |
 | Instance Method | `@discardableResult mutating func restart() -> AppFlowRoute` |
 | Instance Method | `@discardableResult mutating func subscriptionDidBecomeActive() -> AppFlowRoute` |
+| Instance Method | `func arrange(_ products: [MonetizationProduct]) -> [MonetizationProduct]` |
 | Instance Method | `func assemble(container: Container)` |
 | Instance Method | `func loadCheckpoint() async -> AppFlowCheckpoint` |
 | Instance Method | `func period(_ period: SubscriptionPeriod) -> String?` |
@@ -239,6 +244,7 @@
 | Instance Property | `@MainActor var canPurchase: Bool { get }` |
 | Instance Property | `@MainActor var canSelectProducts: Bool { get }` |
 | Instance Property | `@MainActor var currentPage: OnboardingPageConfiguration? { get }` |
+| Instance Property | `@MainActor var displayedProducts: [MonetizationProduct] { get }` |
 | Instance Property | `@MainActor var isBusy: Bool { get }` |
 | Instance Property | `@MainActor var isLastPage: Bool { get }` |
 | Instance Property | `@MainActor var selectedProduct: MonetizationProduct? { get }` |
@@ -367,6 +373,7 @@
 | Instance Property | `let product: CGFloat` |
 | Instance Property | `let productContent: CGFloat` |
 | Instance Property | `let productDetail: Font` |
+| Instance Property | `let productOrder: BroadPaywallProductOrder` |
 | Instance Property | `let productPrice: Font` |
 | Instance Property | `let productTitle: Font` |
 | Instance Property | `let products: BroadPaywallCopy.Products` |

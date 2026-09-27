@@ -133,7 +133,8 @@ extension PaywallViewModel {
         }
         guard
             let product = configuredProduct
-            ?? payload.products.first(where: \.isEligibleForGenericPurchase),
+            ?? configuration.productOrder.arrange(payload.products)
+            .first(where: \.isEligibleForGenericPurchase),
             let selection = dependencies.selectProduct(
                 productPresentationID: product.presentationID,
                 in: payload

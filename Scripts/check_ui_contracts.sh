@@ -118,7 +118,7 @@ scan_forbidden \
     "$source_root/Presentation/Paywall" "$source_root/Presentation/TokenPaywall" --glob '*.swift'
 
 scan_forbidden \
-    "Paywall presentation must not filter, sort or truncate products:" \
+    "Paywall presentation must not filter, sort or truncate products; display order comes only from BroadPaywallProductOrder:" \
     '(?s)\b(products|paywall\.products|payload\.products)\b.{0,120}\.(filter|compactMap|sorted|prefix|suffix|dropFirst|dropLast)[[:space:]]*\(' \
     "$source_root/Presentation/Paywall" "$source_root/Presentation/TokenPaywall" --glob '*.swift'
 
@@ -128,6 +128,11 @@ scan_forbidden \
     "$source_root/Presentation/Paywall/BroadNoPressEffectButtonStyle.swift" \
     "$source_root/Presentation/Paywall/BroadSelectableProductRow.swift" \
     "$source_root/Presentation/Paywall/BroadPaywallPrimaryButton.swift"
+
+require_pattern \
+    "Paywall products must be shown longest subscription period first by default:" \
+    "$source_root/Presentation/Paywall/BroadPaywallConfiguration.swift" \
+    'productOrder:[[:space:]]*BroadPaywallProductOrder[[:space:]]*=[[:space:]]*\.longestPeriodFirst'
 
 require_pattern \
     "OnboardingConfiguration.pages must remain the single page source:" \
@@ -195,9 +200,14 @@ require_pattern \
     'viewModel\.canSelectProducts'
 
 require_pattern \
-    "Subscription paywall must render the complete products array:" \
+    "Subscription paywall must render the complete products array in display order:" \
     "$source_root/Presentation/Paywall/BroadPaywallView+Content.swift" \
-    'ForEach\(payload\.products,[[:space:]]*id:[[:space:]]*\\\.presentationID\)'
+    'ForEach\(viewModel\.displayedProducts\(in:[[:space:]]*payload\),[[:space:]]*id:[[:space:]]*\\\.presentationID\)'
+
+scan_forbidden \
+    "Product order must keep every product:" \
+    '\.(filter|compactMap|prefix|suffix|dropFirst|dropLast)[[:space:]]*\(' \
+    "$source_root/Domain/Paywall" --glob '*.swift'
 
 require_pattern \
     "Special Offer countdown must use a periodic visual timeline:" \

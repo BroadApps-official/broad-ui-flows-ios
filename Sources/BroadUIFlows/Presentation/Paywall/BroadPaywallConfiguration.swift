@@ -285,6 +285,8 @@ public struct BroadPaywallConfiguration: Equatable, Sendable {
     public let legalLinks: [BroadPaywallLegalLink]
     public let specialOfferCopy: BroadPaywallSpecialOfferCopy
     public let specialOfferAuthorization: SpecialOfferPresentationAuthorization?
+    /// Display order of products; the default is longest subscription period first.
+    public let productOrder: BroadPaywallProductOrder
 
     public var specialOfferExpiresAt: Date? {
         specialOfferAuthorization?.expiresAt
@@ -297,7 +299,8 @@ public struct BroadPaywallConfiguration: Equatable, Sendable {
         copy: BroadPaywallCopy = .standard,
         legalLinks: [BroadPaywallLegalLink] = [],
         specialOfferCopy: BroadPaywallSpecialOfferCopy = .english,
-        specialOfferAuthorization: SpecialOfferPresentationAuthorization? = nil
+        specialOfferAuthorization: SpecialOfferPresentationAuthorization? = nil,
+        productOrder: BroadPaywallProductOrder = .longestPeriodFirst
     ) {
         precondition(
             Set(legalLinks.map(\.id)).count == legalLinks.count,
@@ -310,5 +313,6 @@ public struct BroadPaywallConfiguration: Equatable, Sendable {
         self.legalLinks = legalLinks
         self.specialOfferCopy = specialOfferCopy
         self.specialOfferAuthorization = specialOfferAuthorization
+        self.productOrder = productOrder
     }
 }

@@ -9,8 +9,9 @@
 - ATT разрешён только после реального появления первого onboarding-слайда;
   loader не запрашивает ATT, отключённый onboarding не планирует запрос.
 - Rate Us и native review API запрещены внутри onboarding.
-- Paywall показывает products в полученном порядке и не содержит product IDs или
-  цен конкретного приложения.
+- Paywall показывает подписки от длинного периода к короткому через
+  `BroadPaywallProductOrder` (одинаковые — в порядке Adapty) и при открытии выбирает
+  самую длинную доступную. Payload не меняется; product IDs и цен приложения в коде нет.
 - Product rows и primary actions не получают opacity/scale/pressed effect.
 - Special Offer — только второй paywall; countdown идёт до конца
   активного окна, закрывает offer на нуле и не запускается по кругу.

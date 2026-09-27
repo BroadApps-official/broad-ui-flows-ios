@@ -130,7 +130,7 @@ extension BroadPaywallView {
             paywallHeader(payload)
 
             LazyVStack(spacing: theme.metrics.spacing.product) {
-                ForEach(payload.products, id: \.presentationID) { product in
+                ForEach(viewModel.displayedProducts(in: payload), id: \.presentationID) { product in
                     productRow(product)
                 }
             }
