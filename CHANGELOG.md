@@ -1,8 +1,21 @@
 # Changelog
 
-## Unreleased
+## 6.2.0
 
 ### Added
+
+- `BroadSettingsHost` and `BroadSettingsScreen`: a custom settings screen gets
+  restore with a typed `BroadSettingsRestoreResult`, manage subscription, Privacy
+  Policy and Terms in the app, support email, copy user ID with an
+  `isUserIDCopied` confirmation, rate and share. The first tap closes every
+  action for 400 ms. `BroadSettingsCopy` holds the restore notices.
+- `BroadAppUpdateChecker` and `.broadAppUpdateAlert(_:copy:)` for the main tab:
+  App Store lookup by bundle ID (device region storefront first, no URL cache),
+  a UserDefaults baseline — the first launch stores the larger of the installed
+  and store versions without an alert, an update resets it to the installed
+  version — and numeric version comparison (`BroadAppVersion`). Network errors
+  show nothing. `BroadAppUpdateAlertCopy` holds the texts.
+- Previews without network for both, Gallery pages and contract checks.
 
 - `BroadTokenPaywallHost`: runs a token paywall for a screen drawn by the app.
   The host owns loading, selection, the purchase and its server credit, the
@@ -35,8 +48,9 @@
 ### Why
 
 Apps wrapped the token view model in their own purchase logic and hard-coded
-words the module had fixed in Russian. The host gives a Figma screen everything
-it draws, and the default copy no longer shows technical terms to people.
+words the module had fixed in Russian. None of the reviewed apps had an update
+alert, and each built settings from scratch without a multi-tap guard. The hosts
+give a Figma screen everything it draws, so the screen is layout only.
 
 ## 6.1.0
 

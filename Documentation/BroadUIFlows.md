@@ -56,6 +56,30 @@ Support email принимает необязательный баланс, devi
 
 Согласие ИИ и правила Rate Us принадлежат приложению; Rate Us в onboarding запрещён.
 
+## Настройки и обновление приложения
+
+`BroadSettingsHost` принимает `BroadSettingsConfiguration` и существующий
+`RestorePurchasesUseCaseProtocol` из BroadMonetization. Приложение рисует
+`BroadSettingsScreen` и вызывает его действия: restore, управление подпиской,
+юридические ссылки, письмо поддержки, копирование ID, Rate и Share. Host открывает
+юридические ссылки через `BroadInAppSafariView`, письмо через
+`BroadSupportEmailComposer` и собирает его существующим request builder.
+Каждое действие проходит через один gate: после первого касания все действия
+закрыты на 400 мс. Результат restore — `BroadSettingsRestoreResult`; подтверждённый
+snapshot поступает в `onRestored`. `BroadSettingsScreen.preview(_:)` даёт состояния
+для Preview и Gallery без SDK и сети.
+
+На главном табе создайте `BroadAppUpdateChecker` один раз и подключите
+`.broadAppUpdateAlert(checker)`. Клиент Data запрашивает iTunes lookup по bundle ID
+сначала в сторе региона устройства, без кеша;
+адаптер UserDefaults хранит базовую и последнюю установленную версии. При первом успешном ответе сохраняется
+большая из установленной версии и версии App Store, без алерта. После установки
+новой версии базой становится установленная версия. Затем алерт показывается,
+только если версия App Store выше базы. `BroadAppVersion` сравнивает числовые
+компоненты, поэтому `1.0.10` выше `1.0.9`. Ошибки сети и отсутствующая карточка
+пропускают алерт. Тексты — `BroadAppUpdateAlertCopy`, по умолчанию русские.
+`BroadAppUpdateChecker.preview(_:)` не делает запрос и не пишет UserDefaults.
+
 ## Проверка
 
 ```bash

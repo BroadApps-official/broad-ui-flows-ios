@@ -1,6 +1,6 @@
 # ``BroadUIFlows``
 
-Version 6.1.0 adds BroadPaywallHost: a custom paywall screen gets ready plans, the purchase activity and typed notices and only lays them out. Version 6.0.0 shows subscriptions from the longest period to the shortest and selects the longest one on open. Version 5.0.1 removed the Bundle line from the support email. Version 5.0.0 added token paywall visibility analytics and optional support diagnostics.
+Version 6.2.0 adds BroadTokenPaywallHost, BroadSettingsHost and the App Store update alert, so token, settings and main-tab screens from Figma are layout only. Version 6.1.0 adds BroadPaywallHost: a custom paywall screen gets ready plans, the purchase activity and typed notices and only lays them out. Version 6.0.0 shows subscriptions from the longest period to the shortest and selects the longest one on open. Version 5.0.1 removed the Bundle line from the support email. Version 5.0.0 added token paywall visibility analytics and optional support diagnostics.
 It requires BroadCore 3.0.0 and BroadMonetization 5.0.0.
 Update package constraints together. Temporary token fulfillment failures retain
 the existing purchase for safe retry. Host exhaustive switches handle the new
@@ -20,6 +20,10 @@ AI consent placement/copy and Rate Us rules belong to the host application.
 Optional billing UI lives in the separate BroadRUBillingUI product. The base paywall accepts an optional checkout-content builder; the Apple-only app uses its normal initializer.
 
 Reusable SwiftUI flows and presentation boundaries for BroadApps iPhone applications.
+
+The settings host supplies gated actions and a typed restore result to an app-owned
+layout. The update checker compares numeric version components and offers an App
+Store update from the main tab after a successful lookup.
 
 ## Topics
 
@@ -70,6 +74,17 @@ ready screen model.
 - ``BroadSupportEmailIdentifier``
 - ``BroadSupportEmailRequestBuilder``
 - ``BroadSupportEmailComposer``
+
+### Settings and updates
+
+- ``BroadSettingsConfiguration``
+- ``BroadSettingsHost``
+- ``BroadSettingsScreen``
+- ``BroadSettingsRestoreResult``
+- ``BroadAppVersion``
+- ``BroadAppUpdateChecker``
+- ``BroadAppStoreLookupProtocol``
+- ``BroadAppVersionBaselineStoreProtocol``
 
 ### Composition
 

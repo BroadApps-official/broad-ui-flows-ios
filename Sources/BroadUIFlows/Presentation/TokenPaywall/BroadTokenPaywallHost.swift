@@ -23,8 +23,12 @@ public struct BroadTokenPaywallHost<Content: View>: View {
     private let content: @MainActor (BroadTokenPaywallScreen) -> Content
 
     /// - Parameters:
+    ///   - viewModel: The token paywall of this presentation.
+    ///   - productFormatter: Formats package prices and the balance number.
     ///   - tokenAmount: Tokens a package adds, for example from its product ID
     ///     or the backend catalog; `nil` leaves ``BroadTokenPackage/tokens`` empty.
+    ///   - onClose: Called when the screen closes; closing waits while busy.
+    ///   - content: The app's layout of ``BroadTokenPaywallScreen``.
     public init(
         viewModel: BroadTokenPaywallViewModel,
         productFormatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter(),

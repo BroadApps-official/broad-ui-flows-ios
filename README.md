@@ -1,6 +1,6 @@
 # BroadUIFlows
 
-Version 6.1.0 requires BroadCore 3.0.0 and BroadMonetization 5.0.0. RU screens live in the optional BroadRUBillingUI product.
+Version 6.2.0 requires BroadCore 3.0.0 and BroadMonetization 5.0.0. RU screens live in the optional BroadRUBillingUI product.
 
 <p align="center">
   <picture>
@@ -14,7 +14,7 @@ Version 6.1.0 requires BroadCore 3.0.0 and BroadMonetization 5.0.0. RU screens l
   <img alt="iOS 17+" src="https://img.shields.io/badge/iOS-17%2B-111827?logo=apple&amp;logoColor=white">
   <img alt="SwiftUI" src="https://img.shields.io/badge/UI-SwiftUI-0A84FF?logo=swift&amp;logoColor=white">
   <img alt="iPhone only" src="https://img.shields.io/badge/device-iPhone%20only-111827?logo=apple&amp;logoColor=white">
-  <img alt="Release 6.1.0" src="https://img.shields.io/badge/release-6.1.0-10B981">
+  <img alt="Release 6.2.0" src="https://img.shields.io/badge/release-6.2.0-10B981">
 </p>
 
 Готовые SwiftUI-сценарии BroadApps для AppFlow, onboarding, loadable states,
@@ -85,7 +85,7 @@ Monetization, UIFlows или нужную комбинацию. Транзити
 dependencies: [
     .package(
         url: "https://github.com/BroadApps-official/broad-ui-flows-ios.git",
-        from: "6.1.0"
+        from: "6.2.0"
     )
 ]
 ```
@@ -107,6 +107,11 @@ dependencies: [
   выбор пакета, покупку и зачисление, безопасную проверку сохранённой покупки и
   баланс; экран получает готовый `BroadTokenPaywallScreen` и только рисует;
 - `BroadTokenPaywallView` (готовый экран) и `BroadTokenPaywallViewModel`;
+- `BroadSettingsHost` — свой экран настроек: restore с типизированным
+  результатом, управление подпиской, документы, письмо в поддержку, копирование ID,
+  оценка и «поделиться»; все действия под одним tap-gate на 400 мс;
+- `BroadAppUpdateChecker` и `.broadAppUpdateAlert(checker)` — алерт новой версии
+  App Store на главном табе по правилу базовой версии;
 - `BroadAppFlowView` и `AppFlowCoordinator`.
 
 ## Критические UI-контракты
@@ -241,6 +246,44 @@ BroadTokenPaywallHost(
 `refreshBalance()`, `retry()`, `close()`, `dismissNotice()`. Превью без Adapty:
 `BroadTokenPaywallScreen.preview(.pending)`.
 
+## Свой экран настроек
+
+```swift
+BroadSettingsHost(
+    configuration: BroadSettingsConfiguration(
+        userID: userID,
+        appStoreURL: appStoreURL,
+        privacyPolicyURL: privacyURL,
+        termsURL: termsURL,
+        supportEmail: supportEmail
+    ),
+    restorePurchases: restorePurchases,
+    onRestored: refreshAccess
+) { screen in
+    MySettings(screen: screen)
+}
+```
+
+`MySettings` рисует строки и вызывает `screen.restore()`, `manageSubscription()`,
+`openPrivacyPolicy()`, `openTerms()`, `contactSupport()`, `copyUserID()`,
+`rateApp()`, `shareApp()`. Первое касание закрывает все действия на 400 мс.
+`screen.restoreMessage`, `screen.isUserIDCopied`, `screen.version` и `screen.build`
+готовы к показу. Превью: `BroadSettingsScreen.preview(.restored)`.
+
+## Алерт обновления
+
+```swift
+@StateObject private var updateChecker = BroadAppUpdateChecker()
+
+MainTabView()
+    .broadAppUpdateAlert(updateChecker)
+```
+
+Первый запуск только запоминает базовую версию (большую из установленной и App
+Store). Алерт «Отмена» / «Обновить» появляется, когда версия в App Store выше базы;
+после обновления база = установленная версия. Версии сравниваются как числа.
+Ошибка сети — нет алерта.
+
 ## Token paywall
 
 <p align="center">
@@ -303,7 +346,8 @@ open Examples/BroadUIFlowsGallery/BroadUIFlowsGallery.xcodeproj
 ```
 
 Gallery показывает fixture-only onboarding, библиотеку loadable/UI states и
-свои экраны на хостах: «Custom paywall (host)» и «Custom token paywall (host)».
+свои экраны на хостах: «Custom paywall (host)», «Custom token paywall (host)»,
+«Settings (host model)» и «App update alert».
 Financial SDK не активируется, внешние операции не выполняются.
 
 ## Проверка

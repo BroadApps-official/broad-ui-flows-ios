@@ -191,46 +191,10 @@ extension BroadTokenPaywallViewModel {
         tokenAmount: (@MainActor (MonetizationProduct) -> Int?)?,
         close: @escaping @MainActor () -> Void
     ) -> BroadTokenPaywallScreen {
-        let content: BroadTokenPaywallScreen.Content = switch state {
-        case .idle, .loading:
-            .loading
-        case .content:
-            .packages
-        case .empty:
-            .empty
-        case let .failure(error):
-            .failed(error)
-        }
-        let activity: BroadTokenPaywallScreen.Activity = if isPurchaseInFlight {
-            .purchasing
-        } else if isRecoveringPendingPurchase {
-            .confirming
-        } else if isRecoveringAccountBalance {
-            .refreshingBalance
-        } else {
-            .idle
-        }
-        let packages: [BroadTokenPackage] = if case let .content(payload) = state {
-            payload.products.map { product in
-                BroadTokenPackage(
-                    id: product.presentationID,
-                    productID: product.productID,
-                    title: product.title,
-                    subtitle: product.subtitle,
-                    price: formatter.price(for: product),
-                    tokens: tokenAmount?(product),
-                    isSelected: product.presentationID == selectedProductPresentationID,
-                    isAvailable: product.isTokenPackage
-                )
-            }
-        } else {
-            []
-        }
-
-        return BroadTokenPaywallScreen(
-            content: content,
-            packages: packages,
-            activity: activity,
+        BroadTokenPaywallScreen(
+            content: screenContent,
+            packages: packages(formatter: formatter, tokenAmount: tokenAmount),
+            activity: screenActivity,
             balance: balanceSnapshot?.balance,
             balanceText: BroadTokenPaywallScreen.balanceText(
                 balanceSnapshot?.balance,
@@ -249,5 +213,51 @@ extension BroadTokenPaywallViewModel {
             close: close,
             dismissNotice: { [weak self] in self?.dismissFeedback() }
         )
+    }
+
+    private var screenContent: BroadTokenPaywallScreen.Content {
+        switch state {
+        case .idle, .loading:
+            .loading
+        case .content:
+            .packages
+        case .empty:
+            .empty
+        case let .failure(error):
+            .failed(error)
+        }
+    }
+
+    private var screenActivity: BroadTokenPaywallScreen.Activity {
+        if isPurchaseInFlight {
+            .purchasing
+        } else if isRecoveringPendingPurchase {
+            .confirming
+        } else if isRecoveringAccountBalance {
+            .refreshingBalance
+        } else {
+            .idle
+        }
+    }
+
+    private func packages(
+        formatter: BroadPaywallProductFormatter,
+        tokenAmount: (@MainActor (MonetizationProduct) -> Int?)?
+    ) -> [BroadTokenPackage] {
+        guard case let .content(payload) = state else {
+            return []
+        }
+        return payload.products.map { product in
+            BroadTokenPackage(
+                id: product.presentationID,
+                productID: product.productID,
+                title: product.title,
+                subtitle: product.subtitle,
+                price: formatter.price(for: product),
+                tokens: tokenAmount?(product),
+                isSelected: product.presentationID == selectedProductPresentationID,
+                isAvailable: product.isTokenPackage
+            )
+        }
     }
 }

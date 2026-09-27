@@ -46,9 +46,8 @@ public struct BroadTokenPaywallCopy: Equatable, Sendable {
         public let confirmTitle: String
         public let confirmingTitle: String
 
-        /// - Parameters:
-        ///   - retryTitle: Reloads the packages after an error.
-        ///   - confirmTitle: Checks a saved purchase; never charges again.
+        /// `retryTitle` reloads the packages after an error; `confirmTitle` checks a
+        /// saved purchase and never charges again.
         public init(
             purchaseTitle: String,
             purchasingTitle: String,

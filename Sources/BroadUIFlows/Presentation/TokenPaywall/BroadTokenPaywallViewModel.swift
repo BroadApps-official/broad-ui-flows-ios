@@ -49,7 +49,7 @@ public final class BroadTokenPaywallViewModel: ObservableObject {
     @Published public private(set) var selectedProductPresentationID:
         ProductPresentationID?
     @Published public private(set) var balanceSnapshot: TokenBalanceSnapshot?
-    @Published public private(set) var feedback: BroadTokenPaywallFeedback?
+    @Published public internal(set) var feedback: BroadTokenPaywallFeedback?
     @Published public private(set) var analyticsRecords: [
         BroadTokenPaywallAnalyticsRecord
     ] = []
@@ -240,30 +240,6 @@ public final class BroadTokenPaywallViewModel: ObservableObject {
                 record(.reconciliationStarted)
                 applyPurchaseOutcome(outcome)
             }
-        }
-    }
-
-    /// Hides the current notice. A purchase that waits for its credit keeps
-    /// ``isRetrySuggested``, so the check stays available.
-    public func dismissFeedback() {
-        feedback = nil
-    }
-
-    /// Text for a notice from the configured copy; failures use the safe
-    /// ``AppError/userMessage``.
-    public func message(for feedback: BroadTokenPaywallFeedback) -> String {
-        let states = configuration.copy.states
-        return switch feedback {
-        case .credited:
-            states.creditedMessage
-        case .pending:
-            states.pendingMessage
-        case .cancelled:
-            states.cancelledMessage
-        case .recovered:
-            states.recoveredMessage
-        case let .failed(error):
-            error.userMessage
         }
     }
 
