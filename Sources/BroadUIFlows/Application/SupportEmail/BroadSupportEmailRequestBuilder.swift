@@ -48,7 +48,6 @@ public enum BroadSupportEmailRequestBuilder {
         App: \(configuration.appName)
         Version: \(configuration.appStoreVersion) (App Store)
         Installed: \(configuration.installedVersion) (\(configuration.buildNumber))
-        Bundle: \(configuration.bundleIdentifier)
 
         --- Device ---
         System: iOS \(configuration.systemVersion)

@@ -1,5 +1,18 @@
 # Changelog
 
+## 5.0.1
+
+### Changed
+
+- Support email body no longer contains the `Bundle:` line in `--- App info ---`.
+  `bundleIdentifier` stays in `BroadSupportEmailConfiguration` for source
+  compatibility and is not written to the email.
+
+### Why
+
+Platform owner decision: the support email no longer carries the Bundle ID.
+Existing calls compile without changes; only the generated body loses one line.
+
 ## 5.0.0
 
 ### Breaking

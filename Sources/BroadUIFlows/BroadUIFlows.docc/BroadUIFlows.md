@@ -1,6 +1,6 @@
 # ``BroadUIFlows``
 
-Version 5.0.0 includes token paywall visibility analytics and optional support diagnostics.
+Version 5.0.1 removes the Bundle line from the support email. Version 5.0.0 added token paywall visibility analytics and optional support diagnostics.
 It requires BroadCore 3.0.0 and BroadMonetization 5.0.0.
 Update package constraints together. Temporary token fulfillment failures retain
 the existing purchase for safe retry. Host exhaustive switches handle the new

@@ -18,6 +18,7 @@ public struct BroadSupportEmailConfiguration: Equatable, Sendable {
     public let appStoreVersion: String
     public let installedVersion: String
     public let buildNumber: String
+    /// Kept for source compatibility; the support email body does not include it.
     public let bundleIdentifier: String
     public let systemVersion: String
     public let deviceModel: String

@@ -1,6 +1,6 @@
 # BroadUIFlows
 
-Version 5.0.0 requires BroadCore 3.0.0 and BroadMonetization 5.0.0. RU screens live in the optional BroadRUBillingUI product.
+Version 5.0.1 requires BroadCore 3.0.0 and BroadMonetization 5.0.0. RU screens live in the optional BroadRUBillingUI product.
 
 <p align="center">
   <picture>
@@ -14,7 +14,7 @@ Version 5.0.0 requires BroadCore 3.0.0 and BroadMonetization 5.0.0. RU screens l
   <img alt="iOS 17+" src="https://img.shields.io/badge/iOS-17%2B-111827?logo=apple&amp;logoColor=white">
   <img alt="SwiftUI" src="https://img.shields.io/badge/UI-SwiftUI-0A84FF?logo=swift&amp;logoColor=white">
   <img alt="iPhone only" src="https://img.shields.io/badge/device-iPhone%20only-111827?logo=apple&amp;logoColor=white">
-  <img alt="Release 5.0.0" src="https://img.shields.io/badge/release-5.0.0-10B981">
+  <img alt="Release 5.0.1" src="https://img.shields.io/badge/release-5.0.1-10B981">
 </p>
 
 Готовые SwiftUI-сценарии BroadApps для AppFlow, onboarding, loadable states,
@@ -85,7 +85,7 @@ Monetization, UIFlows или нужную комбинацию. Транзити
 dependencies: [
     .package(
         url: "https://github.com/BroadApps-official/broad-ui-flows-ios.git",
-        from: "5.0.0"
+        from: "5.0.1"
     )
 ]
 ```
