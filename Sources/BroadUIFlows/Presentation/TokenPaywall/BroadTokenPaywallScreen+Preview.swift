@@ -107,22 +107,30 @@ private extension BroadTokenPaywallScreen {
 
     static func previewPackages(formatter: BroadPaywallProductFormatter) -> [BroadTokenPackage] {
         let currency = formatter.locale.currency?.identifier ?? "XXX"
-        func package(_ index: Int, tokens: Int, cents: Int) -> BroadTokenPackage {
-            BroadTokenPackage(
+        let counts = [100, 500, 1500]
+        let prices = [499, 1999, 4999].map {
+            Money(amount: Decimal($0) / 100, currencyCode: currency)
+        }
+        let pricing = BroadTokenPackagePricing.presentations(
+            prices: prices.map(Optional.some),
+            tokens: counts.map(Optional.some)
+        )
+        return counts.indices.map { offset in
+            let index = offset + 1
+            let tokens = counts[offset]
+            return BroadTokenPackage(
                 id: ProductPresentationID(rawValue: "preview.tokens.\(index)"),
                 productID: ProductID(rawValue: "preview.tokens.\(tokens)"),
                 title: nil,
                 subtitle: nil,
-                price: formatter.amount(Money(amount: Decimal(cents) / 100, currencyCode: currency)),
+                price: formatter.amount(prices[offset]),
+                priceAmount: prices[offset],
                 tokens: tokens,
+                savingsPercent: pricing[offset].savingsPercent,
+                isBestValue: pricing[offset].isBestValue,
                 isSelected: index == 2,
                 isAvailable: true
             )
         }
-        return [
-            package(1, tokens: 100, cents: 499),
-            package(2, tokens: 500, cents: 1999),
-            package(3, tokens: 1500, cents: 4999)
-        ]
     }
 }

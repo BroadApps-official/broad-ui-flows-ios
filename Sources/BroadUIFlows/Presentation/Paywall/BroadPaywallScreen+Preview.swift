@@ -22,7 +22,7 @@ public extension BroadPaywallScreen {
         _ state: PreviewState = .plans,
         formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter()
     ) -> BroadPaywallScreen {
-        let plans = previewPlans(formatter: formatter)
+        let plans = previewPlans(formatter: formatter, specialOffer: state == .specialOffer)
         switch state {
         case .plans:
             return previewScreen(plans: plans)
@@ -85,7 +85,10 @@ private extension BroadPaywallScreen {
         )
     }
 
-    static func previewPlans(formatter: BroadPaywallProductFormatter) -> [BroadPaywallPlan] {
+    static func previewPlans(
+        formatter: BroadPaywallProductFormatter,
+        specialOffer: Bool
+    ) -> [BroadPaywallPlan] {
         let currency = formatter.locale.currency?.identifier ?? "XXX"
         func money(_ cents: Int) -> Money {
             Money(amount: Decimal(cents) / 100, currencyCode: currency)
@@ -104,6 +107,10 @@ private extension BroadPaywallScreen {
                 periodText: formatter.period(period),
                 price: formatter.amount(money(cents)),
                 weeklyPrice: perWeek.map(money).flatMap(formatter.amount),
+                regularPrice: specialOffer && index == 1 ? formatter.amount(money(9999)) : nil,
+                discountPercent: specialOffer && index == 1
+                    ? BroadSpecialOfferPricing.discountPercent(offer: money(cents), regular: money(9999))
+                    : nil,
                 savingsPercent: savings,
                 isBestValue: index == 1,
                 isSelected: index == 1,

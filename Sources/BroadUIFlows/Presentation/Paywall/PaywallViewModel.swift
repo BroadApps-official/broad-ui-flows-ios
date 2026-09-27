@@ -172,6 +172,11 @@ public final class PaywallViewModel: ObservableObject {
         }
     }
 
+    /// Hides the current notice and its legacy inline feedback.
+    public func dismissNotice() {
+        setNotice(nil)
+    }
+
     /// Products in display order for a custom paywall screen.
     public var displayedProducts: [MonetizationProduct] {
         state.payload.map(displayedProducts(in:)) ?? []

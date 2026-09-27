@@ -11,12 +11,19 @@ public struct BroadTokenPackage: Identifiable, Equatable, Sendable {
     public let subtitle: String?
     /// Price as the store formats it.
     public let price: String?
+    /// Verified numeric store price, if available.
+    public let priceAmount: Money?
     /// Tokens the package adds, from the host's `tokenAmount`; `nil` when unknown.
     public let tokens: Int?
+    /// Whole-percent saving per token against the most expensive package per token.
+    public let savingsPercent: Int?
+    /// The single package with the largest positive per-token saving.
+    public let isBestValue: Bool
     public let isSelected: Bool
     /// Whether the package can be bought on this device.
     public let isAvailable: Bool
 
+    /// Creates a package without numeric price comparison data.
     public init(
         id: ProductPresentationID,
         productID: ProductID,
@@ -27,12 +34,36 @@ public struct BroadTokenPackage: Identifiable, Equatable, Sendable {
         isSelected: Bool,
         isAvailable: Bool
     ) {
+        self.init(
+            id: id, productID: productID, title: title, subtitle: subtitle,
+            price: price, priceAmount: nil, tokens: tokens, savingsPercent: nil,
+            isBestValue: false, isSelected: isSelected, isAvailable: isAvailable
+        )
+    }
+
+    /// Creates a package with verified price and derived comparison data.
+    public init(
+        id: ProductPresentationID,
+        productID: ProductID,
+        title: String?,
+        subtitle: String?,
+        price: String?,
+        priceAmount: Money?,
+        tokens: Int?,
+        savingsPercent: Int?,
+        isBestValue: Bool,
+        isSelected: Bool,
+        isAvailable: Bool
+    ) {
         self.id = id
         self.productID = productID
         self.title = title
         self.subtitle = subtitle
         self.price = price
+        self.priceAmount = priceAmount
         self.tokens = tokens
+        self.savingsPercent = savingsPercent
+        self.isBestValue = isBestValue
         self.isSelected = isSelected
         self.isAvailable = isAvailable
     }
@@ -247,14 +278,23 @@ extension BroadTokenPaywallViewModel {
         guard case let .content(payload) = state else {
             return []
         }
-        return payload.products.map { product in
+        let products = payload.products
+        let tokenCounts = products.map { tokenAmount?($0) }
+        let pricing = BroadTokenPackagePricing.presentations(
+            prices: products.map(\.price),
+            tokens: tokenCounts
+        )
+        return products.enumerated().map { index, product in
             BroadTokenPackage(
                 id: product.presentationID,
                 productID: product.productID,
                 title: product.title,
                 subtitle: product.subtitle,
                 price: formatter.price(for: product),
-                tokens: tokenAmount?(product),
+                priceAmount: product.price,
+                tokens: tokenCounts[index],
+                savingsPercent: pricing[index].savingsPercent,
+                isBestValue: pricing[index].isBestValue,
                 isSelected: product.presentationID == selectedProductPresentationID,
                 isAvailable: product.isTokenPackage
             )

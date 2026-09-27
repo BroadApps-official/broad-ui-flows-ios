@@ -285,6 +285,8 @@ public struct BroadPaywallConfiguration: Equatable, Sendable {
     public let legalLinks: [BroadPaywallLegalLink]
     public let specialOfferCopy: BroadPaywallSpecialOfferCopy
     public let specialOfferAuthorization: SpecialOfferPresentationAuthorization?
+    /// Products from the closed regular paywall, used only to derive Special Offer prices.
+    public let referenceProducts: [MonetizationProduct]
     /// Display order of products; the default is longest subscription period first.
     public let productOrder: BroadPaywallProductOrder
 
@@ -292,6 +294,7 @@ public struct BroadPaywallConfiguration: Equatable, Sendable {
         specialOfferAuthorization?.expiresAt
     }
 
+    /// Creates a paywall without products from a previous presentation.
     public init(
         placementID: PlacementID,
         defaultSelection: BroadPaywallDefaultSelection? = nil,
@@ -300,6 +303,31 @@ public struct BroadPaywallConfiguration: Equatable, Sendable {
         legalLinks: [BroadPaywallLegalLink] = [],
         specialOfferCopy: BroadPaywallSpecialOfferCopy = .english,
         specialOfferAuthorization: SpecialOfferPresentationAuthorization? = nil,
+        productOrder: BroadPaywallProductOrder = .longestPeriodFirst
+    ) {
+        self.init(
+            placementID: placementID,
+            defaultSelection: defaultSelection,
+            access: access,
+            copy: copy,
+            legalLinks: legalLinks,
+            specialOfferCopy: specialOfferCopy,
+            specialOfferAuthorization: specialOfferAuthorization,
+            referenceProducts: [],
+            productOrder: productOrder
+        )
+    }
+
+    /// Creates a paywall with optional regular products for Special Offer comparisons.
+    public init(
+        placementID: PlacementID,
+        defaultSelection: BroadPaywallDefaultSelection? = nil,
+        access: BroadPaywallAccessConfiguration = BroadPaywallAccessConfiguration(),
+        copy: BroadPaywallCopy = .standard,
+        legalLinks: [BroadPaywallLegalLink] = [],
+        specialOfferCopy: BroadPaywallSpecialOfferCopy = .english,
+        specialOfferAuthorization: SpecialOfferPresentationAuthorization? = nil,
+        referenceProducts: [MonetizationProduct],
         productOrder: BroadPaywallProductOrder = .longestPeriodFirst
     ) {
         precondition(
@@ -313,6 +341,7 @@ public struct BroadPaywallConfiguration: Equatable, Sendable {
         self.legalLinks = legalLinks
         self.specialOfferCopy = specialOfferCopy
         self.specialOfferAuthorization = specialOfferAuthorization
+        self.referenceProducts = referenceProducts
         self.productOrder = productOrder
     }
 }

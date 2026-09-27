@@ -113,6 +113,10 @@ struct CustomTokenPaywallExample: View {
             Text(package.tokens.map { "\($0) tokens" } ?? package.title ?? "Tokens")
                 .font(.headline)
             Spacer()
+            if let savings = package.savingsPercent, package.isBestValue {
+                Text("Save \(savings)%")
+                    .font(.caption.bold())
+            }
             Text(package.price ?? "—")
                 .font(.headline)
         }

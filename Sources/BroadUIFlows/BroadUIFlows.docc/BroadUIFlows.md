@@ -21,6 +21,16 @@ Optional billing UI lives in the separate BroadRUBillingUI product. The base pay
 
 Reusable SwiftUI flows and presentation boundaries for BroadApps iPhone applications.
 
+Custom paywall screens can dismiss a typed notice through
+``BroadPaywallScreen/dismissNotice()``. For a Special Offer, pass the closed
+regular paywall's products as `BroadPaywallConfiguration.referenceProducts`;
+matching period and currency yield `BroadPaywallPlan.regularPrice` and
+`discountPercent` only when the regular price is higher. Token hosts expose
+verified `BroadTokenPackage.priceAmount`, per-token `savingsPercent`, and one
+`isBestValue` badge when every displayed package can be compared. Set
+`BroadAppFlowView(transition:)` to ``BroadAppFlowTransition/slide`` for route
+movement; Reduce Motion uses a fade, while the default keeps immediate changes.
+
 The settings host supplies gated actions and a typed restore result to an app-owned
 layout. The update checker compares numeric version components and offers an App
 Store update from the main tab after a successful lookup.
@@ -31,6 +41,7 @@ Store update from the main tab after a successful lookup.
 
 - ``AppFlowCoordinator``
 - ``BroadAppFlowView``
+- ``BroadAppFlowTransition``
 - ``AppFlowConfiguration``
 
 ### Onboarding

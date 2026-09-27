@@ -255,6 +255,56 @@ require_pattern \
     'BroadPaywallLifecycle\('
 
 require_pattern \
+    "Paywall screen must dismiss its notice through the view model:" \
+    "$source_root/Presentation/Paywall/BroadPaywallScreen.swift" \
+    'dismissNotice:[[:space:]]*\{[[:space:]]*\[weak self\][[:space:]]*in[[:space:]]*self\?\.dismissNotice\(\)[[:space:]]*\}'
+
+require_pattern \
+    "Dismissing a paywall notice must also clear inline feedback:" \
+    "$source_root/Presentation/Paywall/PaywallViewModel.swift" \
+    'public func dismissNotice\(\)[[:space:]]*\{[[:space:]]*setNotice\(nil\)'
+
+require_pattern \
+    "Special Offer comparison must match period, currency and a higher regular price:" \
+    "$source_root/Presentation/Paywall/BroadSpecialOfferPricing.swift" \
+    '(?s)candidate\.subscriptionPeriod == offer\.subscriptionPeriod.*price\.currencyCode == offerPrice\.currencyCode.*price\.amount > offerPrice\.amount.*\.min'
+
+require_pattern \
+    "Offer screen plans must derive regular pricing from configured references:" \
+    "$source_root/Presentation/Paywall/BroadPaywallScreen.swift" \
+    '(?s)BroadSpecialOfferPricing\.make\(.*reference: configuration\.referenceProducts'
+
+require_pattern \
+    "Regular paywall products must be optional offer references:" \
+    "$source_root/Presentation/Paywall/BroadPaywallConfiguration.swift" \
+    '(?s)referenceProducts:[[:space:]]*\[MonetizationProduct\].*self\.referenceProducts = referenceProducts'
+
+require_pattern \
+    "Token savings must fail closed for missing counts, prices and currency mismatches:" \
+    "$source_root/Presentation/TokenPaywall/BroadTokenPackagePricing.swift" \
+    '(?s)let price, price\.currencyCode == currency, price\.amount > 0,.*let count, count > 0.*else \{ return empty \}'
+
+require_pattern \
+    "Token package badge must select only one best saving:" \
+    "$source_root/Presentation/TokenPaywall/BroadTokenPackagePricing.swift" \
+    'isBestValue: index == bestIndex'
+
+require_pattern \
+    "Token screen packages must use the complete price and token arrays:" \
+    "$source_root/Presentation/TokenPaywall/BroadTokenPaywallScreen.swift" \
+    '(?s)BroadTokenPackagePricing\.presentations\(.*prices: products\.map\(\\\.price\),.*tokens: tokenCounts'
+
+require_pattern \
+    "App flow transition must default to no animation:" \
+    "$source_root/Presentation/AppFlow/BroadAppFlowView.swift" \
+    'self\.init\([[:space:]]*route: route, transition: \.none'
+
+require_pattern \
+    "Slide transition must fade under Reduce Motion:" \
+    "$source_root/Presentation/AppFlow/BroadAppFlowView.swift" \
+    '(?s)\.transition\(reduceMotion.*\.opacity.*\.asymmetric\(insertion: \.move\(edge: \.trailing\), removal: \.move\(edge: \.leading\)\)'
+
+require_pattern \
     "Special Offer expiration blocks product selection and purchase:" \
     "$source_root/Presentation/Paywall/PaywallViewModel.swift" \
     'canPurchase(?s:.*?)countdown\.isExpired[[:space:]]*!=[[:space:]]*true(?s:.*?)canSelectProducts(?s:.*?)countdown\.isExpired[[:space:]]*!=[[:space:]]*true'
@@ -308,6 +358,7 @@ require_pattern \
 
 for gallery_contract in \
     'Onboarding' \
+    'App flow transition' \
     'Loadable states' \
     'Subscription paywall' \
     'Special Offer paywall' \

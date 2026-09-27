@@ -65,9 +65,14 @@ struct CustomPaywallExample: View {
                 }
             }
             if let message = screen.noticeMessage {
-                Text(message)
-                    .font(.footnote)
-                    .foregroundStyle(screen.notice?.isFailure == true ? .red : .secondary)
+                HStack {
+                    Text(message)
+                        .font(.footnote)
+                        .foregroundStyle(screen.notice?.isFailure == true ? .red : .secondary)
+                    Spacer()
+                    Button("Dismiss") { screen.dismissNotice() }
+                        .frame(minHeight: 44)
+                }
             }
         }
     }
@@ -91,8 +96,20 @@ struct CustomPaywallExample: View {
                     .padding(.vertical, 4)
                     .background(.green.opacity(0.2), in: Capsule())
             }
-            Text(plan.price ?? "—")
-                .font(.headline)
+            if let discount = plan.discountPercent {
+                Text("\(discount)% off")
+                    .font(.caption.bold())
+            }
+            VStack(alignment: .trailing, spacing: 2) {
+                if let regularPrice = plan.regularPrice {
+                    Text(regularPrice)
+                        .strikethrough()
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Text(plan.price ?? "—")
+                    .font(.headline)
+            }
         }
         .padding(16)
         .frame(minHeight: 44)

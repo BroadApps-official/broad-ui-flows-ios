@@ -30,6 +30,21 @@ App передаёт тексты, theme и действия через public c
 
 ## Paywall и Special Offer
 
+`BroadPaywallScreen.dismissNotice()` clears the current typed notice. A Special
+Offer may receive `referenceProducts` in `BroadPaywallConfiguration` from the
+closed regular paywall. Its plans expose `regularPrice` and `discountPercent`
+only for a higher regular price with the same period and currency; the lowest
+eligible reference is used. The default empty reference list leaves these
+fields empty.
+
+`BroadTokenPaywallHost` supplies a verified `priceAmount` and per-token saving
+for each package when all displayed token counts and same-currency prices are
+known. Only the strongest positive saving gets `isBestValue`. A custom app flow
+can set `transition: .slide` on `BroadAppFlowView`; Reduce Motion uses a fade.
+
+SemVer intent: MINOR. These public fields, actions and overloads preserve the
+previous initializers and the default route behavior.
+
 `PaywallViewModel` получает готовые use cases BroadMonetization. Presentation не
 импортирует provider SDK, не меняет порядок products и использует provider
 display price. Special Offer UI показывается вторым paywall после закрытия

@@ -1,4 +1,4 @@
-public enum AppFlowRoute: Equatable, Sendable {
+public enum AppFlowRoute: Hashable, Sendable {
     case launch
     case onboarding
     case initialPaywall

@@ -32,7 +32,10 @@ struct FixturePaywallScreen: View {
             wrappedValue: PaywallViewModel(
                 configuration: BroadPaywallConfiguration(
                     placementID: payload.origin.requestedPlacementID,
-                    specialOfferAuthorization: authorization
+                    specialOfferAuthorization: authorization,
+                    referenceProducts: showsSpecialOffer
+                        ? FixtureCatalog.subscriptionPayload(placementID: .main, showsSpecialOffer: false).products
+                        : []
                 ),
                 dependencies: dependencies,
                 initialPayload: payload

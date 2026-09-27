@@ -15,6 +15,10 @@ public struct BroadPaywallPlan: Identifiable, Equatable, Sendable {
     public let price: String?
     /// Price brought to one week; `nil` when it cannot be computed.
     public let weeklyPrice: String?
+    /// Price of the cheapest higher-priced regular plan with the same period and currency.
+    public let regularPrice: String?
+    /// Whole-percent Special Offer discount against ``regularPrice``.
+    public let discountPercent: Int?
     /// Saving against the most expensive plan per week, in whole percent.
     public let savingsPercent: Int?
     /// The single plan with the largest saving.
@@ -23,6 +27,7 @@ public struct BroadPaywallPlan: Identifiable, Equatable, Sendable {
     /// Whether the plan can be bought on this device.
     public let isAvailable: Bool
 
+    /// Creates a plan without Special Offer comparison data.
     public init(
         id: ProductPresentationID,
         title: String?,
@@ -35,12 +40,37 @@ public struct BroadPaywallPlan: Identifiable, Equatable, Sendable {
         isSelected: Bool,
         isAvailable: Bool
     ) {
+        self.init(
+            id: id, title: title, period: period, periodText: periodText,
+            price: price, weeklyPrice: weeklyPrice, regularPrice: nil,
+            discountPercent: nil, savingsPercent: savingsPercent,
+            isBestValue: isBestValue, isSelected: isSelected, isAvailable: isAvailable
+        )
+    }
+
+    /// Creates a plan with optional Special Offer comparison data.
+    public init(
+        id: ProductPresentationID,
+        title: String?,
+        period: SubscriptionPeriod,
+        periodText: String?,
+        price: String?,
+        weeklyPrice: String?,
+        regularPrice: String?,
+        discountPercent: Int?,
+        savingsPercent: Int?,
+        isBestValue: Bool,
+        isSelected: Bool,
+        isAvailable: Bool
+    ) {
         self.id = id
         self.title = title
         self.period = period
         self.periodText = periodText
         self.price = price
         self.weeklyPrice = weeklyPrice
+        self.regularPrice = regularPrice
+        self.discountPercent = discountPercent
         self.savingsPercent = savingsPercent
         self.isBestValue = isBestValue
         self.isSelected = isSelected
@@ -105,6 +135,11 @@ public struct BroadPaywallScreen {
         actions.retry()
     }
 
+    /// Hides the current notice without changing the purchase state.
+    public func dismissNotice() {
+        actions.dismissNotice()
+    }
+
     /// Closes the paywall when closing is allowed.
     public func close() {
         actions.close()
@@ -115,6 +150,7 @@ public struct BroadPaywallScreen {
         actions.open(link)
     }
 
+    /// Creates a screen without a notice-dismiss action.
     public init(
         content: Content,
         plans: [BroadPaywallPlan],
@@ -132,6 +168,34 @@ public struct BroadPaywallScreen {
         close: @escaping @MainActor () -> Void = {},
         open: @escaping @MainActor (BroadPaywallLegalLink) -> Void = { _ in }
     ) {
+        self.init(
+            content: content, plans: plans, activity: activity, notice: notice,
+            noticeMessage: noticeMessage, canPurchase: canPurchase, canClose: canClose,
+            legalLinks: legalLinks, specialOfferEndsAt: specialOfferEndsAt,
+            select: select, purchase: purchase, restore: restore, retry: retry,
+            dismissNotice: {}, close: close, open: open
+        )
+    }
+
+    /// Creates a screen with a notice-dismiss action supplied by its host.
+    public init(
+        content: Content,
+        plans: [BroadPaywallPlan],
+        activity: Activity = .idle,
+        notice: BroadPaywallNotice? = nil,
+        noticeMessage: String? = nil,
+        canPurchase: Bool,
+        canClose: Bool,
+        legalLinks: [BroadPaywallLegalLink] = [],
+        specialOfferEndsAt: Date? = nil,
+        select: @escaping @MainActor (ProductPresentationID) -> Void = { _ in },
+        purchase: @escaping @MainActor () -> Void = {},
+        restore: @escaping @MainActor () -> Void = {},
+        retry: @escaping @MainActor () -> Void = {},
+        dismissNotice: @escaping @MainActor () -> Void,
+        close: @escaping @MainActor () -> Void = {},
+        open: @escaping @MainActor (BroadPaywallLegalLink) -> Void = { _ in }
+    ) {
         self.content = content
         self.plans = plans
         self.activity = activity
@@ -146,6 +210,7 @@ public struct BroadPaywallScreen {
             purchase: purchase,
             restore: restore,
             retry: retry,
+            dismissNotice: dismissNotice,
             close: close,
             open: open
         )
@@ -156,6 +221,7 @@ public struct BroadPaywallScreen {
         let purchase: @MainActor () -> Void
         let restore: @MainActor () -> Void
         let retry: @MainActor () -> Void
+        let dismissNotice: @MainActor () -> Void
         let close: @MainActor () -> Void
         let open: @MainActor (BroadPaywallLegalLink) -> Void
     }
@@ -201,6 +267,7 @@ extension PaywallViewModel {
             purchase: { [weak self] in self?.purchaseButtonTapped() },
             restore: { [weak self] in self?.restorePurchases() },
             retry: { [weak self] in self?.retry() },
+            dismissNotice: { [weak self] in self?.dismissNotice() },
             close: close,
             open: open
         )
@@ -210,13 +277,22 @@ extension PaywallViewModel {
         let products = displayedProducts
         let presentations = ProductPricePresenter().presentations(for: products)
         return zip(products, presentations).map { product, presentation in
-            BroadPaywallPlan(
+            let offerPricing = configuration.specialOfferAuthorization.flatMap { _ in
+                BroadSpecialOfferPricing.make(
+                    offer: product,
+                    reference: configuration.referenceProducts,
+                    formatter: formatter
+                )
+            }
+            return BroadPaywallPlan(
                 id: product.presentationID,
                 title: product.title,
                 period: product.subscriptionPeriod,
                 periodText: formatter.period(for: product),
                 price: formatter.price(for: product),
                 weeklyPrice: presentation.weeklyPrice.flatMap(formatter.amount),
+                regularPrice: offerPricing?.regularPrice,
+                discountPercent: offerPricing?.discountPercent,
                 savingsPercent: presentation.savingsPercent,
                 isBestValue: presentation.isBestValue,
                 isSelected: product.presentationID == selectedProductPresentationID,
