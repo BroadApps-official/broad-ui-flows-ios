@@ -62,40 +62,15 @@ public struct BroadPaywallView: View {
                 Spacer(minLength: 0)
             }
         }
-        .allowsHitTesting(!viewModel.isPurchaseInFlight)
-        .onAppear {
-            viewModel.viewDidAppear()
-        }
-        .onDisappear {
-            viewModel.viewDidDisappear()
-        }
-        .onChange(of: viewModel.completionEvent) { _, event in
-            handleCompletionEvent(event)
-        }
-        .task(
-            id: viewModel.configuration.specialOfferAuthorization?
-                .paywallPresentationID
-        ) {
-            await closeSpecialOfferAtWindowEnd()
-        }
-        .sheet(item: $safariDestination) { destination in
-            BroadInAppSafariView(url: destination.url)
-                .ignoresSafeArea()
-        }
-        .sheet(isPresented: checkoutSheetBinding) {
-            if let checkoutContent {
-                checkoutContent(viewModel)
-            } else {
-                VStack(spacing: 20) {
-                    Text(viewModel.configuration.copy.states.checkoutUnavailableMessage)
-                    Button(viewModel.configuration.copy.actions.cancelTitle) {
-                        viewModel.cancelCheckoutMethodSelection()
-                    }
-                    .frame(minHeight: 44)
-                }
-                .padding()
-            }
-        }
+        .modifier(
+            BroadPaywallLifecycle(
+                viewModel: viewModel,
+                safariDestination: $safariDestination,
+                checkoutContent: checkoutContent,
+                onClose: onClose,
+                onCompleted: onCompleted
+            )
+        )
     }
 
     @ViewBuilder
@@ -114,54 +89,6 @@ public struct BroadPaywallView: View {
                 closeHeader
                 stateContent
                 stickyFooter
-            }
-        }
-    }
-
-    var checkoutSheetBinding: Binding<Bool> {
-        Binding(
-            get: { !viewModel.checkoutMethods.isEmpty },
-            set: { isPresented in
-                if !isPresented {
-                    viewModel.cancelCheckoutMethodSelection()
-                }
-            }
-        )
-    }
-
-    func handleCompletionEvent(_ event: BroadPaywallCompletionEvent?) {
-        guard let event else {
-            return
-        }
-
-        viewModel.consumeCompletionEvent(id: event.id)
-        onCompleted(event.completion)
-    }
-
-    func closeSpecialOfferAtWindowEnd() async {
-        guard let countdown = viewModel.configuration
-            .specialOfferAuthorization?.countdown
-        else {
-            return
-        }
-        do {
-            try await countdown.sleepUntilExpiration()
-        } catch {
-            return
-        }
-
-        while !Task.isCancelled {
-            if viewModel.requestSpecialOfferExpirationClose() {
-                onClose()
-                return
-            }
-            if viewModel.completionEvent != nil {
-                return
-            }
-            do {
-                try await ContinuousClock().sleep(for: .milliseconds(250))
-            } catch {
-                return
             }
         }
     }

@@ -214,7 +214,10 @@ public final class BroadTokenPaywallViewModel: ObservableObject {
             if let recovered {
                 applyPurchaseOutcome(recovered)
             } else {
-                purchaseSelectedProduct()
+                // A safe retry never charges again: with nothing pending, show the
+                // authoritative balance. Buying again is `purchaseSelectedProduct()`.
+                isRetrySuggested = false
+                recoverAccountBalance()
             }
         }
     }

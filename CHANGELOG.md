@@ -1,9 +1,41 @@
 # Changelog
 
-## Unreleased
+## 6.1.0
 
+### Added
+
+- `BroadPaywallHost`: runs a subscription paywall or Special Offer for a screen
+  drawn by the app. The host owns loading, plan order and selection, the close
+  delay, purchase, restore, completion events, the Special Offer window, legal
+  links and the checkout sheet; the screen receives `BroadPaywallScreen`.
+- `BroadPaywallScreen` and `BroadPaywallPlan`: plans ready to draw — price, period,
+  price per week, saving, best-value badge, selection — plus the purchase activity,
+  a typed notice and actions.
+- `BroadPaywallNotice` and `PaywallViewModel.notice` / `message(for:)`: purchase and
+  restore outcomes as cases instead of message strings.
+- `BroadPaywallScreen.preview(_:)`: every screen state for Xcode Previews without
+  Adapty. `BroadPaywallProductFormatter.amount(_:)` formats a money amount.
+- Gallery: a custom paywall built only from `BroadPaywallScreen`.
+
+### Fixed
+
+- `BroadTokenPaywallViewModel.retrySafely()` no longer starts a new purchase when
+  nothing is pending; it reloads the confirmed balance instead. Buying again is
+  `purchaseSelectedProduct()`. A contract check keeps retry free of purchases.
 - Gate exports a UTF-8 locale before invoking Ruby so checks work in checkout
   paths containing Cyrillic characters, even when the caller uses the C locale.
+
+### Changed
+
+- `BroadPaywallView` uses the same lifecycle as the host; behavior is unchanged.
+
+### Why
+
+Apps drew their own paywalls on `PaywallViewModel` and each rebuilt plan rows,
+purchase states and Special Offer wiring, copying it from other apps; one app
+matched notice strings to detect "nothing to restore". The host moves that work
+into the module so a Figma screen is layout only. The token retry could open a
+second payment where the person asked only to check the first one.
 
 ## 6.0.0
 

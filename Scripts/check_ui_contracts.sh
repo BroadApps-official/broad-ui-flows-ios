@@ -134,6 +134,13 @@ require_pattern \
     "$source_root/Presentation/Paywall/BroadPaywallConfiguration.swift" \
     'productOrder:[[:space:]]*BroadPaywallProductOrder[[:space:]]*=[[:space:]]*\.longestPeriodFirst'
 
+token_retry_body="$(awk '/public func retrySafely\(\)/,/^    }$/' "$source_root/Presentation/TokenPaywall/BroadTokenPaywallViewModel.swift")"
+if [[ -z "$token_retry_body" ]]; then
+    record_violation "Token paywall must keep retrySafely():" ""
+elif grep -v '^[[:space:]]*//' <<<"$token_retry_body" | grep -q "purchaseSelectedProduct()"; then
+    record_violation "Token retrySafely() must never start a new purchase:" "$token_retry_body"
+fi
+
 require_pattern \
     "OnboardingConfiguration.pages must remain the single page source:" \
     "$source_root/Domain/Onboarding/OnboardingConfiguration.swift" \
@@ -216,8 +223,18 @@ require_pattern \
 
 require_pattern \
     "Special Offer screen waits for the authorized window end:" \
-    "$source_root/Presentation/Paywall/BroadPaywallView.swift" \
+    "$source_root/Presentation/Paywall/BroadPaywallLifecycle.swift" \
     'countdown\.sleepUntilExpiration\(\)(?s:.*?)requestSpecialOfferExpirationClose\(\)(?s:.*?)onClose\(\)'
+
+require_pattern \
+    "Ready paywall must use the shared paywall lifecycle:" \
+    "$source_root/Presentation/Paywall/BroadPaywallView.swift" \
+    'BroadPaywallLifecycle\('
+
+require_pattern \
+    "Paywall host must use the shared paywall lifecycle:" \
+    "$source_root/Presentation/Paywall/BroadPaywallHost.swift" \
+    'BroadPaywallLifecycle\('
 
 require_pattern \
     "Special Offer expiration blocks product selection and purchase:" \

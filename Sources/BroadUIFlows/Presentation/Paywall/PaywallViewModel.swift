@@ -65,6 +65,8 @@ public final class PaywallViewModel: ObservableObject {
     @Published public internal(set) var state: BroadPaywallViewState = .idle
     @Published public internal(set) var selectedProductPresentationID: ProductPresentationID?
     @Published public internal(set) var inlineFeedback: BroadPaywallInlineFeedback?
+    /// Typed form of ``inlineFeedback`` for custom screens.
+    @Published public internal(set) var notice: BroadPaywallNotice?
     @Published public internal(set) var checkoutMethods: [CheckoutMethod] = []
     @Published public internal(set) var checkoutResolution: CheckoutMethodsResolution?
     @Published public internal(set) var completionEvent: BroadPaywallCompletionEvent?
@@ -140,6 +142,34 @@ public final class PaywallViewModel: ObservableObject {
     public var canSelectProducts: Bool {
         configuration.specialOfferAuthorization?.countdown.isExpired != true
             && !isBusy && !isFinancialOperationPending
+    }
+
+    /// Text for a notice from the configured copy; failures use the error message.
+    public func message(for notice: BroadPaywallNotice) -> String {
+        switch notice {
+        case .purchaseCompleted:
+            configuration.copy.states.purchase.completedMessage
+        case .purchaseUnverified:
+            configuration.copy.states.purchase.completedButUnverifiedMessage
+        case .purchasePending:
+            configuration.copy.states.purchase.pendingMessage
+        case .nothingToRestore:
+            configuration.copy.states.nothingToRestoreMessage
+        case let .checkoutUnavailable(error), let .failed(error):
+            error.userMessage
+        }
+    }
+
+    func setNotice(_ newNotice: BroadPaywallNotice?) {
+        notice = newNotice
+        inlineFeedback = newNotice.map { notice in
+            switch notice {
+            case let .checkoutUnavailable(error), let .failed(error):
+                .failure(error)
+            case .purchaseCompleted, .purchaseUnverified, .purchasePending, .nothingToRestore:
+                .notice(message(for: notice))
+            }
+        }
     }
 
     /// Products in display order for a custom paywall screen.
@@ -230,7 +260,7 @@ public final class PaywallViewModel: ObservableObject {
             state = .idle
             selectedSelection = nil
             selectedProductPresentationID = nil
-            inlineFeedback = nil
+            setNotice(nil)
         }
     }
 }

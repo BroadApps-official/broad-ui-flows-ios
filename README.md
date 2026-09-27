@@ -1,6 +1,6 @@
 # BroadUIFlows
 
-Version 6.0.0 requires BroadCore 3.0.0 and BroadMonetization 5.0.0. RU screens live in the optional BroadRUBillingUI product.
+Version 6.1.0 requires BroadCore 3.0.0 and BroadMonetization 5.0.0. RU screens live in the optional BroadRUBillingUI product.
 
 <p align="center">
   <picture>
@@ -14,7 +14,7 @@ Version 6.0.0 requires BroadCore 3.0.0 and BroadMonetization 5.0.0. RU screens l
   <img alt="iOS 17+" src="https://img.shields.io/badge/iOS-17%2B-111827?logo=apple&amp;logoColor=white">
   <img alt="SwiftUI" src="https://img.shields.io/badge/UI-SwiftUI-0A84FF?logo=swift&amp;logoColor=white">
   <img alt="iPhone only" src="https://img.shields.io/badge/device-iPhone%20only-111827?logo=apple&amp;logoColor=white">
-  <img alt="Release 6.0.0" src="https://img.shields.io/badge/release-6.0.0-10B981">
+  <img alt="Release 6.1.0" src="https://img.shields.io/badge/release-6.1.0-10B981">
 </p>
 
 Готовые SwiftUI-сценарии BroadApps для AppFlow, onboarding, loadable states,
@@ -85,7 +85,7 @@ Monetization, UIFlows или нужную комбинацию. Транзити
 dependencies: [
     .package(
         url: "https://github.com/BroadApps-official/broad-ui-flows-ios.git",
-        from: "6.0.0"
+        from: "6.1.0"
     )
 ]
 ```
@@ -98,7 +98,11 @@ dependencies: [
 - `BroadOnboardingView` — стандартный renderer;
 - `BroadOnboardingFlowHost` — lifecycle/ATT boundary без навязанной верстки;
 - `BroadLoadableView`, `BroadLoaderView`, `BroadErrorView`, `BroadEmptyView`;
-- `BroadPaywallView` и `PaywallViewModel`;
+- `BroadPaywallHost` — свой экран пейвола или Special Offer по Figma: хост ведёт
+  загрузку, порядок и выбор тарифа, крестик, покупку, Restore, события и окно
+  оффера, а экран получает готовый `BroadPaywallScreen` (тарифы с ценой за неделю
+  и бейджем, этап, типизированное сообщение) и только рисует;
+- `BroadPaywallView` (готовый экран) и `PaywallViewModel`;
 - `BroadTokenPaywallView` и `BroadTokenPaywallViewModel`;
 - `BroadAppFlowView` и `AppFlowCoordinator`.
 
@@ -143,6 +147,18 @@ entitlement-проверке; только подтверждённый `active`
   app-owned SwiftUI;
 - ATT возможен только после фактического появления первого слайда; Rate Us в
   onboarding запрещён.
+
+## Свой экран пейвола
+
+```swift
+BroadPaywallHost(viewModel: viewModel, onClose: close, onCompleted: finish) { screen in
+    MyPaywall(screen: screen)
+}
+```
+
+`MyPaywall` рисует `screen.plans` (цена, цена за неделю, бейдж, выбран ли тариф) и
+вызывает `screen.select(plan)`, `purchase()`, `restore()`, `close()`, `open(link)`.
+Все состояния видны в Xcode Preview без Adapty: `BroadPaywallScreen.preview(.purchasing)`.
 
 ## Адаптивный paywall
 

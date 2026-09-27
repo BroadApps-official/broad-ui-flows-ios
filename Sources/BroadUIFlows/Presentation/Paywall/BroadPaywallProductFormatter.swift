@@ -82,6 +82,15 @@ public struct BroadPaywallProductFormatter: Sendable {
         return formatter.string(from: money.amount as NSDecimalNumber)
     }
 
+    /// Formats an amount in its own currency, for example a price per week.
+    public func amount(_ money: Money) -> String? {
+        let formatter = NumberFormatter()
+        formatter.locale = locale
+        formatter.numberStyle = .currency
+        formatter.currencyCode = money.currencyCode
+        return formatter.string(from: money.amount as NSDecimalNumber)
+    }
+
     public func period(for product: MonetizationProduct) -> String? {
         period(product.subscriptionPeriod)
     }

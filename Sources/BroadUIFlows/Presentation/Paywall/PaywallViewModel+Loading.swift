@@ -51,7 +51,7 @@ extension PaywallViewModel {
         selectedSelection = selection
         selectedProductPresentationID = presentationID
         checkoutResolution = nil
-        inlineFeedback = nil
+        setNotice(nil)
 
         track(
             .productSelected(
@@ -69,7 +69,7 @@ extension PaywallViewModel {
         checkoutResolution = nil
         selectedSelection = nil
         selectedProductPresentationID = nil
-        inlineFeedback = nil
+        setNotice(nil)
         state = .loading
 
         closeAvailabilityTask?.cancel()

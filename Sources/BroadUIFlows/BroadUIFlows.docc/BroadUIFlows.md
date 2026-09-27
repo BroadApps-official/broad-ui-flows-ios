@@ -1,6 +1,6 @@
 # ``BroadUIFlows``
 
-Version 6.0.0 shows subscriptions from the longest period to the shortest and selects the longest one on open. Version 5.0.1 removed the Bundle line from the support email. Version 5.0.0 added token paywall visibility analytics and optional support diagnostics.
+Version 6.1.0 adds BroadPaywallHost: a custom paywall screen gets ready plans, the purchase activity and typed notices and only lays them out. Version 6.0.0 shows subscriptions from the longest period to the shortest and selects the longest one on open. Version 5.0.1 removed the Bundle line from the support email. Version 5.0.0 added token paywall visibility analytics and optional support diagnostics.
 It requires BroadCore 3.0.0 and BroadMonetization 5.0.0.
 Update package constraints together. Temporary token fulfillment failures retain
 the existing purchase for safe retry. Host exhaustive switches handle the new

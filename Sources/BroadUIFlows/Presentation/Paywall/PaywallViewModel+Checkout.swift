@@ -13,7 +13,7 @@ extension PaywallViewModel {
         }
 
         isResolvingCheckoutMethods = true
-        inlineFeedback = nil
+        setNotice(nil)
 
         let useCase = dependencies.resolveCheckoutMethods
         let remoteConfiguration = effectiveRemoteConfiguration(for: payload)
@@ -81,7 +81,7 @@ extension PaywallViewModel {
         }
 
         isRestoreInFlight = true
-        inlineFeedback = nil
+        setNotice(nil)
 
         let useCase = dependencies.restorePurchases
         restoreTask = Task { @MainActor [weak self, useCase] in
@@ -114,7 +114,7 @@ extension PaywallViewModel {
         switch methods.count {
         case 0:
             checkoutResolution = nil
-            inlineFeedback = .failure(checkoutUnavailableError)
+            setNotice(.checkoutUnavailable(checkoutUnavailableError))
         case 1:
             if let method = methods.first {
                 if method == .apple {
@@ -160,7 +160,7 @@ extension PaywallViewModel {
         }
 
         isPurchaseInFlight = true
-        inlineFeedback = nil
+        setNotice(nil)
 
         let useCase = dependencies.checkoutProduct
         purchaseTask = Task { @MainActor [weak self, useCase] in
@@ -184,47 +184,43 @@ extension PaywallViewModel {
     func applyCheckoutOutcome(_ outcome: CheckoutSelectedProductOutcome) {
         switch outcome {
         case let .activated(snapshot):
-            inlineFeedback = nil
+            setNotice(nil)
             trackClose(reason: .purchased)
             completionEvent = BroadPaywallCompletionEvent(
                 completion: .purchased(snapshot)
             )
         case .completed:
             refreshFinancialOperationStatus()
-            inlineFeedback = .notice(
-                configuration.copy.states.purchase.completedMessage
-            )
+            setNotice(.purchaseCompleted)
         case .completedButUnverified:
             refreshFinancialOperationStatus()
-            inlineFeedback = .notice(
-                configuration.copy.states.purchase.completedButUnverifiedMessage
-            )
+            setNotice(.purchaseUnverified)
         case .cancelled:
             refreshFinancialOperationStatus()
-            inlineFeedback = nil
+            setNotice(nil)
         case .pending:
             isFinancialOperationPending = true
-            inlineFeedback = .notice(configuration.copy.states.purchase.pendingMessage)
+            setNotice(.purchasePending)
         case let .failed(error):
             refreshFinancialOperationStatus()
-            inlineFeedback = .failure(error)
+            setNotice(.failed(error))
         }
     }
 
     func applyRestoreOutcome(_ outcome: RestoreOutcome) {
         switch outcome {
         case let .restored(snapshot):
-            inlineFeedback = nil
+            setNotice(nil)
             trackClose(reason: .purchased)
             completionEvent = BroadPaywallCompletionEvent(
                 completion: .restored(snapshot)
             )
         case .nothingFound:
             refreshFinancialOperationStatus()
-            inlineFeedback = .notice(configuration.copy.states.nothingToRestoreMessage)
+            setNotice(.nothingToRestore)
         case let .unavailable(error), let .failed(error):
             refreshFinancialOperationStatus()
-            inlineFeedback = .failure(error)
+            setNotice(.failed(error))
         }
     }
 
