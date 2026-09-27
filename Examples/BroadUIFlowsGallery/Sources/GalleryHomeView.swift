@@ -26,6 +26,12 @@ struct GalleryHomeView: View {
                     NavigationLink("Support email") {
                         SupportEmailGallery()
                     }
+                    NavigationLink("Settings (host model)") {
+                        SettingsGallery()
+                    }
+                    NavigationLink("App update alert") {
+                        AppUpdateGallery()
+                    }
                 }
 
                 Section("Safety") {

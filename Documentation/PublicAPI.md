@@ -20,6 +20,7 @@
 | Case | `case failed` |
 | Case | `case failed(AppError)` |
 | Case | `case failure(AppError)` |
+| Case | `case firstLaunch` |
 | Case | `case idle` |
 | Case | `case index(Int)` |
 | Case | `case initialPaywall` |
@@ -35,6 +36,7 @@
 | Case | `case longestPeriodFirst` |
 | Case | `case main` |
 | Case | `case noPages` |
+| Case | `case noUpdate` |
 | Case | `case nothingToRestore` |
 | Case | `case notice(String)` |
 | Case | `case onboarding` |
@@ -56,9 +58,11 @@
 | Case | `case purchaseUnverified` |
 | Case | `case purchased(EntitlementSnapshot)` |
 | Case | `case purchasing` |
+| Case | `case ready` |
 | Case | `case reconciliationStarted` |
 | Case | `case recovered(TokenBalanceSnapshot)` |
 | Case | `case restorePurchases` |
+| Case | `case restored` |
 | Case | `case restored(EntitlementSnapshot)` |
 | Case | `case restoring` |
 | Case | `case saved` |
@@ -66,7 +70,10 @@
 | Case | `case specialOffer` |
 | Case | `case start` |
 | Case | `case termsOfUse` |
+| Case | `case unavailable` |
+| Case | `case updateAvailable` |
 | Class | `@MainActor final class AppFlowCoordinator` |
+| Class | `@MainActor final class BroadAppUpdateChecker` |
 | Class | `@MainActor final class BroadTokenPaywallViewModel` |
 | Class | `@MainActor final class Coordinator` |
 | Class | `@MainActor final class OnboardingViewModel` |
@@ -84,6 +91,7 @@
 | Enumeration | `enum BroadPaywallNotice` |
 | Enumeration | `enum BroadPaywallProductOrder` |
 | Enumeration | `enum BroadPaywallViewState` |
+| Enumeration | `enum BroadSettingsRestoreResult` |
 | Enumeration | `enum BroadSupportEmailComposerResult` |
 | Enumeration | `enum BroadSupportEmailRequestBuilder` |
 | Enumeration | `enum BroadTokenPaywallAnalyticsEvent` |
@@ -93,13 +101,16 @@
 | Enumeration | `enum OnboardingConfigurationValidationError` |
 | Enumeration | `enum OnboardingFooterDestination` |
 | Enumeration | `enum PreviewState` |
+| Initializer | `@MainActor convenience init(bundleID: String = Bundle.main.bundleIdentifier ?? "", installedVersion: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "", lookup: any BroadAppStoreLookupProtocol = BroadAppStoreLookupClient())` |
 | Initializer | `@MainActor init()` |
 | Initializer | `@MainActor init(accessibilityLabel: String)` |
 | Initializer | `@MainActor init(accessibilityLabel: String, theme: BroadLoadableTheme)` |
+| Initializer | `@MainActor init(bundleID: String, installedVersion: String, lookup: any BroadAppStoreLookupProtocol, baselineStore: any BroadAppVersionBaselineStoreProtocol)` |
 | Initializer | `@MainActor init(configuration: AppFlowConfiguration, progressRepository: any AppFlowProgressRepositoryProtocol, entitlementStatusProvider: any EntitlementStatusProviderProtocol)` |
 | Initializer | `@MainActor init(configuration: BroadActionConfiguration, tint: Color)` |
 | Initializer | `@MainActor init(configuration: BroadActionConfiguration, tint: Color, theme: BroadLoadableTheme)` |
 | Initializer | `@MainActor init(configuration: BroadPaywallConfiguration, dependencies: PaywallViewModelDependencies, initialPayload: PaywallPayload? = nil)` |
+| Initializer | `@MainActor init(configuration: BroadSettingsConfiguration, restorePurchases: any RestorePurchasesUseCaseProtocol, onRestored: @escaping @MainActor (EntitlementSnapshot) -> Void = { _ in }, @ViewBuilder content: @escaping @MainActor (BroadSettingsScreen) -> Content)` |
 | Initializer | `@MainActor init(configuration: BroadTokenPaywallConfiguration, dependencies: BroadTokenPaywallViewModelDependencies)` |
 | Initializer | `@MainActor init(configuration: OnboardingConfiguration, requestTrackingAuthorizationUseCase: any TrackingAuthorizationUseCaseProtocol)` |
 | Initializer | `@MainActor init(content: BroadPaywallScreen.Content, plans: [BroadPaywallPlan], activity: BroadPaywallScreen.Activity = .idle, notice: BroadPaywallNotice? = nil, noticeMessage: String? = nil, canPurchase: Bool, canClose: Bool, legalLinks: [BroadPaywallLegalLink] = [], specialOfferEndsAt: Date? = nil, select: @escaping @MainActor (ProductPresentationID) -> Void = { _ in }, purchase: @escaping @MainActor () -> Void = {}, restore: @escaping @MainActor () -> Void = {}, retry: @escaping @MainActor () -> Void = {}, close: @escaping @MainActor () -> Void = {}, open: @escaping @MainActor (BroadPaywallLegalLink) -> Void = { _ in })` |
@@ -111,6 +122,7 @@
 | Initializer | `@MainActor init(content: BroadStateContent, retry: BroadActionConfiguration?, theme: BroadLoadableTheme)` |
 | Initializer | `@MainActor init(content: BroadStateContent, theme: BroadLoadableTheme)` |
 | Initializer | `@MainActor init(content: BroadStateContent, theme: BroadLoadableTheme, @ViewBuilder media: () -> Media)` |
+| Initializer | `@MainActor init(defaults: UserDefaults = .standard)` |
 | Initializer | `@MainActor init(links: [BroadPaywallLegalLink], theme: BroadPaywallTheme, onOpen: @escaping @MainActor (BroadPaywallLegalLink) -> Void)` |
 | Initializer | `@MainActor init(palette: BroadLoadableTheme.Palette, typography: BroadLoadableTheme.Typography, metrics: BroadLoadableTheme.Metrics)` |
 | Initializer | `@MainActor init(palette: BroadOnboardingTheme.Palette, typography: BroadOnboardingTheme.Typography, metrics: BroadOnboardingTheme.Metrics)` |
@@ -178,33 +190,46 @@
 | Initializer | `init(title: String, subtitle: String, balanceTitle: String)` |
 | Initializer | `init(title: String, subtitle: String? = nil)` |
 | Initializer | `init(title: String, subtitle: String?, price: String, period: String?)` |
+| Initializer | `init(userID: String, appStoreURL: URL, privacyPolicyURL: URL, termsURL: URL, supportEmail: BroadSupportEmailConfiguration? = nil, version: String? = nil, build: String? = nil)` |
+| Initializer | `init(version: BroadAppVersion, url: URL)` |
+| Initializer | `init?(_ rawValue: String)` |
 | Initializer | `init?(rawValue: String)` |
 | Instance Method | `@MainActor func advance()` |
 | Instance Method | `@MainActor func applicationActiveDidChange(_ isActive: Bool)` |
+| Instance Method | `@MainActor func broadAppUpdateAlert(_ checker: BroadAppUpdateChecker) -> some View` |
 | Instance Method | `@MainActor func cancelCheckoutMethodSelection()` |
+| Instance Method | `@MainActor func check() async` |
 | Instance Method | `@MainActor func chooseCheckoutMethod(_ method: CheckoutMethod)` |
 | Instance Method | `@MainActor func close()` |
 | Instance Method | `@MainActor func completeInvalidConfigurationIfNeeded() -> Bool` |
 | Instance Method | `@MainActor func consumeCompletionEvent(id: UUID)` |
+| Instance Method | `@MainActor func contactSupport()` |
+| Instance Method | `@MainActor func copyUserID()` |
+| Instance Method | `@MainActor func dismiss()` |
 | Instance Method | `@MainActor func displayedProducts(in payload: PaywallPayload) -> [MonetizationProduct]` |
 | Instance Method | `@MainActor func firstSlideDidAppear()` |
 | Instance Method | `@MainActor func firstSlideDidDisappear()` |
 | Instance Method | `@MainActor func initialPaywallDismissed()` |
 | Instance Method | `@MainActor func initialPaywallUnavailable()` |
+| Instance Method | `@MainActor func installedVersion(for bundleID: String) -> String?` |
 | Instance Method | `@MainActor func loadIfNeeded()` |
 | Instance Method | `@MainActor func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: (any Error)?)` |
 | Instance Method | `@MainActor func makeBody(configuration: BroadNoPressEffectButtonStyle.Configuration) -> some View` |
 | Instance Method | `@MainActor func makeCoordinator() -> BroadSupportEmailComposer.Coordinator` |
 | Instance Method | `@MainActor func makeUIViewController(context: BroadInAppSafariView.Context) -> SFSafariViewController` |
 | Instance Method | `@MainActor func makeUIViewController(context: BroadSupportEmailComposer.Context) -> MFMailComposeViewController` |
+| Instance Method | `@MainActor func manageSubscription()` |
 | Instance Method | `@MainActor func message(for notice: BroadPaywallNotice) -> String` |
 | Instance Method | `@MainActor func onboardingCompleted()` |
 | Instance Method | `@MainActor func onboardingDidAppear()` |
 | Instance Method | `@MainActor func onboardingDidDisappear()` |
 | Instance Method | `@MainActor func open(_ link: BroadPaywallLegalLink)` |
+| Instance Method | `@MainActor func openPrivacyPolicy()` |
+| Instance Method | `@MainActor func openTerms()` |
 | Instance Method | `@MainActor func purchase()` |
 | Instance Method | `@MainActor func purchaseButtonTapped()` |
 | Instance Method | `@MainActor func purchaseSelectedProduct()` |
+| Instance Method | `@MainActor func rateApp()` |
 | Instance Method | `@MainActor func recoverAccountBalance()` |
 | Instance Method | `@MainActor func recoverAccountBalanceIfNeeded()` |
 | Instance Method | `@MainActor func recoverPendingPurchaseIfNeeded()` |
@@ -216,13 +241,17 @@
 | Instance Method | `@MainActor func retry()` |
 | Instance Method | `@MainActor func retryLoad()` |
 | Instance Method | `@MainActor func retrySafely()` |
+| Instance Method | `@MainActor func save(_ version: String, for bundleID: String)` |
+| Instance Method | `@MainActor func saveInstalledVersion(_ version: String, for bundleID: String)` |
 | Instance Method | `@MainActor func select(_ plan: BroadPaywallPlan)` |
 | Instance Method | `@MainActor func selectProduct(presentationID: ProductPresentationID)` |
+| Instance Method | `@MainActor func shareApp()` |
 | Instance Method | `@MainActor func startIfNeeded()` |
 | Instance Method | `@MainActor func submitCheckoutMethod(_ method: CheckoutMethod, options: CheckoutOptions)` |
 | Instance Method | `@MainActor func subscriptionDidBecomeActive()` |
 | Instance Method | `@MainActor func updateUIViewController(_ uiViewController: MFMailComposeViewController, context: BroadSupportEmailComposer.Context)` |
 | Instance Method | `@MainActor func updateUIViewController(_ uiViewController: SFSafariViewController, context: BroadInAppSafariView.Context)` |
+| Instance Method | `@MainActor func version(for bundleID: String) -> String?` |
 | Instance Method | `@MainActor func viewDidAppear()` |
 | Instance Method | `@MainActor func viewDidDisappear()` |
 | Instance Method | `@MainActor func windowVisibilityDidChange(_ isVisible: Bool)` |
@@ -239,6 +268,7 @@
 | Instance Method | `func arrange(_ products: [MonetizationProduct]) -> [MonetizationProduct]` |
 | Instance Method | `func assemble(container: Container)` |
 | Instance Method | `func loadCheckpoint() async -> AppFlowCheckpoint` |
+| Instance Method | `func lookup(bundleID: String) async throws -> BroadAppStoreListing?` |
 | Instance Method | `func period(_ period: SubscriptionPeriod) -> String?` |
 | Instance Method | `func period(for product: MonetizationProduct) -> String?` |
 | Instance Method | `func price(for product: MonetizationProduct) -> String?` |
@@ -247,7 +277,9 @@
 | Instance Property | `@MainActor let accessibilityLabel: String?` |
 | Instance Property | `@MainActor let action: @MainActor () -> Void` |
 | Instance Property | `@MainActor let activity: BroadPaywallScreen.Activity` |
+| Instance Property | `@MainActor let build: String` |
 | Instance Property | `@MainActor let canClose: Bool` |
+| Instance Property | `@MainActor let canContactSupport: Bool` |
 | Instance Property | `@MainActor let canPurchase: Bool` |
 | Instance Property | `@MainActor let configuration: BroadPaywallConfiguration` |
 | Instance Property | `@MainActor let configuration: BroadTokenPaywallConfiguration` |
@@ -256,6 +288,7 @@
 | Instance Property | `@MainActor let inFlightTitle: String?` |
 | Instance Property | `@MainActor let isEnabled: Bool` |
 | Instance Property | `@MainActor let isInFlight: Bool` |
+| Instance Property | `@MainActor let isRestoring: Bool` |
 | Instance Property | `@MainActor let legalLinks: [BroadPaywallLegalLink]` |
 | Instance Property | `@MainActor let metrics: BroadLoadableTheme.Metrics` |
 | Instance Property | `@MainActor let metrics: BroadOnboardingTheme.Metrics` |
@@ -266,12 +299,16 @@
 | Instance Property | `@MainActor let palette: BroadOnboardingTheme.Palette` |
 | Instance Property | `@MainActor let palette: BroadPaywallTheme.Palette` |
 | Instance Property | `@MainActor let plans: [BroadPaywallPlan]` |
+| Instance Property | `@MainActor let restoreMessage: String?` |
+| Instance Property | `@MainActor let restoreResult: BroadSettingsRestoreResult?` |
 | Instance Property | `@MainActor let specialOfferEndsAt: Date?` |
 | Instance Property | `@MainActor let title: String` |
 | Instance Property | `@MainActor let typography: BroadLoadableTheme.Typography` |
 | Instance Property | `@MainActor let typography: BroadOnboardingTheme.Typography` |
 | Instance Property | `@MainActor let typography: BroadPaywallTheme.Typography` |
 | Instance Property | `@MainActor let url: URL` |
+| Instance Property | `@MainActor let userID: String` |
+| Instance Property | `@MainActor let version: String` |
 | Instance Property | `@MainActor var body: some View { get }` |
 | Instance Property | `@MainActor var canPurchase: Bool { get }` |
 | Instance Property | `@MainActor var canSelectProducts: Bool { get }` |
@@ -282,6 +319,7 @@
 | Instance Property | `@MainActor var selectedPlan: BroadPaywallPlan? { get }` |
 | Instance Property | `@MainActor var selectedProduct: MonetizationProduct? { get }` |
 | Instance Property | `@Published @MainActor var analyticsRecords: [BroadTokenPaywallAnalyticsRecord] { get set }` |
+| Instance Property | `@Published @MainActor var availableUpdate: BroadAppStoreListing? { get set }` |
 | Instance Property | `@Published @MainActor var balanceSnapshot: TokenBalanceSnapshot? { get set }` |
 | Instance Property | `@Published @MainActor var checkoutMethods: [CheckoutMethod] { get set }` |
 | Instance Property | `@Published @MainActor var checkoutResolution: CheckoutMethodsResolution? { get set }` |
@@ -315,6 +353,7 @@
 | Instance Property | `let additionalIdentifiers: [BroadSupportEmailIdentifier]` |
 | Instance Property | `let analytics: BroadTokenPaywallCopy.Analytics` |
 | Instance Property | `let appName: String` |
+| Instance Property | `let appStoreURL: URL` |
 | Instance Property | `let appStoreVersion: String` |
 | Instance Property | `let appleTitle: String` |
 | Instance Property | `let backendUserID: String` |
@@ -323,6 +362,7 @@
 | Instance Property | `let body: String` |
 | Instance Property | `let border: Color` |
 | Instance Property | `let borderWidth: CGFloat` |
+| Instance Property | `let build: String` |
 | Instance Property | `let buildNumber: String` |
 | Instance Property | `let bundleIdentifier: String` |
 | Instance Property | `let cancelTitle: String` |
@@ -411,6 +451,7 @@
 | Instance Property | `let price: String` |
 | Instance Property | `let price: String?` |
 | Instance Property | `let primaryText: Color` |
+| Instance Property | `let privacyPolicyURL: URL` |
 | Instance Property | `let product: CGFloat` |
 | Instance Property | `let productContent: CGFloat` |
 | Instance Property | `let productDetail: Font` |
@@ -426,6 +467,7 @@
 | Instance Property | `let purchase: BroadPaywallPurchaseStateCopy` |
 | Instance Property | `let purchaseTitle: String` |
 | Instance Property | `let purchasingTitle: String` |
+| Instance Property | `let rawValue: String` |
 | Instance Property | `let recipient: String` |
 | Instance Property | `let recordedAt: Date` |
 | Instance Property | `let recoverBalanceTitle: String` |
@@ -456,12 +498,14 @@
 | Instance Property | `let subtitle: Font` |
 | Instance Property | `let subtitle: String` |
 | Instance Property | `let subtitle: String?` |
+| Instance Property | `let supportEmail: BroadSupportEmailConfiguration?` |
 | Instance Property | `let supportLogData: Data` |
 | Instance Property | `let supportLogFileName: String` |
 | Instance Property | `let surface: Color` |
 | Instance Property | `let surfacePadding: CGFloat` |
 | Instance Property | `let systemImageName: String?` |
 | Instance Property | `let systemVersion: String` |
+| Instance Property | `let termsURL: URL` |
 | Instance Property | `let text: CGFloat` |
 | Instance Property | `let textSpacing: CGFloat` |
 | Instance Property | `let timeZoneIdentifier: String` |
@@ -473,8 +517,11 @@
 | Instance Property | `let unavailablePriceTitle: String` |
 | Instance Property | `let unknownTitle: String?` |
 | Instance Property | `let url: URL` |
+| Instance Property | `let userID: String` |
 | Instance Property | `let validationError: OnboardingConfigurationValidationError?` |
 | Instance Property | `let value: String` |
+| Instance Property | `let version: BroadAppVersion` |
+| Instance Property | `let version: String` |
 | Instance Property | `let warning: Color` |
 | Instance Property | `let week: BroadPaywallPeriodCopy.UnitCopy` |
 | Instance Property | `let weeklyPrice: String?` |
@@ -491,7 +538,11 @@
 | Instance Property | `var requiresStoredProgress: Bool { get }` |
 | Instance Property | `var route: AppFlowRoute { get }` |
 | Instance Property | `var specialOfferExpiresAt: Date? { get }` |
+| Operator | `static func < (lhs: BroadAppVersion, rhs: BroadAppVersion) -> Bool` |
+| Operator | `static func == (lhs: BroadAppVersion, rhs: BroadAppVersion) -> Bool` |
+| Protocol | `@MainActor protocol BroadAppVersionBaselineStoreProtocol` |
 | Protocol | `protocol AppFlowProgressRepositoryProtocol : Sendable` |
+| Protocol | `protocol BroadAppStoreLookupProtocol : Sendable` |
 | Structure | `@MainActor struct BroadActionButton` |
 | Structure | `@MainActor struct BroadActionConfiguration` |
 | Structure | `@MainActor struct BroadAppFlowView<LaunchContent, OnboardingContent, PaywallContent, MainContent> where LaunchContent : View, OnboardingContent : View, PaywallContent : View, MainContent : View` |
@@ -513,14 +564,20 @@
 | Structure | `@MainActor struct BroadPaywallView` |
 | Structure | `@MainActor struct BroadRefreshIndicator` |
 | Structure | `@MainActor struct BroadSelectableProductRow` |
+| Structure | `@MainActor struct BroadSettingsHost<Content> where Content : View` |
+| Structure | `@MainActor struct BroadSettingsScreen` |
 | Structure | `@MainActor struct BroadStaleBanner` |
 | Structure | `@MainActor struct BroadSupportEmailComposer` |
 | Structure | `@MainActor struct BroadTokenPaywallView` |
+| Structure | `@MainActor struct BroadUserDefaultsAppVersionStore` |
 | Structure | `@MainActor struct OnboardingFlowActions` |
 | Structure | `struct Actions` |
 | Structure | `struct Analytics` |
 | Structure | `struct AppFlowConfiguration` |
 | Structure | `struct AppFlowStateMachine` |
+| Structure | `struct BroadAppStoreListing` |
+| Structure | `struct BroadAppStoreLookupClient` |
+| Structure | `struct BroadAppVersion` |
 | Structure | `struct BroadPaywallAccessConfiguration` |
 | Structure | `struct BroadPaywallCompletionEvent` |
 | Structure | `struct BroadPaywallConfiguration` |
@@ -532,6 +589,7 @@
 | Structure | `struct BroadPaywallPurchaseStateCopy` |
 | Structure | `struct BroadPaywallSpecialOfferCopy` |
 | Structure | `struct BroadSelectableProductContent` |
+| Structure | `struct BroadSettingsConfiguration` |
 | Structure | `struct BroadStateContent` |
 | Structure | `struct BroadSupportEmailConfiguration` |
 | Structure | `struct BroadSupportEmailGreeting` |
@@ -558,7 +616,9 @@
 | Structure | `struct States` |
 | Structure | `struct Typography` |
 | Structure | `struct UnitCopy` |
+| Type Method | `@MainActor static func preview(_ state: BroadAppUpdateChecker.PreviewState) -> BroadAppUpdateChecker` |
 | Type Method | `@MainActor static func preview(_ state: BroadPaywallScreen.PreviewState = .plans, formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter()) -> BroadPaywallScreen` |
+| Type Method | `@MainActor static func preview(_ state: BroadSettingsScreen.PreviewState = .ready) -> BroadSettingsScreen` |
 | Type Method | `static func afterFirstSlide(delay: Duration = .milliseconds(400)) -> OnboardingTrackingAuthorizationPolicy` |
 | Type Method | `static func makeRequest(configuration: BroadSupportEmailConfiguration) -> BroadSupportEmailRequest?` |
 | Type Property | `@MainActor static let standard: BroadLoadableTheme` |

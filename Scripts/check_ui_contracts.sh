@@ -246,6 +246,46 @@ require_pattern \
     "$source_root/Presentation/Paywall/PaywallViewModel+Checkout.swift" \
     'authorization\.gateRemoteConfiguration'
 
+require_pattern \
+    "Every settings action must use the shared tap gate:" \
+    "$source_root/Presentation/Settings/BroadSettingsHost.swift" \
+    '(?s)restore: \{ state\.restore\(\).*manageSubscription: \{[[:space:]]*state\.perform.*openPrivacyPolicy: \{[[:space:]]*state\.perform.*openTerms: \{[[:space:]]*state\.perform.*contactSupport: \{[[:space:]]*state\.perform.*copyUserID: \{[[:space:]]*state\.perform.*rateApp: \{[[:space:]]*state\.perform.*shareApp: \{[[:space:]]*state\.perform'
+
+require_pattern \
+    "Settings restore must enter the shared tap gate:" \
+    "$source_root/Presentation/Settings/BroadSettingsHost.swift" \
+    '(?s)func restore\(\) \{[[:space:]]*perform \{'
+
+require_pattern \
+    "Settings tap gate must lock for 400 milliseconds:" \
+    "$source_root/Presentation/Settings/BroadSettingsHost.swift" \
+    'nextActionAt = Date\(\)\.addingTimeInterval\(0\.4\)'
+
+require_pattern \
+    "Update versions must parse numeric components:" \
+    "$source_root/Domain/AppUpdate/BroadAppVersion.swift" \
+    '(?s)let number = Int\(part\).*if left != right \{[[:space:]]*return left < right'
+
+require_pattern \
+    "First successful update lookup must store the larger baseline:" \
+    "$source_root/Application/AppUpdate/BroadAppUpdateChecker.swift" \
+    '(?s)initialBaseline\(installed: installed, store: listing\.version\).*baselineStore\.save\(baseline\.rawValue, for: bundleID\)'
+
+require_pattern \
+    "A changed installed version must reset the update baseline:" \
+    "$source_root/Domain/AppUpdate/BroadAppUpdateContracts.swift" \
+    '(?s)previousInstall != installed \{[[:space:]]*return installed'
+
+require_pattern \
+    "The update checker must remember the installed version:" \
+    "$source_root/Application/AppUpdate/BroadAppUpdateChecker.swift" \
+    'baselineStore\.saveInstalledVersion\(installed\.rawValue, for: bundleID\)'
+
+require_pattern \
+    "Update lookup must query the bundle ID:" \
+    "$source_root/Data/AppUpdate/BroadAppStoreLookupClient.swift" \
+    'URLQueryItem\(name: "bundleId", value: bundleID\)'
+
 
 
 for gallery_contract in \
@@ -254,6 +294,8 @@ for gallery_contract in \
     'Subscription paywall' \
     'Special Offer paywall' \
     'Token paywall' \
+    'Settings' \
+    'App update alert' \
     'INFOPLIST_KEY_BroadAppsFixtureOnly:[[:space:]]+YES'
 do
     if ! rg -q -- "$gallery_contract" "$gallery_root"; then

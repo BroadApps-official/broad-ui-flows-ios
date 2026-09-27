@@ -21,6 +21,11 @@ Optional billing UI lives in the separate BroadRUBillingUI product. The base pay
 
 Reusable SwiftUI flows and presentation boundaries for BroadApps iPhone applications.
 
+The settings host supplies gated actions and a typed restore result to an app-owned
+layout. The update checker compares numeric version components and offers an App
+Store update from the main tab after a successful lookup. These are additive public
+APIs intended for the next minor release; this worktree keeps the 6.1.0 version.
+
 ## Topics
 
 ### Application flow
@@ -56,6 +61,17 @@ Reusable SwiftUI flows and presentation boundaries for BroadApps iPhone applicat
 - ``BroadSupportEmailIdentifier``
 - ``BroadSupportEmailRequestBuilder``
 - ``BroadSupportEmailComposer``
+
+### Settings and updates
+
+- ``BroadSettingsConfiguration``
+- ``BroadSettingsHost``
+- ``BroadSettingsScreen``
+- ``BroadSettingsRestoreResult``
+- ``BroadAppVersion``
+- ``BroadAppUpdateChecker``
+- ``BroadAppStoreLookupProtocol``
+- ``BroadAppVersionBaselineStoreProtocol``
 
 ### Composition
 
