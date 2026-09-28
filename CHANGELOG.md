@@ -1,8 +1,18 @@
 # Changelog
 
-## Unreleased
+## 6.3.0
 
 ### Added
+
+- `BroadPaywallPreloader`: `preload(_:)`, `take(_:)` and `discardAll()` load a
+  regular paywall while the main screen is idle and hand it to
+  `PaywallViewModel(initialPayload:)`, so a PRO cover slides in with its plans.
+  Payloads stay fresh for ten minutes; unused ones are released through the
+  presentation lifecycle, and preloading never reports a view. DocC article
+  "Preloading a paywall", a Gallery page and contract checks.
+- `BroadPaywallPlan.price` / `weeklyPrice` docs state the App Review rule: the
+  billed amount with its period is the prominent price, the weekly equivalent
+  only a small hint under the title.
 
 - `BroadPaywallScreen.dismissNotice()` / `PaywallViewModel.dismissNotice()`: the
   screen hides a notice without keeping its own alert state.
@@ -20,7 +30,9 @@
 
 Building app 5153 on the hosts showed what screens still computed themselves: the
 crossed-out Special Offer price, the token "SAVE %" badge, closing a notice and the
-paywall entrance animation the company QA checklist requires.
+paywall entrance animation the company QA checklist requires. Its PRO paywall also
+jumped: the cover slid in while products loaded, then the panel grew and the art
+moved.
 
 ## 6.2.0
 
