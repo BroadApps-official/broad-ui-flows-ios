@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 6.4.0
 
 ### Added
 
@@ -18,6 +18,12 @@
 - Module gate: parallel xcodebuild output can cut the path off a dependency's
   DocC warning. Such a fragment now fails the gate only when it names a file of
   this module; lines with a full path are filtered as before.
+
+### Why
+
+A Special Offer sells one product. App 5153 drew two plans from temporary data;
+choosing the one without a discount removed the "% OFF" headline and the art
+jumped. The screen now draws the one plan the purchase uses.
 
 ## 6.3.0
 
