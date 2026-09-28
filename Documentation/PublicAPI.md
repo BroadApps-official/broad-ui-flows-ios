@@ -163,7 +163,7 @@
 | Initializer | `init(contentSpacing: CGFloat, textSpacing: CGFloat, padding: CGFloat, cornerRadius: CGFloat, iconSize: CGFloat, borderWidth: CGFloat, minimumActionHeight: CGFloat, compactPadding: CGFloat)` |
 | Initializer | `init(copy: BroadTokenPaywallCopy, defaultSelectionIndex: Int = 0, showsAnalytics: Bool = false)` |
 | Initializer | `init(cornerRadius: CGFloat, minimumProductHeight: CGFloat, minimumActionHeight: CGFloat, closeButton: CGFloat, borderWidth: CGFloat, maximumContentWidth: CGFloat, maximumRetryWidth: CGFloat? = nil)` |
-| Initializer | `init(crossedValueAccessibilityLabel: String, multiplierAccessibilityLabel: String, countdownAccessibilityLabel: String, expiredMessage: String = "This offer has ended. Close the screen or choose another offer.")` |
+| Initializer | `init(crossedValueAccessibilityLabel: String, multiplierAccessibilityLabel: String, countdownAccessibilityLabel: String, expiredMessage: String = "This offer has ended. Close the screen or choose another offer.", discountFormat: String = "%d%% OFF")` |
 | Initializer | `init(defaultPolicy: PaywallAccessPolicy = .soft, hardPaywallCloseDelay: TimeInterval? = nil)` |
 | Initializer | `init(destination: OnboardingFooterDestination, title: String, accessibilityLabel: String? = nil)` |
 | Initializer | `init(fallbackTitle: String, unavailablePriceTitle: String, selectedAccessibilityValue: String)` |
@@ -357,6 +357,7 @@
 | Instance Property | `@MainActor var selectedPackage: BroadTokenPackage? { get }` |
 | Instance Property | `@MainActor var selectedPlan: BroadPaywallPlan? { get }` |
 | Instance Property | `@MainActor var selectedProduct: MonetizationProduct? { get }` |
+| Instance Property | `@MainActor var specialOfferPlan: BroadPaywallPlan? { get }` |
 | Instance Property | `@Published @MainActor var analyticsRecords: [BroadTokenPaywallAnalyticsRecord] { get set }` |
 | Instance Property | `@Published @MainActor var availableUpdate: BroadAppStoreListing? { get set }` |
 | Instance Property | `@Published @MainActor var balanceSnapshot: TokenBalanceSnapshot? { get set }` |
@@ -435,6 +436,7 @@
 | Instance Property | `let destination: OnboardingFooterDestination` |
 | Instance Property | `let deviceID: String?` |
 | Instance Property | `let deviceModel: String` |
+| Instance Property | `let discountFormat: String` |
 | Instance Property | `let discountPercent: Int?` |
 | Instance Property | `let emptyMessage: String` |
 | Instance Property | `let emptyTitle: String` |
@@ -677,6 +679,7 @@
 | Type Method | `@MainActor static func preview(_ state: BroadPaywallScreen.PreviewState = .plans, formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter()) -> BroadPaywallScreen` |
 | Type Method | `@MainActor static func preview(_ state: BroadSettingsScreen.PreviewState = .ready) -> BroadSettingsScreen` |
 | Type Method | `@MainActor static func preview(_ state: BroadTokenPaywallScreen.PreviewState = .packages, formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter()) -> BroadTokenPaywallScreen` |
+| Type Method | `@MainActor static func previewSpecialOfferWithTwoProducts(formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter()) -> BroadPaywallScreen` |
 | Type Method | `static func afterFirstSlide(delay: Duration = .milliseconds(400)) -> OnboardingTrackingAuthorizationPolicy` |
 | Type Method | `static func makeRequest(configuration: BroadSupportEmailConfiguration) -> BroadSupportEmailRequest?` |
 | Type Property | `@MainActor static let standard: BroadLoadableTheme` |

@@ -60,8 +60,12 @@ struct CustomPaywallExample: View {
             }
         case .plans:
             VStack(spacing: 10) {
-                ForEach(screen.plans) { plan in
-                    planRow(plan)
+                if let offerPlan = screen.specialOfferPlan {
+                    offerPlanRow(offerPlan)
+                } else {
+                    ForEach(screen.plans) { plan in
+                        planRow(plan)
+                    }
                 }
             }
             if let message = screen.noticeMessage {
@@ -78,6 +82,18 @@ struct CustomPaywallExample: View {
     }
 
     private func planRow(_ plan: BroadPaywallPlan) -> some View {
+        planCard(plan)
+            .contentShape(Rectangle())
+            .onTapGesture { screen.select(plan) }
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAction { screen.select(plan) }
+    }
+
+    private func offerPlanRow(_ plan: BroadPaywallPlan) -> some View {
+        planCard(plan)
+    }
+
+    private func planCard(_ plan: BroadPaywallPlan) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text(plan.periodText ?? "")
@@ -117,10 +133,6 @@ struct CustomPaywallExample: View {
             RoundedRectangle(cornerRadius: 16)
                 .stroke(plan.isSelected ? Color.accentColor : .secondary.opacity(0.3), lineWidth: 2)
         )
-        .contentShape(Rectangle())
-        .onTapGesture { screen.select(plan) }
-        .accessibilityAddTraits(.isButton)
-        .accessibilityAction { screen.select(plan) }
     }
 
     private var footer: some View {
@@ -154,4 +166,8 @@ struct CustomPaywallExample: View {
         }
         .padding(.bottom, 8)
     }
+}
+
+#Preview("Special Offer with two products") {
+    CustomPaywallExample(screen: .previewSpecialOfferWithTwoProducts())
 }

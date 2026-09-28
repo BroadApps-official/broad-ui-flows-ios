@@ -7,10 +7,11 @@ import SwiftUI
 struct FixturePaywallScreen: View {
     @StateObject private var viewModel: PaywallViewModel
 
-    init(showsSpecialOffer: Bool) {
+    init(showsSpecialOffer: Bool, offerProductCount: Int = 2) {
         let payload = FixtureCatalog.subscriptionPayload(
             placementID: showsSpecialOffer ? .specialOffer : .main,
-            showsSpecialOffer: showsSpecialOffer
+            showsSpecialOffer: showsSpecialOffer,
+            offerProductCount: offerProductCount
         )
         let authorization: SpecialOfferPresentationAuthorization? = if showsSpecialOffer {
             FixtureCatalog.specialOfferAuthorization(for: payload)
@@ -22,10 +23,12 @@ struct FixturePaywallScreen: View {
             wrappedValue: PaywallViewModel(
                 configuration: BroadPaywallConfiguration(
                     placementID: payload.origin.requestedPlacementID,
+                    defaultSelection: showsSpecialOffer && offerProductCount == 2 ? .index(1) : nil,
                     specialOfferAuthorization: authorization,
                     referenceProducts: showsSpecialOffer
                         ? FixtureCatalog.subscriptionPayload(placementID: .main, showsSpecialOffer: false).products
-                        : []
+                        : [],
+                    productOrder: showsSpecialOffer ? .provider : .longestPeriodFirst
                 ),
                 dependencies: dependencies,
                 initialPayload: payload
@@ -188,34 +191,12 @@ enum FixtureCatalog {
 
     static func subscriptionPayload(
         placementID: PlacementID,
-        showsSpecialOffer: Bool
+        showsSpecialOffer: Bool,
+        offerProductCount: Int = 2
     ) -> PaywallPayload {
-        let products = [
-            MonetizationProduct(
-                presentationID: .generated(),
-                reference: ProductReference(rawValue: "fixture-subscription-occurrence-a"),
-                productID: ProductID(rawValue: "fixture-subscription-a"),
-                kind: .autoRenewableSubscription,
-                title: "Monthly fixture",
-                subtitle: "Provider order: first occurrence",
-                price: Money(amount: 199, currencyCode: "RUB"),
-                displayPrice: "provider display value A",
-                subscriptionPeriod: .month(),
-                catalogSource: .adapty
-            ),
-            MonetizationProduct(
-                presentationID: .generated(),
-                reference: ProductReference(rawValue: "fixture-subscription-occurrence-b"),
-                productID: ProductID(rawValue: "fixture-subscription-b"),
-                kind: .autoRenewableSubscription,
-                title: "Yearly fixture",
-                subtitle: "Provider order: second occurrence",
-                price: Money(amount: 1490, currencyCode: "RUB"),
-                displayPrice: "provider display value B",
-                subscriptionPeriod: .year(),
-                catalogSource: .adapty
-            )
-        ]
+        let isOfferPlacement = placementID == .specialOffer
+        let products = subscriptionProducts(isOfferPlacement: isOfferPlacement)
+        let orderedProducts = isOfferPlacement ? Array(products.reversed()) : products
         let remoteConfiguration = RemotePaywallConfiguration(
             specialOffer: showsSpecialOffer
                 ? SpecialOfferRemoteConfiguration(
@@ -235,11 +216,41 @@ enum FixtureCatalog {
                 resolvedPlacementID: placementID,
                 catalogSource: .adapty
             ),
-            products: products,
+            products: isOfferPlacement && offerProductCount == 1
+                ? Array(orderedProducts.prefix(1)) : orderedProducts,
             remoteConfiguration: remoteConfiguration,
             remoteConfigurationProvenance: .providerCacheFallbackPossible,
             fetchedAt: Date()
         )
+    }
+
+    private static func subscriptionProducts(isOfferPlacement: Bool) -> [MonetizationProduct] {
+        [
+            MonetizationProduct(
+                presentationID: .generated(),
+                reference: ProductReference(rawValue: "fixture-subscription-occurrence-a"),
+                productID: ProductID(rawValue: "fixture-subscription-a"),
+                kind: .autoRenewableSubscription,
+                title: "Monthly fixture",
+                subtitle: "Provider order: first occurrence",
+                price: Money(amount: 199, currencyCode: "RUB"),
+                displayPrice: "provider display value A",
+                subscriptionPeriod: .month(),
+                catalogSource: .adapty
+            ),
+            MonetizationProduct(
+                presentationID: .generated(),
+                reference: ProductReference(rawValue: "fixture-subscription-occurrence-b"),
+                productID: ProductID(rawValue: "fixture-subscription-b"),
+                kind: .autoRenewableSubscription,
+                title: "Yearly fixture",
+                subtitle: "Provider order: second occurrence",
+                price: Money(amount: isOfferPlacement ? 999 : 1490, currencyCode: "RUB"),
+                displayPrice: nil,
+                subscriptionPeriod: .year(),
+                catalogSource: .adapty
+            )
+        ]
     }
 
     static func tokenPayload() -> PaywallPayload {

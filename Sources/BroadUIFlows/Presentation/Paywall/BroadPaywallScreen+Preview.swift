@@ -16,8 +16,8 @@ public extension BroadPaywallScreen {
         case specialOffer
     }
 
-    /// Fixture screen for Xcode Previews: three plans, longest first and selected,
-    /// priced in the currency of the formatter's locale. Actions do nothing.
+    /// Fixture screen for Xcode Previews. The Special Offer contains one plan.
+    /// Actions do nothing.
     static func preview(
         _ state: PreviewState = .plans,
         formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter()
@@ -51,6 +51,16 @@ public extension BroadPaywallScreen {
                 specialOfferEndsAt: Date().addingTimeInterval(23 * 3600 + 59 * 60)
             )
         }
+    }
+
+    /// Fixture Special Offer with two provider plans and one visible plan.
+    static func previewSpecialOfferWithTwoProducts(
+        formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter()
+    ) -> BroadPaywallScreen {
+        previewScreen(
+            plans: Array(previewPlans(formatter: formatter, specialOffer: true).prefix(2)),
+            specialOfferEndsAt: Date().addingTimeInterval(23 * 3600 + 59 * 60)
+        )
     }
 }
 

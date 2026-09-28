@@ -49,6 +49,14 @@ only for a higher regular price with the same period and currency; the lowest
 eligible reference is used. The default empty reference list leaves these
 fields empty.
 
+For a custom Special Offer, draw only `screen.specialOfferPlan` as one card
+without selection. It is the first plan in display order and the selected
+purchase plan, even when `productOrder` is `.provider` or `defaultSelection`
+points elsewhere. Keep the discount heading and crossed price tied to its
+`discountPercent` and `regularPrice`; `screen.plans` still contains every
+provider product. The `special_offer` placement should contain one product.
+SemVer intent for `specialOfferPlan`: MINOR, additive public API.
+
 `BroadTokenPaywallHost` supplies a verified `priceAmount` and per-token saving
 for each package when all displayed token counts and same-currency prices are
 known. Only the strongest positive saving gets `isBestValue`. A custom app flow

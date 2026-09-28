@@ -55,6 +55,7 @@ public extension BroadPaywallSpecialOfferCopy {
         crossedValueAccessibilityLabel: "Предыдущая цена",
         multiplierAccessibilityLabel: "Во сколько раз больше выгода",
         countdownAccessibilityLabel: "До конца предложения",
-        expiredMessage: "Предложение закончилось. Закройте экран или выберите другой тариф."
+        expiredMessage: "Предложение закончилось. Закройте экран или выберите другой тариф.",
+        discountFormat: "Скидка %d%%"
     )
 }

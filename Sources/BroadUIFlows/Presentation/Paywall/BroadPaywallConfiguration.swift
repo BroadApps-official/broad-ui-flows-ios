@@ -100,17 +100,21 @@ public struct BroadPaywallSpecialOfferCopy: Equatable, Sendable {
     public let multiplierAccessibilityLabel: String
     public let countdownAccessibilityLabel: String
     public let expiredMessage: String
+    /// Format of the discount headline, with one integer: "%d%% OFF".
+    public let discountFormat: String
 
     public init(
         crossedValueAccessibilityLabel: String,
         multiplierAccessibilityLabel: String,
         countdownAccessibilityLabel: String,
-        expiredMessage: String = "This offer has ended. Close the screen or choose another offer."
+        expiredMessage: String = "This offer has ended. Close the screen or choose another offer.",
+        discountFormat: String = "%d%% OFF"
     ) {
         self.crossedValueAccessibilityLabel = crossedValueAccessibilityLabel
         self.multiplierAccessibilityLabel = multiplierAccessibilityLabel
         self.countdownAccessibilityLabel = countdownAccessibilityLabel
         self.expiredMessage = expiredMessage
+        self.discountFormat = discountFormat
     }
 
     public static let english = BroadPaywallSpecialOfferCopy(

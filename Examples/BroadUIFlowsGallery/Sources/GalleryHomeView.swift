@@ -23,8 +23,11 @@ struct GalleryHomeView: View {
                     NavigationLink("Custom paywall (host)") {
                         CustomPaywallGallery()
                     }
-                    NavigationLink("Special Offer paywall") {
-                        FixturePaywallScreen(showsSpecialOffer: true)
+                    NavigationLink("Special Offer paywall (one product)") {
+                        FixturePaywallScreen(showsSpecialOffer: true, offerProductCount: 1)
+                    }
+                    NavigationLink("Special Offer paywall (two products)") {
+                        FixturePaywallScreen(showsSpecialOffer: true, offerProductCount: 2)
                     }
                     NavigationLink("Token paywall") {
                         FixtureTokenPaywallScreen()

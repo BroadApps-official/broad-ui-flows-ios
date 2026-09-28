@@ -99,7 +99,7 @@ public struct BroadPaywallScreen {
     }
 
     public let content: Content
-    /// Plans in display order: the longest subscription first.
+    /// All provider plans in the configured display order.
     public let plans: [BroadPaywallPlan]
     public let activity: Activity
     public let notice: BroadPaywallNotice?
@@ -116,6 +116,12 @@ public struct BroadPaywallScreen {
 
     public var selectedPlan: BroadPaywallPlan? {
         plans.first(where: \.isSelected)
+    }
+
+    /// The only plan shown and selected by a Special Offer, first in display order.
+    /// `nil` for a regular paywall or an offer without products.
+    public var specialOfferPlan: BroadPaywallPlan? {
+        specialOfferEndsAt == nil ? nil : plans.first
     }
 
     public var isBusy: Bool {

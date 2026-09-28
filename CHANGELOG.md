@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Added
+
+- `BroadPaywallScreen.specialOfferPlan`: a Special Offer sells one product, so
+  the screen gets the one plan to draw — the first in display order; `plans`
+  still holds every product. The view model selects that plan (whatever the
+  product order or default selection) and ignores other selections, so the
+  purchase is what the card shows. The ready `BroadPaywallView` draws one offer
+  card and the discount headline from the same plan; Remote Config crossed
+  values stay a fallback when no regular plan is comparable.
+- `BroadPaywallSpecialOfferCopy.discountFormat` ("%d%% OFF", Russian "Скидка %d%%").
+
 ### Fixed
 
 - Module gate: parallel xcodebuild output can cut the path off a dependency's

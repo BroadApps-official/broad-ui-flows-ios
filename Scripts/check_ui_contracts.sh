@@ -300,6 +300,61 @@ require_pattern \
     '(?s)BroadSpecialOfferPricing\.make\(.*reference: configuration\.referenceProducts'
 
 require_pattern \
+    "Special Offer exposes the first plan without truncating plans:" \
+    "$source_root/Presentation/Paywall/BroadPaywallScreen.swift" \
+    '(?s)public var specialOfferPlan: BroadPaywallPlan\? \{[[:space:]]*specialOfferEndsAt == nil \? nil : plans\.first'
+
+require_pattern \
+    "Special Offer selects the displayed plan before checkout:" \
+    "$source_root/Presentation/Paywall/PaywallViewModel+Loading.swift" \
+    '(?s)let displayedProducts = configuration\.productOrder\.arrange\(payload\.products\).*let product = isSpecialOffer[[:space:]]*\? displayedProducts\.first[[:space:]]*:[[:space:]]*configuredProduct'
+
+require_pattern \
+    "Special Offer does not offer product selection:" \
+    "$source_root/Presentation/Paywall/PaywallViewModel+Loading.swift" \
+    '(?s)public func selectProduct\(presentationID: ProductPresentationID\).*configuration\.specialOfferAuthorization == nil'
+
+require_pattern \
+    "Ready Special Offer draws one plan card:" \
+    "$source_root/Presentation/Paywall/BroadPaywallView+Content.swift" \
+    '(?s)\.specialOfferPlan.*if viewModel\.configuration\.specialOfferAuthorization != nil \{[[:space:]]*if let offerPlan \{[[:space:]]*specialOfferRow\(offerPlan\)'
+
+require_pattern \
+    "Offer discount and crossed price use the same plan:" \
+    "$source_root/Presentation/Paywall/BroadSpecialOfferMetadataView.swift" \
+    'plan\?\.discountPercent'
+
+require_pattern \
+    "Offer crossed price uses the displayed plan:" \
+    "$source_root/Presentation/Paywall/BroadPaywallView+Content.swift" \
+    'if let regularPrice = plan\.regularPrice'
+
+require_pattern \
+    "Remote crossed price and multiplier are only a fallback without a computed regular price:" \
+    "$source_root/Presentation/Paywall/BroadSpecialOfferMetadataView.swift" \
+    '(?s)if let discount = plan\?\.discountPercent \{.*\} else if plan\?\.regularPrice == nil \{'
+
+require_pattern \
+    "Offer previews cover one and two provider products:" \
+    "$source_root/Presentation/Paywall/BroadPaywallScreen+Preview.swift" \
+    '(?s)case \.specialOffer:.*plans: Array\(plans\.prefix\(1\)\).*func previewSpecialOfferWithTwoProducts\(.*plans: Array\(previewPlans\(formatter: formatter, specialOffer: true\)\.prefix\(2\)\)'
+
+require_pattern \
+    "Gallery opens one-product and two-product offers:" \
+    "$gallery_root/Sources/GalleryHomeView.swift" \
+    '(?s)FixturePaywallScreen\(showsSpecialOffer: true, offerProductCount: 1\).*FixturePaywallScreen\(showsSpecialOffer: true, offerProductCount: 2\)'
+
+require_pattern \
+    "Two-product Gallery offer overrides provider-order default selection:" \
+    "$gallery_root/Sources/MonetizationGallery.swift" \
+    '(?s)defaultSelection: showsSpecialOffer && offerProductCount == 2 \? \.index\(1\) : nil,.*productOrder: showsSpecialOffer \? \.provider : \.longestPeriodFirst'
+
+require_pattern \
+    "Custom gallery draws only the offer plan:" \
+    "$gallery_root/Sources/CustomPaywallGallery.swift" \
+    '(?s)if let offerPlan = screen\.specialOfferPlan \{[[:space:]]*offerPlanRow\(offerPlan\)[[:space:]]*\} else \{[[:space:]]*ForEach\(screen\.plans\)'
+
+require_pattern \
     "Regular paywall products must be optional offer references:" \
     "$source_root/Presentation/Paywall/BroadPaywallConfiguration.swift" \
     '(?s)referenceProducts:[[:space:]]*\[MonetizationProduct\].*self\.referenceProducts = referenceProducts'

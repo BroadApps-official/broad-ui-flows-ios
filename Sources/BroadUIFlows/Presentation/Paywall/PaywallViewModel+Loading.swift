@@ -34,6 +34,7 @@ extension PaywallViewModel {
     public func selectProduct(presentationID: ProductPresentationID) {
         guard
             canSelectProducts,
+            configuration.specialOfferAuthorization == nil,
             case let .content(payload) = state,
             selectedProductPresentationID != presentationID,
             let product = payload.products.first(where: {
@@ -124,17 +125,22 @@ extension PaywallViewModel {
     }
 
     func selectInitialProduct(in payload: PaywallPayload) {
-        let configuredID = configuration.defaultSelection?.resolve(in: payload.products)
+        let isSpecialOffer = configuration.specialOfferAuthorization != nil
+        let configuredID = isSpecialOffer
+            ? nil : configuration.defaultSelection?.resolve(in: payload.products)
         let configuredProduct = configuredID.flatMap { presentationID in
             payload.products.first(where: {
                 $0.presentationID == presentationID
                     && $0.isEligibleForGenericPurchase
             })
         }
+        let displayedProducts = configuration.productOrder.arrange(payload.products)
+        let product = isSpecialOffer
+            ? displayedProducts.first
+            : configuredProduct ?? displayedProducts.first(where: \.isEligibleForGenericPurchase)
         guard
-            let product = configuredProduct
-            ?? configuration.productOrder.arrange(payload.products)
-            .first(where: \.isEligibleForGenericPurchase),
+            let product,
+            product.isEligibleForGenericPurchase,
             let selection = dependencies.selectProduct(
                 productPresentationID: product.presentationID,
                 in: payload
@@ -149,9 +155,14 @@ extension PaywallViewModel {
 
     func configureCloseAvailability(for payload: PaywallPayload) {
         // A hard paywall without a safely purchasable occurrence must never
-        // trap the user behind disabled rows. Keep the 1:1 catalog visible,
+        // trap the user behind a disabled card. Keep the catalog intact,
         // but make close immediately available.
-        guard payload.products.contains(where: \.isEligibleForGenericPurchase) else {
+        let hasPurchasablePlan = if configuration.specialOfferAuthorization != nil {
+            displayedProducts(in: payload).first?.isEligibleForGenericPurchase == true
+        } else {
+            payload.products.contains(where: \.isEligibleForGenericPurchase)
+        }
+        guard hasPurchasablePlan else {
             isCloseAvailable = true
             return
         }

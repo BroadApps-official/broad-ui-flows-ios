@@ -31,6 +31,28 @@ verified `BroadTokenPackage.priceAmount`, per-token `savingsPercent`, and one
 `BroadAppFlowView(transition:)` to ``BroadAppFlowTransition/slide`` for route
 movement; Reduce Motion uses a fade, while the default keeps immediate changes.
 
+### Custom Special Offer screen
+
+The `special_offer` placement should contain one product. Draw
+``BroadPaywallScreen/specialOfferPlan`` as one card without a plan selector.
+If a provider returns additional products, ``BroadPaywallScreen/plans`` keeps
+them, while `specialOfferPlan` remains the first plan in display order and is
+the plan selected for purchase. Read both the discount heading and the crossed
+regular price from that same plan so the layout does not shift with selection:
+
+```swift
+if let plan = screen.specialOfferPlan {
+    if let discount = plan.discountPercent {
+        Text("\(discount)% OFF")
+    }
+    OfferCard(price: plan.price, regularPrice: plan.regularPrice)
+}
+```
+
+Use ``BroadPaywallScreen/preview(_:formatter:)`` with `.specialOffer` and
+``BroadPaywallScreen/previewSpecialOfferWithTwoProducts(formatter:)`` to inspect
+both catalogs; each draws one card.
+
 The settings host supplies gated actions and a typed restore result to an app-owned
 layout. The update checker compares numeric version components and offers an App
 Store update from the main tab after a successful lookup.

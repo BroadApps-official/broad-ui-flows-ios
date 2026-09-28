@@ -126,12 +126,20 @@ extension BroadPaywallView {
     }
 
     func productContent(_ payload: PaywallPayload) -> some View {
-        LazyVStack(spacing: theme.metrics.spacing.content) {
-            paywallHeader(payload)
+        let offerPlan = viewModel.configuration.specialOfferAuthorization == nil
+            ? nil : viewModel.screen(formatter: productFormatter, close: {}, open: { _ in }).specialOfferPlan
+        return LazyVStack(spacing: theme.metrics.spacing.content) {
+            paywallHeader(payload, offerPlan: offerPlan)
 
             LazyVStack(spacing: theme.metrics.spacing.product) {
-                ForEach(viewModel.displayedProducts(in: payload), id: \.presentationID) { product in
-                    productRow(product)
+                if viewModel.configuration.specialOfferAuthorization != nil {
+                    if let offerPlan {
+                        specialOfferRow(offerPlan)
+                    }
+                } else {
+                    ForEach(viewModel.displayedProducts(in: payload), id: \.presentationID) { product in
+                        productRow(product)
+                    }
                 }
             }
         }
@@ -139,7 +147,7 @@ extension BroadPaywallView {
         .padding(.vertical, theme.metrics.spacing.content)
     }
 
-    func paywallHeader(_ payload: PaywallPayload) -> some View {
+    func paywallHeader(_ payload: PaywallPayload, offerPlan: BroadPaywallPlan?) -> some View {
         VStack(spacing: theme.metrics.spacing.text) {
             Text(viewModel.configuration.copy.header.title)
                 .font(theme.typography.title)
@@ -163,9 +171,50 @@ extension BroadPaywallView {
                     countdownAuthorization: authorization.countdown,
                     copy: viewModel.configuration.specialOfferCopy,
                     theme: theme,
-                    locale: productFormatter.locale
+                    locale: productFormatter.locale,
+                    plan: offerPlan
                 )
             }
+        }
+    }
+
+    func specialOfferRow(_ plan: BroadPaywallPlan) -> some View {
+        HStack(spacing: theme.metrics.spacing.productContent) {
+            VStack(alignment: .leading, spacing: theme.metrics.spacing.text) {
+                Text(plan.title ?? viewModel.configuration.copy.products.fallbackTitle)
+                    .font(theme.typography.productTitle)
+                    .foregroundStyle(theme.palette.primaryText)
+                if let period = plan.periodText {
+                    Text(period)
+                        .font(theme.typography.productDetail)
+                        .foregroundStyle(theme.palette.secondaryText)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            VStack(alignment: .trailing, spacing: theme.metrics.spacing.text) {
+                if let regularPrice = plan.regularPrice {
+                    Text(regularPrice)
+                        .font(theme.typography.productDetail)
+                        .foregroundStyle(theme.palette.secondaryText)
+                        .strikethrough()
+                        .accessibilityLabel(viewModel.configuration.specialOfferCopy.crossedValueAccessibilityLabel)
+                        .accessibilityValue(regularPrice)
+                }
+                Text(plan.price ?? viewModel.configuration.copy.products.unavailablePriceTitle)
+                    .font(theme.typography.productPrice)
+                    .foregroundStyle(theme.palette.primaryText)
+            }
+        }
+        .padding(theme.metrics.spacing.productContent)
+        .frame(maxWidth: .infinity, minHeight: theme.metrics.sizing.minimumProductHeight)
+        .background {
+            RoundedRectangle(cornerRadius: theme.metrics.sizing.cornerRadius)
+                .fill(theme.palette.selectedSurface)
+                .overlay {
+                    RoundedRectangle(cornerRadius: theme.metrics.sizing.cornerRadius)
+                        .stroke(theme.palette.selectedBorder, lineWidth: theme.metrics.sizing.borderWidth)
+                }
         }
     }
 

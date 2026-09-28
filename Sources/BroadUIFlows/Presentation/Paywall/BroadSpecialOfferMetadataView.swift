@@ -9,6 +9,8 @@ struct BroadSpecialOfferMetadataView: View {
     let copy: BroadPaywallSpecialOfferCopy
     let theme: BroadPaywallTheme
     let locale: Locale
+    /// The offer's only plan; its computed discount replaces Remote Config values.
+    let plan: BroadPaywallPlan?
 
     var body: some View {
         if hasVisibleContent {
@@ -25,9 +27,17 @@ struct BroadSpecialOfferMetadataView: View {
                         )
                 }
 
-                HStack(spacing: theme.metrics.spacing.productContent) {
-                    crossedValue
-                    multiplier
+                if let discount = plan?.discountPercent {
+                    Text(String(format: copy.discountFormat, discount))
+                        .font(theme.typography.productPrice)
+                        .foregroundStyle(theme.palette.accent)
+                } else if plan?.regularPrice == nil {
+                    // Remote Config values stay a fallback for offers without a
+                    // comparable regular plan.
+                    HStack(spacing: theme.metrics.spacing.productContent) {
+                        crossedValue
+                        multiplier
+                    }
                 }
 
                 if let periodText = configuration.periodText {
@@ -84,6 +94,7 @@ struct BroadSpecialOfferMetadataView: View {
 
     private var hasVisibleContent: Bool {
         configuration.badge != nil
+            || plan?.discountPercent != nil
             || crossedValueText != nil
             || configuration.priceMultiplier != nil
             || configuration.periodText != nil
