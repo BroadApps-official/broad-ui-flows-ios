@@ -76,6 +76,8 @@ ready screen model.
 
 - ``BroadPaywallView``
 - ``PaywallViewModel``
+- ``BroadPaywallPreloader``
+- <doc:PreloadingAPaywall>
 - ``BroadTokenPaywallView``
 - ``BroadTokenPaywallViewModel``
 

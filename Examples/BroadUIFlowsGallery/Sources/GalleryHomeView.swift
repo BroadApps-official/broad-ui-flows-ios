@@ -17,6 +17,9 @@ struct GalleryHomeView: View {
                     NavigationLink("Subscription paywall") {
                         FixturePaywallScreen(showsSpecialOffer: false)
                     }
+                    NavigationLink("Preloaded paywall") {
+                        FixturePreloadedPaywallGallery()
+                    }
                     NavigationLink("Custom paywall (host)") {
                         CustomPaywallGallery()
                     }

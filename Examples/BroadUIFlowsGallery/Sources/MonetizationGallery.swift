@@ -17,17 +17,7 @@ struct FixturePaywallScreen: View {
         } else {
             nil
         }
-        let operationGate = MonetizationOperationGate()
-        let dependencies = PaywallViewModelDependencies(
-            loadPaywall: FixturePaywallLoader(payload: payload),
-            selectProduct: FixtureProductSelector(),
-            checkoutProduct: FixtureCheckout(),
-            restorePurchases: FixtureRestore(),
-            resolveCheckoutMethods: FixtureCheckoutMethods(),
-            trackEvent: FixturePaywallTracker(),
-            presentationLifecycle: NoOpPaywallPresentationLifecycle(),
-            operationGate: operationGate
-        )
+        let dependencies = Self.dependencies(for: payload)
         _viewModel = StateObject(
             wrappedValue: PaywallViewModel(
                 configuration: BroadPaywallConfiguration(
@@ -50,6 +40,77 @@ struct FixturePaywallScreen: View {
             onCompleted: { _ in }
         )
         .navigationBarBackButtonHidden(false)
+    }
+
+    static func dependencies(for payload: PaywallPayload) -> PaywallViewModelDependencies {
+        PaywallViewModelDependencies(
+            loadPaywall: FixturePaywallLoader(payload: payload),
+            selectProduct: FixtureProductSelector(),
+            checkoutProduct: FixtureCheckout(),
+            restorePurchases: FixtureRestore(),
+            resolveCheckoutMethods: FixtureCheckoutMethods(),
+            trackEvent: FixturePaywallTracker(),
+            presentationLifecycle: NoOpPaywallPresentationLifecycle(),
+            operationGate: MonetizationOperationGate()
+        )
+    }
+}
+
+@MainActor
+struct FixturePreloadedPaywallGallery: View {
+    @State private var preloader: BroadPaywallPreloader
+    @State private var viewModel: PaywallViewModel?
+    @State private var isPresented = false
+    @State private var shouldPreloadAfterDismiss = true
+
+    private let dependencies: PaywallViewModelDependencies
+
+    init() {
+        let payload = FixtureCatalog.subscriptionPayload(
+            placementID: .main,
+            showsSpecialOffer: false
+        )
+        let dependencies = FixturePaywallScreen.dependencies(for: payload)
+        self.dependencies = dependencies
+        _preloader = State(initialValue: BroadPaywallPreloader(dependencies: dependencies))
+    }
+
+    var body: some View {
+        Button("Open preloaded PRO paywall") {
+            shouldPreloadAfterDismiss = true
+            viewModel = PaywallViewModel(
+                configuration: BroadPaywallConfiguration(placementID: .main),
+                dependencies: dependencies,
+                initialPayload: preloader.take(.main)
+            )
+            isPresented = true
+        }
+        .task {
+            preloader.preload(.main)
+        }
+        .fullScreenCover(
+            isPresented: $isPresented,
+            onDismiss: {
+                viewModel = nil
+                if shouldPreloadAfterDismiss {
+                    preloader.preload(.main)
+                }
+            },
+            content: {
+                if let viewModel {
+                    BroadPaywallView(
+                        viewModel: viewModel,
+                        onClose: { isPresented = false },
+                        onCompleted: { _ in
+                            shouldPreloadAfterDismiss = false
+                            preloader.discardAll()
+                            isPresented = false
+                        }
+                    )
+                }
+            }
+        )
+        .navigationTitle("Preloaded paywall")
     }
 }
 

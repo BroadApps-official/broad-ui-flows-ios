@@ -80,6 +80,7 @@
 | Case | `case updateAvailable` |
 | Class | `@MainActor final class AppFlowCoordinator` |
 | Class | `@MainActor final class BroadAppUpdateChecker` |
+| Class | `@MainActor final class BroadPaywallPreloader` |
 | Class | `@MainActor final class BroadTokenPaywallViewModel` |
 | Class | `@MainActor final class Coordinator` |
 | Class | `@MainActor final class OnboardingViewModel` |
@@ -109,6 +110,7 @@
 | Enumeration | `enum OnboardingFooterDestination` |
 | Enumeration | `enum PreviewState` |
 | Initializer | `@MainActor convenience init(bundleID: String = Bundle.main.bundleIdentifier ?? "", installedVersion: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "", lookup: any BroadAppStoreLookupProtocol = BroadAppStoreLookupClient())` |
+| Initializer | `@MainActor convenience init(dependencies: PaywallViewModelDependencies, lifetime: Duration = .seconds(600))` |
 | Initializer | `@MainActor init()` |
 | Initializer | `@MainActor init(accessibilityLabel: String)` |
 | Initializer | `@MainActor init(accessibilityLabel: String, theme: BroadLoadableTheme)` |
@@ -133,6 +135,7 @@
 | Initializer | `@MainActor init(content: BroadTokenPaywallScreen.Content, packages: [BroadTokenPackage], activity: BroadTokenPaywallScreen.Activity = .idle, balance: Decimal? = nil, balanceText: String? = nil, notice: BroadTokenPaywallFeedback? = nil, noticeMessage: String? = nil, needsConfirmation: Bool = false, canPurchase: Bool, canClose: Bool = true, select: @escaping @MainActor (ProductPresentationID) -> Void = { _ in }, purchase: @escaping @MainActor () -> Void = {}, confirm: @escaping @MainActor () -> Void = {}, refreshBalance: @escaping @MainActor () -> Void = {}, retry: @escaping @MainActor () -> Void = {}, close: @escaping @MainActor () -> Void = {}, dismissNotice: @escaping @MainActor () -> Void = {})` |
 | Initializer | `@MainActor init(defaults: UserDefaults = .standard)` |
 | Initializer | `@MainActor init(links: [BroadPaywallLegalLink], theme: BroadPaywallTheme, onOpen: @escaping @MainActor (BroadPaywallLegalLink) -> Void)` |
+| Initializer | `@MainActor init(loadPaywall: any LoadPaywallUseCaseProtocol, presentationLifecycle: any PaywallPresentationLifecycleProtocol, lifetime: Duration = .seconds(600))` |
 | Initializer | `@MainActor init(palette: BroadLoadableTheme.Palette, typography: BroadLoadableTheme.Typography, metrics: BroadLoadableTheme.Metrics)` |
 | Initializer | `@MainActor init(palette: BroadOnboardingTheme.Palette, typography: BroadOnboardingTheme.Typography, metrics: BroadOnboardingTheme.Metrics)` |
 | Initializer | `@MainActor init(palette: BroadPaywallTheme.Palette, typography: BroadPaywallTheme.Typography, metrics: BroadPaywallTheme.Metrics)` |
@@ -224,6 +227,7 @@
 | Instance Method | `@MainActor func consumeCompletionEvent(id: UUID)` |
 | Instance Method | `@MainActor func contactSupport()` |
 | Instance Method | `@MainActor func copyUserID()` |
+| Instance Method | `@MainActor func discardAll()` |
 | Instance Method | `@MainActor func dismiss()` |
 | Instance Method | `@MainActor func dismissFeedback()` |
 | Instance Method | `@MainActor func dismissNotice()` |
@@ -248,6 +252,7 @@
 | Instance Method | `@MainActor func open(_ link: BroadPaywallLegalLink)` |
 | Instance Method | `@MainActor func openPrivacyPolicy()` |
 | Instance Method | `@MainActor func openTerms()` |
+| Instance Method | `@MainActor func preload(_ placementID: PlacementID)` |
 | Instance Method | `@MainActor func purchase()` |
 | Instance Method | `@MainActor func purchaseButtonTapped()` |
 | Instance Method | `@MainActor func purchaseSelectedProduct()` |
@@ -273,6 +278,7 @@
 | Instance Method | `@MainActor func startIfNeeded()` |
 | Instance Method | `@MainActor func submitCheckoutMethod(_ method: CheckoutMethod, options: CheckoutOptions)` |
 | Instance Method | `@MainActor func subscriptionDidBecomeActive()` |
+| Instance Method | `@MainActor func take(_ placementID: PlacementID) -> PaywallPayload?` |
 | Instance Method | `@MainActor func updateUIViewController(_ uiViewController: MFMailComposeViewController, context: BroadSupportEmailComposer.Context)` |
 | Instance Method | `@MainActor func updateUIViewController(_ uiViewController: SFSafariViewController, context: BroadInAppSafariView.Context)` |
 | Instance Method | `@MainActor func version(for bundleID: String) -> String?` |

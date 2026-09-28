@@ -30,6 +30,18 @@ App передаёт тексты, theme и действия через public c
 
 ## Paywall и Special Offer
 
+`BroadPaywallPreloader` preloads a regular paywall before a PRO or settings
+sheet opens. The app calls `preload` when the main screen appears and after a
+paywall closes without a purchase, then passes `take(placementID)` as the
+`PaywallViewModel` initial payload on the button tap. The default freshness
+window is ten minutes. `discardAll()` releases unused payloads after a
+confirmed purchase or restore. A preload never reports a paywall impression;
+the visible view model does. Special Offer uses its own BroadMonetization
+preparation flow, and token paywalls should only be preloaded for a specific
+app need. See [Preloading a paywall](../Sources/BroadUIFlows/BroadUIFlows.docc/PreloadingAPaywall.md).
+
+SemVer intent for `BroadPaywallPreloader`: MINOR, additive public API.
+
 `BroadPaywallScreen.dismissNotice()` clears the current typed notice. A Special
 Offer may receive `referenceProducts` in `BroadPaywallConfiguration` from the
 closed regular paywall. Its plans expose `regularPrice` and `discountPercent`

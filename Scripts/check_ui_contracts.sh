@@ -265,6 +265,31 @@ require_pattern \
     'public func dismissNotice\(\)[[:space:]]*\{[[:space:]]*setNotice\(nil\)'
 
 require_pattern \
+    "Paywall preloading must deduplicate in-flight requests:" \
+    "$source_root/Presentation/Paywall/BroadPaywallPreloader.swift" \
+    '(?s)guard inFlight\[placementID\] == nil else.*loadPaywall\(PaywallLoadRequest\(placementID: placementID\)\)'
+
+require_pattern \
+    "Paywall preloading must release abandoned loads through the presentation lifecycle:" \
+    "$source_root/Presentation/Paywall/BroadPaywallPreloader.swift" \
+    '(?s)guard let self, !Task\.isCancelled, inFlight\[placementID\]\?\.id == id else.*presentationLifecycle\.presentationDidEnd\([[:space:]]*PaywallAnalyticsContext\(paywall: payload\)'
+
+require_pattern \
+    "Discarding preloaded paywalls must cancel loads and release cached payloads:" \
+    "$source_root/Presentation/Paywall/BroadPaywallPreloader.swift" \
+    '(?s)public func discardAll\(\).*pending\.task\.cancel\(\).*release\(cached\.payload\)'
+
+require_pattern \
+    "Unused paywall payloads must be released when the preloader deinitializes:" \
+    "$source_root/Presentation/Paywall/BroadPaywallPreloader.swift" \
+    '(?s)deinit \{.*pending\.task\.cancel\(\).*presentationLifecycle\.presentationDidEnd\([[:space:]]*PaywallAnalyticsContext\(paywall: payload\)'
+
+scan_forbidden \
+    "Paywall preloading must not report a shown impression:" \
+    '(?i)(paywallShown|presentationDidAppear|logShowPaywall)' \
+    "$source_root/Presentation/Paywall/BroadPaywallPreloader.swift"
+
+require_pattern \
     "Special Offer comparison must match period, currency and a higher regular price:" \
     "$source_root/Presentation/Paywall/BroadSpecialOfferPricing.swift" \
     '(?s)candidate\.subscriptionPeriod == offer\.subscriptionPeriod.*price\.currencyCode == offerPrice\.currencyCode.*price\.amount > offerPrice\.amount.*\.min'

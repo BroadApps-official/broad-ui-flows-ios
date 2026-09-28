@@ -11,9 +11,12 @@ public struct BroadPaywallPlan: Identifiable, Equatable, Sendable {
     public let period: SubscriptionPeriod
     /// Billing period text, for example "per year".
     public let periodText: String?
-    /// Price of one billing period as the store formats it.
+    /// The amount actually charged for one billing period, formatted by the store.
+    /// App Review requires this amount and its period to be prominent on the right;
+    /// a weekly equivalent must never replace it as the main price.
     public let price: String?
-    /// Price brought to one week; `nil` when it cannot be computed.
+    /// A weekly equivalent, shown only as a smaller hint below the plan title;
+    /// `nil` when it cannot be computed. It must not be the main charged price.
     public let weeklyPrice: String?
     /// Price of the cheapest higher-priced regular plan with the same period and currency.
     public let regularPrice: String?
