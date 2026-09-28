@@ -106,10 +106,23 @@ xcodebuild \
     -derivedDataPath "$derived_data" \
     CODE_SIGNING_ALLOWED=NO \
     docbuild 2>&1 | tee "$docc_log"
-docc_warnings="$({
+docc_candidates="$({
     rg -- ': warning:' "$docc_log" \
         | rg -v -- 'SourcePackages/checkouts|Adapty|Swinject|BroadCore|BroadMonetization'
 } || true)"
+# Parallel xcodebuild output can cut the path off a dependency's warning. A line
+# without an absolute path still fails the gate when it names a file of this module.
+docc_warnings=""
+while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    if [[ "$line" != /* ]]; then
+        fragment_file="${line%%:*}"
+        if [[ -z "$(find "$module_root/Sources" -name "*${fragment_file##*/}" -print -quit)" ]]; then
+            continue
+        fi
+    fi
+    docc_warnings+="$line"$'\n'
+done <<< "$docc_candidates"
 if [[ -n "$docc_warnings" ]]; then
     printf 'BroadUIFlows DocC emitted warnings:\n%s\n' "$docc_warnings"
     exit 1

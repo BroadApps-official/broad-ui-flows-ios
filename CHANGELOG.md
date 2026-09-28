@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Module gate: parallel xcodebuild output can cut the path off a dependency's
+  DocC warning. Such a fragment now fails the gate only when it names a file of
+  this module; lines with a full path are filtered as before.
+
 ## 6.3.0
 
 ### Added
