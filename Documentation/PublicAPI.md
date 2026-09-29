@@ -119,7 +119,7 @@
 | Initializer | `@MainActor init(configuration: BroadActionConfiguration, tint: Color)` |
 | Initializer | `@MainActor init(configuration: BroadActionConfiguration, tint: Color, theme: BroadLoadableTheme)` |
 | Initializer | `@MainActor init(configuration: BroadPaywallConfiguration, dependencies: PaywallViewModelDependencies, initialPayload: PaywallPayload? = nil)` |
-| Initializer | `@MainActor init(configuration: BroadSettingsConfiguration, restorePurchases: any RestorePurchasesUseCaseProtocol, onRestored: @escaping @MainActor (EntitlementSnapshot) -> Void = { _ in }, showPaywall: (@MainActor () -> Void)? = nil, @ViewBuilder content: @escaping @MainActor (BroadSettingsScreen) -> Content)` |
+| Initializer | `@MainActor init(configuration: BroadSettingsConfiguration, restorePurchases: any RestorePurchasesUseCaseProtocol, onRestored: @escaping @MainActor (EntitlementSnapshot) -> Void = { _ in }, showPaywall: @escaping @MainActor () -> Void, @ViewBuilder content: @escaping @MainActor (BroadSettingsScreen) -> Content)` |
 | Initializer | `@MainActor init(configuration: BroadTokenPaywallConfiguration, dependencies: BroadTokenPaywallViewModelDependencies)` |
 | Initializer | `@MainActor init(configuration: OnboardingConfiguration, requestTrackingAuthorizationUseCase: any TrackingAuthorizationUseCaseProtocol)` |
 | Initializer | `@MainActor init(content: BroadPaywallScreen.Content, plans: [BroadPaywallPlan], activity: BroadPaywallScreen.Activity = .idle, notice: BroadPaywallNotice? = nil, noticeMessage: String? = nil, canPurchase: Bool, canClose: Bool, legalLinks: [BroadPaywallLegalLink] = [], specialOfferEndsAt: Date? = nil, select: @escaping @MainActor (ProductPresentationID) -> Void = { _ in }, purchase: @escaping @MainActor () -> Void = {}, restore: @escaping @MainActor () -> Void = {}, retry: @escaping @MainActor () -> Void = {}, close: @escaping @MainActor () -> Void = {}, open: @escaping @MainActor (BroadPaywallLegalLink) -> Void = { _ in })` |
@@ -147,7 +147,7 @@
 | Initializer | `@MainActor init(title: String, inFlightTitle: String? = nil, accessibilityLabel: String? = nil, isEnabled: Bool = true, isInFlight: Bool = false, action: @escaping @MainActor () -> Void)` |
 | Initializer | `@MainActor init(title: String, isEnabled: Bool, isInFlight: Bool, theme: BroadPaywallTheme, action: @escaping @MainActor () -> Void)` |
 | Initializer | `@MainActor init(url: URL)` |
-| Initializer | `@MainActor init(userID: String, version: String, build: String, isRestoring: Bool = false, restoreResult: BroadSettingsRestoreResult? = nil, restoreMessage: String? = nil, canContactSupport: Bool = false, canShowPaywall: Bool = false, isUserIDCopied: Bool = false)` |
+| Initializer | `@MainActor init(userID: String, version: String, build: String, isRestoring: Bool = false, restoreResult: BroadSettingsRestoreResult? = nil, restoreMessage: String? = nil, canContactSupport: Bool = false, isUserIDCopied: Bool = false)` |
 | Initializer | `@MainActor init(viewModel: BroadTokenPaywallViewModel, productFormatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter(), tokenAmount: (@MainActor (MonetizationProduct) -> Int?)? = nil, onClose: @escaping @MainActor () -> Void, @ViewBuilder content: @escaping @MainActor (BroadTokenPaywallScreen) -> Content)` |
 | Initializer | `@MainActor init(viewModel: BroadTokenPaywallViewModel, theme: BroadPaywallTheme, productFormatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter(), onClose: @escaping @MainActor () -> Void)` |
 | Initializer | `@MainActor init(viewModel: OnboardingViewModel, @ViewBuilder media: @escaping @MainActor (OnboardingMediaDescriptor) -> Media, onFooterAction: @escaping @MainActor (OnboardingFooterDestination) -> Void, onCompleted: @escaping @MainActor () -> Void)` |
@@ -315,7 +315,6 @@
 | Instance Property | `@MainActor let canClose: Bool` |
 | Instance Property | `@MainActor let canContactSupport: Bool` |
 | Instance Property | `@MainActor let canPurchase: Bool` |
-| Instance Property | `@MainActor let canShowPaywall: Bool` |
 | Instance Property | `@MainActor let configuration: BroadPaywallConfiguration` |
 | Instance Property | `@MainActor let configuration: BroadTokenPaywallConfiguration` |
 | Instance Property | `@MainActor let configuration: OnboardingConfiguration` |

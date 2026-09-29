@@ -4,25 +4,30 @@
 
 ### Added
 
-- `BroadSettingsHost(showPaywall:)` takes the app's paywall presenter, usually the
-  `settings` placement. `BroadSettingsScreen.showPaywall()` calls it through the
-  shared tap gate, and `canShowPaywall` tells the layout whether it was passed.
+- `BroadSettingsScreen.showPaywall()` opens the app's subscription paywall through
+  the shared tap gate, for "Get Pro" and subscription status rows.
 
-### Changed
+### Changed (breaking)
 
+- `BroadSettingsHost` requires `showPaywall`, the app's paywall presenter (usually
+  the `settings` placement). Existing `BroadSettingsHost(...)` calls stop compiling
+  until the app passes it, so no subscription row can silently do nothing.
 - `BroadSettingsScreen.manageSubscription()` opens the same paywall instead of the
   App Store subscription page. Purchases go through Adapty, so settings never
   cancel a subscription or open App Store subscription management; a
-  "Cancel subscription" row from a design is not drawn. Without `showPaywall`
-  the action does nothing and a Debug log asks for the handler, so an app that
-  moves to this version passes `showPaywall` in the same change.
+  "Cancel subscription" row from a design is not drawn.
 - Contract checks reject the App Store subscription page, the system manage
   subscriptions sheet and cancel-subscription code in sources and Gallery.
 
+### Migration
+
+Pass `showPaywall: { present the settings-placement paywall }` to every
+`BroadSettingsHost`. Rows that called `manageSubscription()` now open that paywall.
+
 ### SemVer intent
 
-MINOR: the new parameter has a default and the screen gains members; existing
-call sites compile unchanged.
+MAJOR: `BroadSettingsHost` gains a required parameter and `manageSubscription()`
+changes behavior.
 
 ## 6.5.0
 

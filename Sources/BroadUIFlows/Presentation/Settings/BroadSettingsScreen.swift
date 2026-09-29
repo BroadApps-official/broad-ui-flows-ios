@@ -19,8 +19,6 @@ public struct BroadSettingsScreen {
     public let restoreResult: BroadSettingsRestoreResult?
     public let restoreMessage: String?
     public let canContactSupport: Bool
-    /// True when the host received `showPaywall`, so subscription rows lead somewhere.
-    public let canShowPaywall: Bool
     /// True for two seconds after ``copyUserID()``, to show "Copied".
     public let isUserIDCopied: Bool
 
@@ -77,7 +75,6 @@ public struct BroadSettingsScreen {
         restoreResult: BroadSettingsRestoreResult? = nil,
         restoreMessage: String? = nil,
         canContactSupport: Bool = false,
-        canShowPaywall: Bool = false,
         isUserIDCopied: Bool = false
     ) {
         self.init(
@@ -88,7 +85,6 @@ public struct BroadSettingsScreen {
             restoreResult: restoreResult,
             restoreMessage: restoreMessage,
             canContactSupport: canContactSupport,
-            canShowPaywall: canShowPaywall,
             isUserIDCopied: isUserIDCopied,
             actions: Actions()
         )
@@ -102,7 +98,6 @@ public struct BroadSettingsScreen {
         restoreResult: BroadSettingsRestoreResult?,
         restoreMessage: String?,
         canContactSupport: Bool,
-        canShowPaywall: Bool,
         isUserIDCopied: Bool,
         actions: Actions
     ) {
@@ -113,7 +108,6 @@ public struct BroadSettingsScreen {
         self.restoreResult = restoreResult
         self.restoreMessage = restoreMessage
         self.canContactSupport = canContactSupport
-        self.canShowPaywall = canShowPaywall
         self.isUserIDCopied = isUserIDCopied
         self.actions = actions
     }

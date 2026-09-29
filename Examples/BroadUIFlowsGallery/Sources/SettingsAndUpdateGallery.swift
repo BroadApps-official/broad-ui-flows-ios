@@ -17,7 +17,6 @@ struct SettingsGallery: View {
                 LabeledContent("User ID", value: screen.userID)
                 LabeledContent("Version", value: screen.version)
                 LabeledContent("Build", value: screen.build)
-                LabeledContent("Paywall handler", value: screen.canShowPaywall ? "Set" : "Missing")
             }
             Section("Actions") {
                 let screen = BroadSettingsScreen.preview(state)

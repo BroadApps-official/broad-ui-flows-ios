@@ -284,9 +284,13 @@ BroadSettingsHost(
 Покупки идут через Adapty, поэтому экран настроек не отменяет подписку и не
 открывает страницу подписок App Store. «Get Pro», строка статуса подписки и
 нарисованная в макете «Manage subscription» вызывают `showPaywall()` или
-`manageSubscription()` — оба открывают пейвол приложения через `showPaywall`.
-«Cancel subscription» из макета не рисуется. Без `showPaywall` эти действия ничего
-не делают, а Debug-лог напоминает передать обработчик.
+`manageSubscription()` — оба открывают пейвол приложения через обязательный
+обработчик `showPaywall` хоста. «Cancel subscription» из макета не рисуется.
+
+> Unreleased: обработчик `showPaywall` появится в следующем MAJOR-выпуске. В
+> 6.5.0 его нет, а `manageSubscription()` открывает App Store — не подключайте к
+> нему строки подписки до выхода новой версии.
+
 `screen.restoreMessage`, `screen.isUserIDCopied`, `screen.version` и `screen.build`
 готовы к показу. Превью: `BroadSettingsScreen.preview(.restored)`.
 

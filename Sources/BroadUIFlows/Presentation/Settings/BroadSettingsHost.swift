@@ -1,9 +1,6 @@
 import BroadMonetization
 import SwiftUI
 import UIKit
-#if DEBUG
-    import os
-#endif
 
 /// Supplies a custom settings layout with ready values and gated actions.
 /// The app only draws ``BroadSettingsScreen`` and calls its actions.
@@ -14,7 +11,7 @@ public struct BroadSettingsHost<Content: View>: View {
     @State private var destination: Destination?
 
     private let configuration: BroadSettingsConfiguration
-    private let showPaywall: (@MainActor () -> Void)?
+    private let showPaywall: @MainActor () -> Void
     private let content: @MainActor (BroadSettingsScreen) -> Content
 
     /// Creates a settings host around an app-owned layout.
@@ -32,7 +29,7 @@ public struct BroadSettingsHost<Content: View>: View {
         configuration: BroadSettingsConfiguration,
         restorePurchases: any RestorePurchasesUseCaseProtocol,
         onRestored: @escaping @MainActor (EntitlementSnapshot) -> Void = { _ in },
-        showPaywall: (@MainActor () -> Void)? = nil,
+        showPaywall: @escaping @MainActor () -> Void,
         @ViewBuilder content: @escaping @MainActor (BroadSettingsScreen) -> Content
     ) {
         self.configuration = configuration
@@ -70,15 +67,14 @@ public struct BroadSettingsHost<Content: View>: View {
             restoreResult: state.restoreResult,
             restoreMessage: state.restoreMessage,
             canContactSupport: configuration.supportEmail.flatMap(BroadSupportEmailRequestBuilder.makeRequest) != nil,
-            canShowPaywall: showPaywall != nil,
             isUserIDCopied: state.isUserIDCopied,
             actions: .init(
                 restore: { state.restore() },
                 showPaywall: {
-                    state.perform { presentPaywall() }
+                    state.perform { showPaywall() }
                 },
                 manageSubscription: {
-                    state.perform { presentPaywall() }
+                    state.perform { showPaywall() }
                 },
                 openPrivacyPolicy: {
                     state.perform { destination = .safari(configuration.privacyPolicyURL) }
@@ -113,20 +109,6 @@ public struct BroadSettingsHost<Content: View>: View {
         components.queryItems = (components.queryItems ?? []).filter { $0.name != "action" }
             + [URLQueryItem(name: "action", value: "write-review")]
         return components.url
-    }
-
-    /// Purchases go through Adapty, so a subscription row only leads to the
-    /// paywall; the App Store subscription page is never opened from here.
-    private func presentPaywall() {
-        guard let showPaywall else {
-            #if DEBUG
-                Logger(subsystem: "BroadUIFlows", category: "Settings").warning(
-                    "Pass showPaywall to BroadSettingsHost to open the subscription paywall from settings."
-                )
-            #endif
-            return
-        }
-        showPaywall()
     }
 
     private func openSupport() {

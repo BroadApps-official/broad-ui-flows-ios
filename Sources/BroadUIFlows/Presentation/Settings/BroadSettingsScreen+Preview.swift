@@ -41,8 +41,7 @@ public extension BroadSettingsScreen {
             isRestoring: state == .restoring,
             restoreResult: result,
             restoreMessage: message,
-            canContactSupport: true,
-            canShowPaywall: true
+            canContactSupport: true
         )
     }
 }

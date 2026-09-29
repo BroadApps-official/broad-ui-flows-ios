@@ -112,9 +112,10 @@ Support email принимает необязательный баланс, devi
 `BroadSettingsScreen` и вызывает его действия: restore, пейвол подписки,
 юридические ссылки, письмо поддержки, копирование ID, Rate и Share.
 Покупки идут через Adapty: `showPaywall()` и `manageSubscription()` открывают
-пейвол приложения через обработчик `showPaywall` хоста. Экран не отменяет подписку
-и не открывает страницу подписок App Store; «Cancel subscription» из макета не
-рисуется. `screen.canShowPaywall` показывает, передан ли обработчик. Host открывает
+пейвол приложения через обязательный обработчик `showPaywall` хоста. Экран не
+отменяет подписку и не открывает страницу подписок App Store; «Cancel subscription»
+из макета не рисуется. Unreleased: в 6.5.0 обработчика нет, а
+`manageSubscription()` открывает App Store. Host открывает
 юридические ссылки через `BroadInAppSafariView`, письмо через
 `BroadSupportEmailComposer` и собирает его существующим request builder.
 Каждое действие проходит через один gate: после первого касания все действия

@@ -6,7 +6,7 @@ Update package constraints together. Temporary token fulfillment failures retain
 the existing purchase for safe retry. Host exhaustive switches handle the new
 `BroadLogEvent.host` and `TokenFulfillmentOutcome.rejected` cases.
 
-Settings subscription rows open the app paywall through `BroadSettingsHost(showPaywall:)`: `showPaywall()` and `manageSubscription()` never cancel a subscription or open the App Store subscription page, because purchases go through Adapty.
+Unreleased: settings subscription rows open the app paywall through the required `BroadSettingsHost(showPaywall:)` handler. `showPaywall()` and `manageSubscription()` never cancel a subscription or open the App Store subscription page, because purchases go through Adapty. In 6.5.0 there is no handler and `manageSubscription()` opens the App Store.
 
 Connect the token paywall's optional `trackEvent` dependency to the existing
 paywall tracker. The standard view reports shown/closed events in order, once
