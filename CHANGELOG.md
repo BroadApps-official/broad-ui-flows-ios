@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 6.5.0
 
 ### Added
 
@@ -22,7 +22,6 @@
 ### SemVer intent
 
 MINOR for the additive public API; the automatic notice fix is PATCH-compatible.
-The released module version remains unchanged until release preparation.
 
 ## 6.4.0
 
