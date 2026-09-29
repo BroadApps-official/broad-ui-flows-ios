@@ -6,6 +6,7 @@ module_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source_root="$module_root/Sources/BroadUIFlows"
 gallery_root="$module_root/Examples/BroadUIFlowsGallery"
 violation_count=0
+store_subscription_pattern='apps\.apple\.com/account/subscriptions|showManageSubscriptions|manageSubscriptionsSheet|(?i)cancel[ _]?subscription'
 fixed_length_pattern='(pages\.count[[:space:]]*(==|!=|<=|>=|<|>)[[:space:]]*3\b|currentIndex[[:space:]]*(==|!=|<=|>=|<|>)[[:space:]]*2\b|pages[[:space:]]*\[[[:space:]]*2[[:space:]]*\]|0[[:space:]]*\.\.\.?[[:space:]]*2\b|0[[:space:]]*\.<[[:space:]]*3\b|ForEach[[:space:]]*\([[:space:]]*0[[:space:]]*\.<[[:space:]]*3\b)'
 
 record_violation() {
@@ -52,6 +53,11 @@ run_self_test() {
     fi
     if ! printf '%s\n' "$bad_press" | rg -q --pcre2 '(configuration\.isPressed|\.(opacity|scaleEffect)[[:space:]]*\()'; then
         echo "SELF-TEST FAILED: synthetic press effect was not rejected."
+        exit 1
+    fi
+    local bad_settings='openURL(URL(string: "https://apps.apple.com/account/subscriptions")!)'
+    if ! printf '%s\n' "$bad_settings" | rg -q --pcre2 "$store_subscription_pattern"; then
+        echo "SELF-TEST FAILED: App Store subscription page in settings was not rejected."
         exit 1
     fi
     echo "UI contract self-test passed: synthetic regressions are rejected."
@@ -397,7 +403,12 @@ require_pattern \
 require_pattern \
     "Every settings action must use the shared tap gate:" \
     "$source_root/Presentation/Settings/BroadSettingsHost.swift" \
-    '(?s)restore: \{ state\.restore\(\).*manageSubscription: \{[[:space:]]*state\.perform.*openPrivacyPolicy: \{[[:space:]]*state\.perform.*openTerms: \{[[:space:]]*state\.perform.*contactSupport: \{[[:space:]]*state\.perform.*copyUserID: \{[[:space:]]*state\.perform.*rateApp: \{[[:space:]]*state\.perform.*shareApp: \{[[:space:]]*state\.perform'
+    '(?s)restore: \{ state\.restore\(\).*showPaywall: \{[[:space:]]*state\.perform.*manageSubscription: \{[[:space:]]*state\.perform.*openPrivacyPolicy: \{[[:space:]]*state\.perform.*openTerms: \{[[:space:]]*state\.perform.*contactSupport: \{[[:space:]]*state\.perform.*copyUserID: \{[[:space:]]*state\.perform.*rateApp: \{[[:space:]]*state\.perform.*shareApp: \{[[:space:]]*state\.perform'
+
+scan_forbidden \
+    "Settings must not open App Store subscription management or cancellation; subscription rows open the paywall:" \
+    "$store_subscription_pattern" \
+    "$source_root" "$gallery_root"
 
 require_pattern \
     "Settings restore must enter the shared tap gate:" \

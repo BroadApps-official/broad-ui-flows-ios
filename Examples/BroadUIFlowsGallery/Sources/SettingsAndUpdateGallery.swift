@@ -17,6 +17,7 @@ struct SettingsGallery: View {
                 LabeledContent("User ID", value: screen.userID)
                 LabeledContent("Version", value: screen.version)
                 LabeledContent("Build", value: screen.build)
+                LabeledContent("Paywall handler", value: screen.canShowPaywall ? "Set" : "Missing")
             }
             Section("Actions") {
                 let screen = BroadSettingsScreen.preview(state)
@@ -24,8 +25,12 @@ struct SettingsGallery: View {
                     Label("Restore purchases", systemImage: "arrow.clockwise")
                 }
                 .frame(minHeight: 44)
+                Button { screen.showPaywall() } label: {
+                    Label("Get Pro — opens the paywall", systemImage: "crown")
+                }
+                .frame(minHeight: 44)
                 Button { screen.manageSubscription() } label: {
-                    Label("Manage subscription", systemImage: "creditcard")
+                    Label("Manage subscription — opens the same paywall", systemImage: "creditcard")
                 }
                 .frame(minHeight: 44)
                 Button { screen.openPrivacyPolicy() } label: {

@@ -111,7 +111,7 @@ dependencies: [
   баланс; экран получает готовый `BroadTokenPaywallScreen` и только рисует;
 - `BroadTokenPaywallView` (готовый экран) и `BroadTokenPaywallViewModel`;
 - `BroadSettingsHost` — свой экран настроек: restore с типизированным
-  результатом, управление подпиской, документы, письмо в поддержку, копирование ID,
+  результатом, пейвол подписки (без отмены и App Store), документы, письмо в поддержку, копирование ID,
   оценка и «поделиться»; все действия под одним tap-gate на 400 мс;
 - `BroadAppUpdateChecker` и `.broadAppUpdateAlert(checker)` — алерт новой версии
   App Store на главном табе по правилу базовой версии;
@@ -270,15 +270,23 @@ BroadSettingsHost(
         supportEmail: supportEmail
     ),
     restorePurchases: restorePurchases,
-    onRestored: refreshAccess
+    onRestored: refreshAccess,
+    showPaywall: { router.showPaywall(placement: .settings) }
 ) { screen in
     MySettings(screen: screen)
 }
 ```
 
-`MySettings` рисует строки и вызывает `screen.restore()`, `manageSubscription()`,
-`openPrivacyPolicy()`, `openTerms()`, `contactSupport()`, `copyUserID()`,
-`rateApp()`, `shareApp()`. Первое касание закрывает все действия на 400 мс.
+`MySettings` рисует строки и вызывает `screen.restore()`, `showPaywall()`,
+`manageSubscription()`, `openPrivacyPolicy()`, `openTerms()`, `contactSupport()`,
+`copyUserID()`, `rateApp()`, `shareApp()`. Первое касание закрывает все действия на 400 мс.
+
+Покупки идут через Adapty, поэтому экран настроек не отменяет подписку и не
+открывает страницу подписок App Store. «Get Pro», строка статуса подписки и
+нарисованная в макете «Manage subscription» вызывают `showPaywall()` или
+`manageSubscription()` — оба открывают пейвол приложения через `showPaywall`.
+«Cancel subscription» из макета не рисуется. Без `showPaywall` эти действия ничего
+не делают, а Debug-лог напоминает передать обработчик.
 `screen.restoreMessage`, `screen.isUserIDCopied`, `screen.version` и `screen.build`
 готовы к показу. Превью: `BroadSettingsScreen.preview(.restored)`.
 

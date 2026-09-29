@@ -16,6 +16,9 @@
 - Special Offer — только второй paywall; countdown идёт до конца
   активного окна, закрывает offer на нуле и не запускается по кругу.
 - Интерактивные цели имеют общий минимум 44 points.
+- Настройки не отменяют подписку и не открывают страницу подписок App Store:
+  покупки идут через Adapty. «Get Pro», статус подписки и «Manage subscription»
+  открывают пейвол приложения через `BroadSettingsHost(showPaywall:)`.
 - Не добавляйте `Tests/`, test targets, XCTest, Swift Testing или UI tests.
 - Gallery использует fixtures, не активирует SDK и не запускает purchase,
   restore, RU checkout или cancellation.

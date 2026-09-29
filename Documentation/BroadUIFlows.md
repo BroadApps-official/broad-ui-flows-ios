@@ -109,8 +109,12 @@ Support email принимает необязательный баланс, devi
 
 `BroadSettingsHost` принимает `BroadSettingsConfiguration` и существующий
 `RestorePurchasesUseCaseProtocol` из BroadMonetization. Приложение рисует
-`BroadSettingsScreen` и вызывает его действия: restore, управление подпиской,
-юридические ссылки, письмо поддержки, копирование ID, Rate и Share. Host открывает
+`BroadSettingsScreen` и вызывает его действия: restore, пейвол подписки,
+юридические ссылки, письмо поддержки, копирование ID, Rate и Share.
+Покупки идут через Adapty: `showPaywall()` и `manageSubscription()` открывают
+пейвол приложения через обработчик `showPaywall` хоста. Экран не отменяет подписку
+и не открывает страницу подписок App Store; «Cancel subscription» из макета не
+рисуется. `screen.canShowPaywall` показывает, передан ли обработчик. Host открывает
 юридические ссылки через `BroadInAppSafariView`, письмо через
 `BroadSupportEmailComposer` и собирает его существующим request builder.
 Каждое действие проходит через один gate: после первого касания все действия

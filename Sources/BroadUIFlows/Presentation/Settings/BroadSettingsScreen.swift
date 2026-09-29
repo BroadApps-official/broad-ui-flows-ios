@@ -19,6 +19,8 @@ public struct BroadSettingsScreen {
     public let restoreResult: BroadSettingsRestoreResult?
     public let restoreMessage: String?
     public let canContactSupport: Bool
+    /// True when the host received `showPaywall`, so subscription rows lead somewhere.
+    public let canShowPaywall: Bool
     /// True for two seconds after ``copyUserID()``, to show "Copied".
     public let isUserIDCopied: Bool
 
@@ -28,6 +30,15 @@ public struct BroadSettingsScreen {
         actions.restore()
     }
 
+    /// Opens the app's subscription paywall, for "Get Pro", "Upgrade" or a
+    /// subscription status row.
+    public func showPaywall() {
+        actions.showPaywall()
+    }
+
+    /// Same as ``showPaywall()``. Purchases go through Adapty, so a
+    /// "Manage subscription" row from the design only opens the paywall: there is
+    /// no in-app cancellation and no App Store subscription page.
     public func manageSubscription() {
         actions.manageSubscription()
     }
@@ -66,6 +77,7 @@ public struct BroadSettingsScreen {
         restoreResult: BroadSettingsRestoreResult? = nil,
         restoreMessage: String? = nil,
         canContactSupport: Bool = false,
+        canShowPaywall: Bool = false,
         isUserIDCopied: Bool = false
     ) {
         self.init(
@@ -76,6 +88,7 @@ public struct BroadSettingsScreen {
             restoreResult: restoreResult,
             restoreMessage: restoreMessage,
             canContactSupport: canContactSupport,
+            canShowPaywall: canShowPaywall,
             isUserIDCopied: isUserIDCopied,
             actions: Actions()
         )
@@ -89,6 +102,7 @@ public struct BroadSettingsScreen {
         restoreResult: BroadSettingsRestoreResult?,
         restoreMessage: String?,
         canContactSupport: Bool,
+        canShowPaywall: Bool,
         isUserIDCopied: Bool,
         actions: Actions
     ) {
@@ -99,12 +113,14 @@ public struct BroadSettingsScreen {
         self.restoreResult = restoreResult
         self.restoreMessage = restoreMessage
         self.canContactSupport = canContactSupport
+        self.canShowPaywall = canShowPaywall
         self.isUserIDCopied = isUserIDCopied
         self.actions = actions
     }
 
     struct Actions {
         var restore: @MainActor () -> Void = {}
+        var showPaywall: @MainActor () -> Void = {}
         var manageSubscription: @MainActor () -> Void = {}
         var openPrivacyPolicy: @MainActor () -> Void = {}
         var openTerms: @MainActor () -> Void = {}
