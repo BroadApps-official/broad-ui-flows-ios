@@ -57,6 +57,7 @@ public final class BroadTokenPaywallViewModel: ObservableObject {
     @Published public private(set) var isRecoveringPendingPurchase = false
     @Published public private(set) var isRecoveringAccountBalance = false
     @Published public private(set) var isRetrySuggested = false
+    @Published var isCloseAvailable: Bool
 
     public let configuration: BroadTokenPaywallConfiguration
 
@@ -66,7 +67,9 @@ public final class BroadTokenPaywallViewModel: ObservableObject {
     private var purchaseTask: Task<Void, Never>?
     private var pendingRecoveryTask: Task<Void, Never>?
     private var accountRecoveryTask: Task<Void, Never>?
+    var closeAvailabilityTask: Task<Void, Never>?
     private var hasRecoveredAccountBalance = false
+    private var accountRecoveryIsUserInitiated = false
     var isVisible = false
     var shownContext: PaywallAnalyticsContext?
     var lastShownPresentationID: PaywallPresentationID?
@@ -78,6 +81,7 @@ public final class BroadTokenPaywallViewModel: ObservableObject {
     ) {
         self.configuration = configuration
         self.dependencies = dependencies
+        isCloseAvailable = configuration.closeDelay == 0
     }
 
     deinit {
@@ -85,6 +89,7 @@ public final class BroadTokenPaywallViewModel: ObservableObject {
         purchaseTask?.cancel()
         pendingRecoveryTask?.cancel()
         accountRecoveryTask?.cancel()
+        closeAvailabilityTask?.cancel()
     }
 
     public var selectedProduct: MonetizationProduct? {
@@ -99,7 +104,7 @@ public final class BroadTokenPaywallViewModel: ObservableObject {
 
     public var canPurchase: Bool {
         guard case .content = state,
-              selectedSelection?.product.isEligibleForTokenPurchase == true
+              selectedSelection?.product.isTokenPackage == true
         else {
             return false
         }
@@ -111,6 +116,9 @@ public final class BroadTokenPaywallViewModel: ObservableObject {
     }
 
     public func viewDidAppear() {
+        if !isVisible {
+            startCloseDelay()
+        }
         isVisible = true
         if case let .content(paywall) = state {
             trackShownIfNeeded(paywall)
@@ -160,7 +168,7 @@ public final class BroadTokenPaywallViewModel: ObservableObject {
                   productPresentationID: presentationID,
                   in: paywall
               ),
-              selection.product.isEligibleForTokenPurchase
+              selection.product.isTokenPackage
         else {
             return
         }
@@ -217,7 +225,8 @@ public final class BroadTokenPaywallViewModel: ObservableObject {
                 // A safe retry never charges again: with nothing pending, show the
                 // authoritative balance. Buying again is `purchaseSelectedProduct()`.
                 isRetrySuggested = false
-                recoverAccountBalance()
+                hasRecoveredAccountBalance = false
+                recoverAccountBalanceIfNeeded()
             }
         }
     }
@@ -245,6 +254,7 @@ public final class BroadTokenPaywallViewModel: ObservableObject {
 
     public func recoverAccountBalance() {
         hasRecoveredAccountBalance = false
+        accountRecoveryIsUserInitiated = true
         recoverAccountBalanceIfNeeded()
     }
 
@@ -263,13 +273,19 @@ public final class BroadTokenPaywallViewModel: ObservableObject {
             accountRecoveryTask = nil
             isRecoveringAccountBalance = false
             hasRecoveredAccountBalance = true
+            let showNotice = accountRecoveryIsUserInitiated
+            accountRecoveryIsUserInitiated = false
             switch outcome {
             case let .restored(snapshot):
                 applyConfirmedBalance(snapshot)
-                feedback = .recovered(snapshot)
+                if showNotice {
+                    feedback = .recovered(snapshot)
+                }
                 record(.balanceRecovered)
             case let .unavailable(error):
-                feedback = .failed(error)
+                if showNotice {
+                    feedback = .failed(error)
+                }
             }
         }
     }
@@ -315,10 +331,10 @@ private extension BroadTokenPaywallViewModel {
         let products = paywall.products
         let preferredIndex = configuration.defaultSelectionIndex
         let product: MonetizationProduct? = if products.indices.contains(preferredIndex),
-                                               products[preferredIndex].isEligibleForTokenPurchase {
+                                               products[preferredIndex].isTokenPackage {
             products[preferredIndex]
         } else {
-            products.first(where: \.isEligibleForTokenPurchase)
+            products.first(where: \.isTokenPackage)
         }
         guard let product,
               let selection = dependencies.selectProduct(
@@ -375,11 +391,5 @@ private extension BroadTokenPaywallViewModel {
         return paywall.origin.resolvedPlacementID == .main
             && paywall.origin.usedFallback
             && paywall.products.allSatisfy { $0.kind == .consumable }
-    }
-}
-
-private extension MonetizationProduct {
-    var isEligibleForTokenPurchase: Bool {
-        kind == .consumable && price != nil
     }
 }

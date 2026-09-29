@@ -76,6 +76,20 @@ persisted 24-часового окна, на нуле блокирует пок�
 ## Token UI и optional billing
 
 Token paywall работает через public BroadMonetization protocols.
+`BroadTokenPaywallCopy.english` и `.standard` дают одинаковый нейтральный
+английский набор; `.russian` сохранён. `BroadTokenPaywallConfiguration(closeDelay:)`
+задаёт задержку крестика от появления экрана (по умолчанию 0). Host отдаёт
+`screen.canClose = false` до истечения задержки и во время операции; готовый
+`BroadTokenPaywallView` скрывает крестик до истечения задержки. При исчезновении
+экрана таймер отменяется, повторное появление начинает его заново. Reduce Motion
+на таймер не влияет. Автоматическая сверка обновляет баланс без notice; ручное
+`refreshBalance()` показывает результат. Для английского preview передайте
+`copy: .english`.
+
+SemVer intent: MINOR для добавленных preset, параметра конфигурации и параметра
+preview; исправление автоматического notice
+совместимо с PATCH. Текущая версия модуля не меняется до релиза.
+
 RU subscription management и payment sheet перенесены в отдельный продукт
 BroadRUBillingUI. Он подключается только в нужных target; базовый UI от него не зависит.
 Любой network/payment result остаётся типизированным;

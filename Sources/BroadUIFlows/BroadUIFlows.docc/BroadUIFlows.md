@@ -31,6 +31,30 @@ verified `BroadTokenPackage.priceAmount`, per-token `savingsPercent`, and one
 `BroadAppFlowView(transition:)` to ``BroadAppFlowTransition/slide`` for route
 movement; Reduce Motion uses a fade, while the default keeps immediate changes.
 
+### Token paywall copy and close delay
+
+Use ``BroadTokenPaywallCopy/english`` or ``BroadTokenPaywallCopy/standard``
+for the English token store; ``BroadTokenPaywallCopy/russian`` remains available.
+Set ``BroadTokenPaywallConfiguration/closeDelay`` when the close button should
+appear after the token paywall opens:
+
+```swift
+let configuration = BroadTokenPaywallConfiguration(
+    copy: .english,
+    closeDelay: 3
+)
+```
+
+The default delay is zero. Both ``BroadTokenPaywallHost`` and
+``BroadTokenPaywallView`` enforce the delay; a custom screen draws its close
+action only when ``BroadTokenPaywallScreen/canClose`` is true. The delay starts
+on appearance, is cancelled on disappearance, and starts again on a later
+appearance. Purchases and checks still block closing. Reduce Motion does not
+change this timer. Automatic balance recovery updates the confirmed balance
+without a notice; an explicit refresh can show the recovered or failed notice.
+For an English fixture notice, use
+`BroadTokenPaywallScreen.preview(.pending, copy: .english)`.
+
 ### Custom Special Offer screen
 
 The `special_offer` placement should contain one product. Draw
@@ -102,6 +126,8 @@ ready screen model.
 - <doc:PreloadingAPaywall>
 - ``BroadTokenPaywallView``
 - ``BroadTokenPaywallViewModel``
+- ``BroadTokenPaywallConfiguration``
+- ``BroadTokenPaywallCopy``
 
 ### Support email
 

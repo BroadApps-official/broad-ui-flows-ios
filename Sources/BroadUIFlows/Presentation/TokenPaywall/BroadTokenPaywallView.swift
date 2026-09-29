@@ -63,25 +63,34 @@ extension BroadTokenPaywallView {
     var closeHeader: some View {
         HStack {
             Spacer()
-            Button {
-                guard !viewModel.isBusy else {
-                    return
+            if viewModel.isCloseAvailable {
+                Button {
+                    guard viewModel.isCloseAvailable, !viewModel.isBusy else {
+                        return
+                    }
+                    onClose()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(theme.typography.action)
+                        .foregroundStyle(theme.palette.primaryText)
+                        .frame(
+                            width: theme.metrics.sizing.closeButton,
+                            height: theme.metrics.sizing.closeButton
+                        )
+                        .background(Circle().fill(theme.palette.surface))
+                        .contentShape(Rectangle())
                 }
-                onClose()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(theme.typography.action)
-                    .foregroundStyle(theme.palette.primaryText)
+                .buttonStyle(BroadNoPressEffectButtonStyle())
+                .disabled(viewModel.isBusy)
+                .accessibilityLabel(copy.actions.closeAccessibilityLabel)
+            } else {
+                Color.clear
                     .frame(
                         width: theme.metrics.sizing.closeButton,
                         height: theme.metrics.sizing.closeButton
                     )
-                    .background(Circle().fill(theme.palette.surface))
-                    .contentShape(Rectangle())
+                    .accessibilityHidden(true)
             }
-            .buttonStyle(BroadNoPressEffectButtonStyle())
-            .disabled(viewModel.isBusy)
-            .accessibilityLabel(copy.actions.closeAccessibilityLabel)
         }
         .padding(.horizontal, theme.metrics.spacing.screen)
         .padding(.top, theme.metrics.spacing.header)

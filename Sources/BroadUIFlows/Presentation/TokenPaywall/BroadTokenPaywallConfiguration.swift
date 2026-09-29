@@ -134,6 +134,47 @@ public struct BroadTokenPaywallCopy: Equatable, Sendable {
 }
 
 public extension BroadTokenPaywallCopy {
+    static let english = BroadTokenPaywallCopy(
+        header: Header(
+            title: "Get More Tokens",
+            subtitle: "Tokens are added to your balance right after the purchase.",
+            balanceTitle: "Balance"
+        ),
+        products: Products(
+            fallbackTitle: "Token pack",
+            unavailablePriceTitle: "Price unavailable",
+            selectedAccessibilityValue: "Selected"
+        ),
+        actions: Actions(
+            purchaseTitle: "Continue",
+            purchasingTitle: "Processing…",
+            retryTitle: "Try Again",
+            retryingTitle: "Loading…",
+            recoverBalanceTitle: "Refresh Balance",
+            recoveringBalanceTitle: "Refreshing…",
+            closeAccessibilityLabel: "Close",
+            confirmTitle: "Check Purchase",
+            confirmingTitle: "Checking…"
+        ),
+        states: States(
+            loadingTitle: "Loading packs…",
+            emptyTitle: "No token packs available",
+            emptyMessage: "Close this screen or try again later.",
+            errorTitle: "Token packs are unavailable",
+            pendingMessage: "Your purchase is being confirmed. Tokens will be added once it's done.",
+            cancelledMessage: "Purchase cancelled.",
+            creditedMessage: "Tokens added to your balance.",
+            recoveredMessage: "Your balance is up to date."
+        ),
+        analytics: Analytics(
+            title: "Token events",
+            emptyMessage: "No events yet."
+        )
+    )
+
+    /// The default English copy, matching ``BroadPaywallCopy/standard``.
+    static let standard = english
+
     static let russian = BroadTokenPaywallCopy(
         header: Header(
             title: "Пополнить токены",
@@ -176,20 +217,28 @@ public extension BroadTokenPaywallCopy {
 public struct BroadTokenPaywallConfiguration: Equatable, Sendable {
     public let copy: BroadTokenPaywallCopy
     public let defaultSelectionIndex: Int
+    /// Time after appearance before the close action becomes available.
+    public let closeDelay: TimeInterval
     /// Shows the event log panel in ``BroadTokenPaywallView``; for demos only.
     public let showsAnalytics: Bool
 
     public init(
         copy: BroadTokenPaywallCopy,
         defaultSelectionIndex: Int = 0,
+        closeDelay: TimeInterval = 0,
         showsAnalytics: Bool = false
     ) {
         precondition(
             defaultSelectionIndex >= 0,
             "Token paywall selection index must be non-negative"
         )
+        precondition(
+            closeDelay.isFinite && closeDelay >= 0,
+            "Token paywall close delay must be finite and non-negative"
+        )
         self.copy = copy
         self.defaultSelectionIndex = defaultSelectionIndex
+        self.closeDelay = closeDelay
         self.showsAnalytics = showsAnalytics
     }
 

@@ -138,7 +138,8 @@ struct FixtureTokenPaywallScreen: View {
         )
         return BroadTokenPaywallViewModel(
             configuration: BroadTokenPaywallConfiguration(
-                copy: .russian,
+                copy: .english,
+                closeDelay: 3,
                 showsAnalytics: showsAnalytics
             ),
             dependencies: BroadTokenPaywallViewModelDependencies(

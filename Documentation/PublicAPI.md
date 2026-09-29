@@ -161,7 +161,7 @@
 | Initializer | `init(background: Color, surface: Color, primaryText: Color, secondaryText: Color, accent: Color, actionForeground: Color, progressInactive: Color, border: Color)` |
 | Initializer | `init(configuration: AppFlowConfiguration)` |
 | Initializer | `init(contentSpacing: CGFloat, textSpacing: CGFloat, padding: CGFloat, cornerRadius: CGFloat, iconSize: CGFloat, borderWidth: CGFloat, minimumActionHeight: CGFloat, compactPadding: CGFloat)` |
-| Initializer | `init(copy: BroadTokenPaywallCopy, defaultSelectionIndex: Int = 0, showsAnalytics: Bool = false)` |
+| Initializer | `init(copy: BroadTokenPaywallCopy, defaultSelectionIndex: Int = 0, closeDelay: TimeInterval = 0, showsAnalytics: Bool = false)` |
 | Initializer | `init(cornerRadius: CGFloat, minimumProductHeight: CGFloat, minimumActionHeight: CGFloat, closeButton: CGFloat, borderWidth: CGFloat, maximumContentWidth: CGFloat, maximumRetryWidth: CGFloat? = nil)` |
 | Initializer | `init(crossedValueAccessibilityLabel: String, multiplierAccessibilityLabel: String, countdownAccessibilityLabel: String, expiredMessage: String = "This offer has ended. Close the screen or choose another offer.", discountFormat: String = "%d%% OFF")` |
 | Initializer | `init(defaultPolicy: PaywallAccessPolicy = .soft, hardPaywallCloseDelay: TimeInterval? = nil)` |
@@ -411,6 +411,7 @@
 | Instance Property | `let checkoutUnavailableMessage: String` |
 | Instance Property | `let closeAccessibilityLabel: String` |
 | Instance Property | `let closeButton: CGFloat` |
+| Instance Property | `let closeDelay: TimeInterval` |
 | Instance Property | `let compactPadding: CGFloat` |
 | Instance Property | `let completedButUnverifiedMessage: String` |
 | Instance Property | `let completedMessage: String` |
@@ -678,7 +679,7 @@
 | Type Method | `@MainActor static func preview(_ state: BroadAppUpdateChecker.PreviewState) -> BroadAppUpdateChecker` |
 | Type Method | `@MainActor static func preview(_ state: BroadPaywallScreen.PreviewState = .plans, formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter()) -> BroadPaywallScreen` |
 | Type Method | `@MainActor static func preview(_ state: BroadSettingsScreen.PreviewState = .ready) -> BroadSettingsScreen` |
-| Type Method | `@MainActor static func preview(_ state: BroadTokenPaywallScreen.PreviewState = .packages, formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter()) -> BroadTokenPaywallScreen` |
+| Type Method | `@MainActor static func preview(_ state: BroadTokenPaywallScreen.PreviewState = .packages, formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter(), copy: BroadTokenPaywallCopy = .russian) -> BroadTokenPaywallScreen` |
 | Type Method | `@MainActor static func previewSpecialOfferWithTwoProducts(formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter()) -> BroadPaywallScreen` |
 | Type Method | `static func afterFirstSlide(delay: Duration = .milliseconds(400)) -> OnboardingTrackingAuthorizationPolicy` |
 | Type Method | `static func makeRequest(configuration: BroadSupportEmailConfiguration) -> BroadSupportEmailRequest?` |
@@ -692,6 +693,7 @@
 | Type Property | `static let english: BroadPaywallPeriodCopy` |
 | Type Property | `static let english: BroadPaywallSpecialOfferCopy` |
 | Type Property | `static let english: BroadSettingsCopy` |
+| Type Property | `static let english: BroadTokenPaywallCopy` |
 | Type Property | `static let mainOnly: AppFlowConfiguration` |
 | Type Property | `static let maximumHardPaywallCloseDelay: TimeInterval` |
 | Type Property | `static let minimumInteractiveDimension: CGFloat` |
@@ -703,3 +705,4 @@
 | Type Property | `static let russian: BroadTokenPaywallCopy` |
 | Type Property | `static let standard: BroadPaywallCopy` |
 | Type Property | `static let standard: BroadSupportEmailGreeting` |
+| Type Property | `static let standard: BroadTokenPaywallCopy` |

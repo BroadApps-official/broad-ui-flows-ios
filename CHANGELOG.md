@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `BroadTokenPaywallCopy.english` and `.standard` provide the same English token
+  paywall text while `.russian` stays unchanged.
+- `BroadTokenPaywallConfiguration.closeDelay` defaults to zero. The host screen's
+  `canClose` and the ready view respect the delay after appearance, and closing
+  remains blocked while busy. The cancellable timer restarts on a later
+  appearance and is independent of Reduce Motion.
+- `BroadTokenPaywallScreen.preview(_:formatter:copy:)` accepts copy for fixture
+  notices while preserving the Russian default.
+- Gallery token paywalls demonstrate English copy and a three-second close delay.
+
+### Fixed
+
+- Automatic balance recovery still updates the confirmed balance but no longer
+  sets a success or failure notice. An explicit refresh reports its result.
+
+### SemVer intent
+
+MINOR for the additive public API; the automatic notice fix is PATCH-compatible.
+The released module version remains unchanged until release preparation.
+
 ## 6.4.0
 
 ### Added

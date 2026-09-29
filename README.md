@@ -250,6 +250,14 @@ BroadTokenPaywallHost(
 `refreshBalance()`, `retry()`, `close()`, `dismissNotice()`. Превью без Adapty:
 `BroadTokenPaywallScreen.preview(.pending)`.
 
+Для английского приложения используйте `BroadTokenPaywallCopy.english` (алиас
+`.standard`). `BroadTokenPaywallConfiguration(copy: .english, closeDelay: 3)`
+покажет крестик через 3 секунды после появления экрана; значение по умолчанию
+`0`. Свой экран ориентируется на `screen.canClose`, готовый экран тоже скрывает
+крестик до конца задержки. Автоматическая сверка баланса не показывает notice;
+`refreshBalance()` показывает результат. Английское превью:
+`BroadTokenPaywallScreen.preview(.pending, copy: .english)`.
+
 ## Свой экран настроек
 
 ```swift

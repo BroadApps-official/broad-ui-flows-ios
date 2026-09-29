@@ -105,7 +105,7 @@ public struct BroadTokenPaywallScreen {
     /// action instead of ``purchase()``.
     public let needsConfirmation: Bool
     public let canPurchase: Bool
-    /// Closing is blocked while a purchase or its check runs.
+    /// Closing is blocked until the configured delay ends and while busy.
     public let canClose: Bool
 
     let actions: Actions
@@ -235,7 +235,7 @@ extension BroadTokenPaywallViewModel {
             noticeMessage: feedback.map(message(for:)),
             needsConfirmation: isRetrySuggested,
             canPurchase: canPurchase,
-            canClose: !isBusy,
+            canClose: isCloseAvailable && !isBusy,
             select: { [weak self] id in self?.selectProduct(presentationID: id) },
             purchase: { [weak self] in self?.purchaseSelectedProduct() },
             confirm: { [weak self] in self?.retrySafely() },

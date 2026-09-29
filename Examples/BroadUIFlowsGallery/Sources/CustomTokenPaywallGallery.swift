@@ -6,6 +6,8 @@ import SwiftUI
 /// it inside `BroadTokenPaywallHost` on fixtures (a purchase credits a local
 /// ledger); the other entries render fixture states.
 struct CustomTokenPaywallGallery: View {
+    private let copy = BroadTokenPaywallCopy.english
+
     private enum Mode: Hashable {
         case live
         case preview(BroadTokenPaywallScreen.PreviewState)
@@ -16,7 +18,7 @@ struct CustomTokenPaywallGallery: View {
     var body: some View {
         VStack(spacing: 0) {
             Picker("State", selection: $mode) {
-                Text("live (fixtures)").tag(Mode.live)
+                Text("live (fixtures, 3s close delay)").tag(Mode.live)
                 ForEach(BroadTokenPaywallScreen.PreviewState.allCases, id: \.self) { state in
                     Text(String(describing: state)).tag(Mode.preview(state))
                 }
@@ -38,7 +40,7 @@ struct CustomTokenPaywallGallery: View {
                     }
                 )
             case let .preview(state):
-                CustomTokenPaywallExample(screen: .preview(state))
+                CustomTokenPaywallExample(screen: .preview(state, copy: copy))
             }
         }
         .navigationTitle("Custom token paywall (host)")
@@ -48,12 +50,13 @@ struct CustomTokenPaywallGallery: View {
 
 struct CustomTokenPaywallExample: View {
     let screen: BroadTokenPaywallScreen
+    private let copy = BroadTokenPaywallCopy.english
 
     var body: some View {
         VStack(spacing: 16) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Balance")
+                    Text(copy.header.balanceTitle)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     HStack(spacing: 6) {
@@ -66,7 +69,7 @@ struct CustomTokenPaywallExample: View {
                 }
                 Spacer()
                 if screen.canClose {
-                    Button("Close", systemImage: "xmark") { screen.close() }
+                    Button(copy.actions.closeAccessibilityLabel, systemImage: "xmark") { screen.close() }
                         .labelStyle(.iconOnly)
                         .frame(minWidth: 44, minHeight: 44)
                 }
@@ -82,16 +85,18 @@ struct CustomTokenPaywallExample: View {
     private var content: some View {
         switch screen.content {
         case .loading:
-            ProgressView()
+            ProgressView(copy.states.loadingTitle)
         case .empty:
             VStack(spacing: 12) {
-                Text("No token packages right now.")
-                Button("Try again") { screen.retry() }
+                Text(copy.states.emptyTitle)
+                Text(copy.states.emptyMessage)
+                Button(copy.actions.retryTitle) { screen.retry() }
             }
         case let .failed(error):
             VStack(spacing: 12) {
+                Text(copy.states.errorTitle)
                 Text(error.userMessage)
-                Button("Try again") { screen.retry() }
+                Button(copy.actions.retryTitle) { screen.retry() }
             }
         case .packages:
             VStack(spacing: 10) {
@@ -110,14 +115,14 @@ struct CustomTokenPaywallExample: View {
 
     private func packageRow(_ package: BroadTokenPackage) -> some View {
         HStack {
-            Text(package.tokens.map { "\($0) tokens" } ?? package.title ?? "Tokens")
+            Text(package.tokens.map { "\($0) tokens" } ?? package.title ?? copy.products.fallbackTitle)
                 .font(.headline)
             Spacer()
             if let savings = package.savingsPercent, package.isBestValue {
                 Text("Save \(savings)%")
                     .font(.caption.bold())
             }
-            Text(package.price ?? "—")
+            Text(package.price ?? copy.products.unavailablePriceTitle)
                 .font(.headline)
         }
         .padding(16)
@@ -126,7 +131,6 @@ struct CustomTokenPaywallExample: View {
             RoundedRectangle(cornerRadius: 16)
                 .stroke(package.isSelected ? Color.accentColor : .secondary.opacity(0.3), lineWidth: 2)
         )
-        .opacity(package.isAvailable ? 1 : 0.4)
         .contentShape(Rectangle())
         .onTapGesture { screen.select(package) }
         .accessibilityAddTraits(.isButton)
@@ -146,7 +150,7 @@ struct CustomTokenPaywallExample: View {
                     if screen.activity == .purchasing || screen.activity == .confirming {
                         ProgressView()
                     } else {
-                        Text(screen.needsConfirmation ? "Check purchase" : "Buy")
+                        Text(screen.needsConfirmation ? copy.actions.confirmTitle : copy.actions.purchaseTitle)
                     }
                 }
                 .frame(maxWidth: .infinity, minHeight: 52)
@@ -156,7 +160,7 @@ struct CustomTokenPaywallExample: View {
             .foregroundStyle(.white)
             .disabled(screen.needsConfirmation ? screen.isBusy : !screen.canPurchase)
 
-            Button("Refresh balance") { screen.refreshBalance() }
+            Button(copy.actions.recoverBalanceTitle) { screen.refreshBalance() }
                 .font(.footnote)
                 .frame(minHeight: 44)
                 .disabled(screen.isBusy)

@@ -38,12 +38,6 @@ extension BroadTokenPaywallView {
     }
 }
 
-extension MonetizationProduct {
-    var isTokenPackage: Bool {
-        kind == .consumable && price != nil
-    }
-}
-
 extension BroadTokenPaywallFeedback {
     var systemImage: String {
         switch self {

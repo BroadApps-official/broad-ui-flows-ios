@@ -53,7 +53,7 @@ public struct BroadTokenPaywallHost<Content: View>: View {
             formatter: productFormatter,
             tokenAmount: tokenAmount,
             close: {
-                guard !viewModel.isBusy else {
+                guard viewModel.isCloseAvailable, !viewModel.isBusy else {
                     return
                 }
                 onClose()

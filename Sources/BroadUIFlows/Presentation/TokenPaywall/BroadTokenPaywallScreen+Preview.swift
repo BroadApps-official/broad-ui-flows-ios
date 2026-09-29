@@ -18,13 +18,14 @@ public extension BroadTokenPaywallScreen {
 
     /// Fixture screen for Xcode Previews: three packages with the middle one
     /// selected and a balance of 120, priced in the currency of the formatter's
-    /// locale. Actions do nothing.
+    /// locale. `copy` supplies notice text; actions do nothing.
     static func preview(
         _ state: PreviewState = .packages,
-        formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter()
+        formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter(),
+        copy: BroadTokenPaywallCopy = .russian
     ) -> BroadTokenPaywallScreen {
         let packages = previewPackages(formatter: formatter)
-        let copy = BroadTokenPaywallCopy.russian.states
+        let states = copy.states
         switch state {
         case .packages:
             return previewScreen(packages: packages, formatter: formatter)
@@ -37,14 +38,14 @@ public extension BroadTokenPaywallScreen {
                 packages: packages,
                 balance: 620,
                 notice: .credited(TokenBalanceSnapshot(balance: 620, updatedAt: Date())),
-                message: copy.creditedMessage,
+                message: states.creditedMessage,
                 formatter: formatter
             )
         case .pending:
             return previewScreen(
                 packages: packages,
                 notice: .pending,
-                message: copy.pendingMessage,
+                message: states.pendingMessage,
                 formatter: formatter,
                 needsConfirmation: true,
                 canPurchase: false
@@ -61,7 +62,7 @@ public extension BroadTokenPaywallScreen {
             return previewScreen(
                 packages: packages,
                 notice: .cancelled,
-                message: copy.cancelledMessage,
+                message: states.cancelledMessage,
                 formatter: formatter
             )
         case .failed:

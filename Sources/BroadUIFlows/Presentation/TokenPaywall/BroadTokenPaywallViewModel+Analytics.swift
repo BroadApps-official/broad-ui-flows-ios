@@ -6,6 +6,7 @@ public extension BroadTokenPaywallViewModel {
     /// the screen disappeared is not a view.
     func viewDidDisappear() {
         isVisible = false
+        cancelCloseDelay()
         guard let context = shownContext else {
             return
         }
