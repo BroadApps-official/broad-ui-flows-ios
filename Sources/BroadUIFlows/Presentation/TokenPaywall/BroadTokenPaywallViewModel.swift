@@ -75,13 +75,20 @@ public final class BroadTokenPaywallViewModel: ObservableObject {
     var lastShownPresentationID: PaywallPresentationID?
     var eventTask: Task<Void, Never>?
 
+    /// Creates a token paywall, optionally with packages prepared for this presentation.
+    /// Invalid prepared payloads are ignored and the placement loads on appearance.
+    /// Showing is reported only after the screen appears.
     public init(
         configuration: BroadTokenPaywallConfiguration,
-        dependencies: BroadTokenPaywallViewModelDependencies
+        dependencies: BroadTokenPaywallViewModelDependencies,
+        initialPayload: PaywallPayload? = nil
     ) {
         self.configuration = configuration
         self.dependencies = dependencies
         isCloseAvailable = configuration.closeDelay == 0
+        if let initialPayload, initialPayload.isValidTokenPaywallPayload {
+            applyLoadOutcome(.loaded(initialPayload))
+        }
     }
 
     deinit {
@@ -302,9 +309,7 @@ private extension BroadTokenPaywallViewModel {
     func applyLoadOutcome(_ outcome: PaywallLoadOutcome) {
         switch outcome {
         case let .loaded(paywall):
-            guard paywall.origin.requestedPlacementID == .tokens,
-                  isSafeTokenPlacement(paywall)
-            else {
+            guard paywall.isValidTokenPaywallPayload else {
                 state = .failure(Self.unexpectedPlacementError)
                 record(.loadFailed)
                 return
@@ -381,15 +386,5 @@ private extension BroadTokenPaywallViewModel {
         if analyticsRecords.count > 40 {
             analyticsRecords.removeFirst(analyticsRecords.count - 40)
         }
-    }
-
-    func isSafeTokenPlacement(_ paywall: PaywallPayload) -> Bool {
-        if paywall.origin.resolvedPlacementID == .tokens {
-            return true
-        }
-
-        return paywall.origin.resolvedPlacementID == .main
-            && paywall.origin.usedFallback
-            && paywall.products.allSatisfy { $0.kind == .consumable }
     }
 }

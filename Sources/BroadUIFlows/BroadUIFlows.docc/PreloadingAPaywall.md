@@ -1,8 +1,8 @@
 # Preloading a paywall
 
-Preload a regular subscription paywall when a PRO button or settings action
-opens it in a sheet or full-screen cover. A paywall whose layout depends on the
-number of products can otherwise change height while the cover animates in.
+Preload a subscription or token paywall when an action opens it in a sheet or
+full-screen cover. A paywall whose layout depends on the number of products can
+otherwise change height while the cover animates in.
 
 Keep one ``BroadPaywallPreloader`` with the app flow. Call ``BroadPaywallPreloader/preload(_:)``
 when the main screen appears and again after a paywall closes without a purchase.
@@ -26,7 +26,32 @@ Once `take` returns a payload, the receiving presentation owns its lifecycle.
 Preloading never reports a paywall as shown; the view model does that only when
 its screen appears.
 
+For a token store, use the token placement and pass its payload to the token
+view model before presenting ``BroadTokenPaywallHost`` or
+``BroadTokenPaywallView``:
+
+```swift
+let preloader = BroadPaywallPreloader(
+    loadPaywall: loadPaywall,
+    presentationLifecycle: presentationLifecycle
+)
+// On the presenting screen:
+preloader.preload(.tokens)
+
+// Later, when opening the token paywall:
+let viewModel = BroadTokenPaywallViewModel(
+    configuration: tokenConfiguration,
+    dependencies: tokenDependencies,
+    initialPayload: preloader.take(.tokens)
+)
+```
+
+The token view model accepts only a payload requested for `.tokens` with
+consumable products. A `.main` fallback also needs a typed fallback origin;
+other payloads trigger a regular load. A valid payload supplies packages before
+the screen opens. Use the same `loadPaywall` instance in `tokenDependencies`.
+The token view is reported as shown only on appearance.
+
 Call ``BroadPaywallPreloader/discardAll()`` after a confirmed purchase or
-restore. Do not routinely preload `special_offer` or `tokens`: the offer has
-its own `prepare` flow in BroadMonetization, and token paywalls have a separate
-presentation flow. Only add either placement when the app has a specific reason.
+restore. Special Offer uses its own `prepare` flow in BroadMonetization;
+do not routinely preload `special_offer`.

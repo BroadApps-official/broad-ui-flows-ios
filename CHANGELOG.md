@@ -6,6 +6,10 @@
 
 - `BroadSettingsScreen.showPaywall()` opens the app's subscription paywall through
   the shared tap gate, for "Get Pro" and subscription status rows.
+- `BroadTokenPaywallViewModel.init(configuration:dependencies:initialPayload:)`
+  accepts a prepared `.tokens` payload so the token screen opens with packages
+  before its appearance. `BroadPaywallPreloader` now checks token payload safety
+  before retaining it; the Gallery shows token preloading with fixtures.
 
 ### Changed (breaking)
 
@@ -19,15 +23,23 @@
 - Contract checks reject the App Store subscription page, the system manage
   subscriptions sheet and cancel-subscription code in sources and Gallery.
 
+### Fixed
+
+- Ordinary token loads also reject catalogs containing non-consumable products,
+  including catalogs resolved directly from `.tokens`.
+
 ### Migration
 
 Pass `showPaywall: { present the settings-placement paywall }` to every
 `BroadSettingsHost`. Rows that called `manageSubscription()` now open that paywall.
+A preloaded token paywall is optional: `preloader.preload(.tokens)` early and
+`BroadTokenPaywallViewModel(..., initialPayload: preloader.take(.tokens))` when it opens.
 
 ### SemVer intent
 
 MAJOR: `BroadSettingsHost` gains a required parameter and `manageSubscription()`
-changes behavior.
+changes behavior. The token paywall `initialPayload` parameter is additive and the
+token catalog check is PATCH-compatible.
 
 ## 6.5.0
 

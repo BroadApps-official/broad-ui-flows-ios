@@ -32,6 +32,9 @@ struct GalleryHomeView: View {
                     NavigationLink("Token paywall") {
                         FixtureTokenPaywallScreen()
                     }
+                    NavigationLink("Preloaded token paywall") {
+                        FixturePreloadedTokenPaywallGallery()
+                    }
                     NavigationLink("Custom token paywall (host)") {
                         CustomTokenPaywallGallery()
                     }
