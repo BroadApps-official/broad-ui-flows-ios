@@ -1,9 +1,10 @@
 import BroadMonetization
 import Foundation
 
-/// Keeps a regular paywall ready while its presenting screen is visible.
+/// Keeps a paywall ready while its presenting screen is visible.
 /// Loading does not report a paywall impression. Pass a payload from ``take(_:)``
-/// to ``PaywallViewModel/init(configuration:dependencies:initialPayload:)``.
+/// to ``PaywallViewModel/init(configuration:dependencies:initialPayload:)`` or
+/// ``BroadTokenPaywallViewModel/init(configuration:dependencies:initialPayload:)``.
 @MainActor
 public final class BroadPaywallPreloader {
     private struct Prepared {
@@ -77,7 +78,9 @@ public final class BroadPaywallPreloader {
             guard case let .loaded(payload) = outcome else {
                 return
             }
-            guard payload.origin.requestedPlacementID == placementID else {
+            guard payload.origin.requestedPlacementID == placementID,
+                  placementID != .tokens || payload.isValidTokenPaywallPayload
+            else {
                 release(payload)
                 return
             }

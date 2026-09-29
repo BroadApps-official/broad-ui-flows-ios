@@ -104,11 +104,13 @@ dependencies: [
   и бейджем, зачёркнутая цена и скидка оффера, единственная карточка оффера
   `specialOfferPlan`, этап, типизированное сообщение) и только рисует;
 - `BroadPaywallView` (готовый экран) и `PaywallViewModel`;
-- `BroadPaywallPreloader` — пейвол с кнопки PRO загружается заранее и открывается
-  сразу с тарифами; показ засчитывается только при появлении экрана;
+- `BroadPaywallPreloader` — подписочный и токенный пейволы загружаются заранее
+  и открываются сразу с продуктами; показ засчитывается при появлении экрана;
 - `BroadTokenPaywallHost` — свой экран покупки токенов: хост ведёт загрузку,
   выбор пакета, покупку и зачисление, безопасную проверку сохранённой покупки и
-  баланс; экран получает готовый `BroadTokenPaywallScreen` и только рисует;
+  баланс; передайте `preloader.take(.tokens)` в `BroadTokenPaywallViewModel` как
+  `initialPayload`, чтобы пакеты были готовы до открытия экрана; экран получает
+  готовый `BroadTokenPaywallScreen` и только рисует;
 - `BroadTokenPaywallView` (готовый экран) и `BroadTokenPaywallViewModel`;
 - `BroadSettingsHost` — свой экран настроек: restore с типизированным
   результатом, управление подпиской, документы, письмо в поддержку, копирование ID,
@@ -234,6 +236,15 @@ Special Offer никогда не заменяет initial paywall. Confirmed pu
 ## Свой экран токенов
 
 ```swift
+// On the presenting screen, before the token paywall opens:
+preloader.preload(.tokens)
+
+// Later, when opening the token paywall:
+let viewModel = BroadTokenPaywallViewModel(
+    configuration: tokenConfiguration,
+    dependencies: tokenDependencies,
+    initialPayload: preloader.take(.tokens)
+)
 BroadTokenPaywallHost(
     viewModel: viewModel,
     tokenAmount: { product in amounts[product.productID.rawValue] },
@@ -242,6 +253,12 @@ BroadTokenPaywallHost(
     MyTokenStore(screen: screen)
 }
 ```
+
+Создайте `BroadPaywallPreloader` с тем же `loadPaywall`, что у токенной модели,
+и `presentationLifecycle`. Если предзагрузка ещё идёт или payload не прошёл
+проверку плейсмента `.tokens` и consumable-продуктов, модель загрузит каталог
+обычным способом. Показ считается только после появления экрана. Пример на
+fixtures: «Preloaded token paywall» в Gallery.
 
 `MyTokenStore` рисует `screen.packages` (цена, число токенов, выбран ли пакет),
 `screen.balanceText` и `screen.noticeMessage`. Главная кнопка: `screen.purchase()`,

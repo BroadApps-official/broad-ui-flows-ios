@@ -11,6 +11,13 @@ paywall tracker. The standard view reports shown/closed events in order, once
 per presentation; custom views call `viewDidAppear()` and `viewDidDisappear()`.
 Use a new view model for a new presentation.
 
+To show token packages as soon as the screen opens, preload `.tokens` with
+``BroadPaywallPreloader`` and pass `take(.tokens)` to
+``BroadTokenPaywallViewModel/init(configuration:dependencies:initialPayload:)``.
+The payload is validated using the same placement and consumable rules as a
+regular load; an invalid payload triggers a regular load. See
+<doc:PreloadingAPaywall> and the Gallery's preloaded token paywall.
+
 Support email accepts a confirmed token balance only for apps using tokens.
 Omit unknown balances. Supply all available current-account IDs, especially the
 identifier used to credit tokens, through `additionalIdentifiers`. Empty optional

@@ -30,17 +30,19 @@ App передаёт тексты, theme и действия через public c
 
 ## Paywall и Special Offer
 
-`BroadPaywallPreloader` preloads a regular paywall before a PRO or settings
-sheet opens. The app calls `preload` when the main screen appears and after a
-paywall closes without a purchase, then passes `take(placementID)` as the
-`PaywallViewModel` initial payload on the button tap. The default freshness
-window is ten minutes. `discardAll()` releases unused payloads after a
-confirmed purchase or restore. A preload never reports a paywall impression;
-the visible view model does. Special Offer uses its own BroadMonetization
-preparation flow, and token paywalls should only be preloaded for a specific
-app need. See [Preloading a paywall](../Sources/BroadUIFlows/BroadUIFlows.docc/PreloadingAPaywall.md).
+`BroadPaywallPreloader` preloads a subscription or token paywall before its
+sheet opens. The app calls `preload(placementID)` while the presenting screen is
+visible, then passes `take(placementID)` as the view model's `initialPayload`
+when opening the sheet. For token packages use `.tokens` and
+`BroadTokenPaywallViewModel`; valid consumable packages are ready immediately.
+Invalid token payloads trigger a regular load. The default freshness window is
+ten minutes. `discardAll()` releases unused payloads after a confirmed purchase
+or restore. A preload never reports a paywall impression; the visible view model
+does. Special Offer uses its own BroadMonetization preparation flow. See
+[Preloading a paywall](../Sources/BroadUIFlows/BroadUIFlows.docc/PreloadingAPaywall.md).
 
-SemVer intent for `BroadPaywallPreloader`: MINOR, additive public API.
+SemVer intent for `BroadTokenPaywallViewModel.initialPayload`: MINOR, additive
+public API. The token placement validation also applies to ordinary loads.
 
 `BroadPaywallScreen.dismissNotice()` clears the current typed notice. A Special
 Offer may receive `referenceProducts` in `BroadPaywallConfiguration` from the

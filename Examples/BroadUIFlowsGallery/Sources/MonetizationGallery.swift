@@ -126,8 +126,11 @@ struct FixtureTokenPaywallScreen: View {
     }
 
     /// A token paywall on fixtures: purchases credit a local ledger, nothing is charged.
-    static func makeViewModel(showsAnalytics: Bool) -> BroadTokenPaywallViewModel {
-        let payload = FixtureCatalog.tokenPayload()
+    static func makeViewModel(
+        showsAnalytics: Bool,
+        initialPayload: PaywallPayload? = nil,
+        payload: PaywallPayload = FixtureCatalog.tokenPayload()
+    ) -> BroadTokenPaywallViewModel {
         let operationGate = MonetizationOperationGate()
         let purchaseManager = TokenPurchaseManager(
             purchaseRepository: FixturePurchaseRepository(),
@@ -149,7 +152,8 @@ struct FixtureTokenPaywallScreen: View {
                 recoverTokenAccount: FixtureTokenAccountRecovery(),
                 onBalanceConfirmed: { _ in },
                 trackEvent: FixturePaywallTracker()
-            )
+            ),
+            initialPayload: initialPayload
         )
     }
 
