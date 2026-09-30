@@ -91,9 +91,13 @@ enum CompatibilityProbe {
     }
 
     static func historicalSettings(url: URL, support: BroadSupportEmailConfiguration?) {
+        let makeInferredCopy = BroadSettingsCopy.init
+        _ = makeInferredCopy("Restored", "Nothing found")
         let makeCopy: (String, String) -> BroadSettingsCopy = BroadSettingsCopy.init
         _ = makeCopy("Restored", "Nothing found")
         _ = BroadSettingsCopy(restoredMessage: "Restored", nothingToRestoreMessage: "Nothing found")
+        let makeInferredConfiguration = BroadSettingsConfiguration.init
+        _ = makeInferredConfiguration("fixture", url, url, url, support, nil, nil, .russian)
         let makeConfiguration: (
             String, URL, URL, URL, BroadSupportEmailConfiguration?, String?, String?, BroadSettingsCopy
         ) -> BroadSettingsConfiguration = BroadSettingsConfiguration.init
@@ -101,6 +105,8 @@ enum CompatibilityProbe {
         let legacyURL: URL = configuration.appStoreURL
         _ = legacyURL
         _ = BroadSettingsConfiguration(userID: "fixture", appStoreURL: url, privacyPolicyURL: url, termsURL: url)
+        let makeInferredScreen = BroadSettingsScreen.init
+        _ = makeInferredScreen("fixture", "1", "1", false, nil, nil, false, false)
         let makeScreen: @MainActor (
             String, String, String, Bool, BroadSettingsRestoreResult?, String?, Bool, Bool
         ) -> BroadSettingsScreen = BroadSettingsScreen.init
@@ -113,6 +119,8 @@ enum CompatibilityProbe {
     }
 
     static func historicalSettingsHost(configuration: BroadSettingsConfiguration, restore: any RestorePurchasesUseCaseProtocol) {
+        let makeInferred = BroadSettingsHost<Text>.init
+        _ = makeInferred(configuration, {}, restore, { _ in }, { Text($0.userID) })
         let make: @MainActor (
             BroadSettingsConfiguration, @escaping @MainActor () -> Void,
             any RestorePurchasesUseCaseProtocol, @escaping @MainActor (EntitlementSnapshot) -> Void,
@@ -122,6 +130,19 @@ enum CompatibilityProbe {
     }
 
     static func historicalOnboarding(viewModel: OnboardingViewModel) {
+        let makeViewModel = OnboardingViewModel.init
+        let makeTypedViewModel: @MainActor (
+            OnboardingConfiguration, any TrackingAuthorizationUseCaseProtocol
+        ) -> OnboardingViewModel = OnboardingViewModel.init
+        _ = makeViewModel
+        _ = makeTypedViewModel
+        let makeHost = BroadOnboardingFlowHost<Text>.init
+        let makeTypedHost: @MainActor (
+            OnboardingViewModel, @escaping @MainActor () -> Void,
+            @escaping @MainActor (OnboardingViewModel, OnboardingFlowActions) -> Text
+        ) -> BroadOnboardingFlowHost<Text> = BroadOnboardingFlowHost<Text>.init
+        _ = makeHost(viewModel, {}, { model, _ in Text(model.currentPage?.title ?? "") })
+        _ = makeTypedHost(viewModel, {}, { model, _ in Text(model.currentPage?.title ?? "") })
         let policy: (Duration) -> OnboardingTrackingAuthorizationPolicy = OnboardingTrackingAuthorizationPolicy.afterFirstSlide
         _ = policy(.milliseconds(400))
         _ = OnboardingTrackingAuthorizationPolicy.afterFirstSlide()

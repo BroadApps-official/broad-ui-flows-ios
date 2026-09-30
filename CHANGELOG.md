@@ -4,11 +4,11 @@
 
 ### Added
 
-- `BroadSettingsConfiguration.appStoreLink: URL?` и отдельный init с обязательным
-  `appStoreLink`, включая `nil`; `BroadSettingsScreen.canShareApp` / `canRateApp`.
-- Локализованные тексты fallback поддержки в `BroadSettingsCopy`, отдельный
-  расширенный init, preview-overload с признаками Share/Rate и host-overload с
-  обязательным `canSendMail` для Gallery.
+- `BroadSettingsConfiguration.appStoreLink: URL?` и именованная фабрика
+  `withAppStoreLink(...)`, включая `nil`; `BroadSettingsScreen.canShareApp` / `canRateApp`.
+- Локализованные тексты поддержки и фабрика `BroadSettingsCopy.localized(...)`,
+  `BroadSettingsScreen.previewWithAppStoreActions(...)` с признаками Share/Rate и
+  модификатор хоста `supportMailCapability(_:)` для Gallery.
 - Gallery-режимы без App Store ссылки/почты, пустой адрес и ATT transition fixture;
   executable contracts для ссылок, почтовых действий, стабилизации frame и ATT lifecycle.
 
@@ -18,15 +18,21 @@
   как отсутствие ссылки. Share и Rate без ссылки безопасно ничего не делают.
 - Без системной почты Settings host показывает alert с адресом, «Скопировать адрес»
   и «Закрыть»; «Открыть почту» появляется только после успешного canOpenURL.
-  Пустой адрес получает отдельный alert. Native compose не получает второй fallback.
+  Пустой адрес получает отдельный alert. Ошибка подготовки вложения при доступной
+  почте получает свой alert с Close, без внешнего mailto. Native compose не получает
+  второй fallback. Copy/Open Mail/Close выполняются сразу и продлевают общий gate на 400 мс.
 - ATT delay считается после стабилизации входящего перехода первого слайда,
   включая fade Reduce Motion; ожидание ограничено и при таймауте не запрашивает ATT.
+  После раннего выхода observer освобождает задачу и может наблюдать снова при
+  восстановлении видимости; поколение защищает новую задачу от завершения старой.
   Loader/сплеш и отключённый onboarding по-прежнему не запрашивают разрешение.
 
 ### Compatibility
 
-- Все существующие public сигнатуры baseline 7.0.0 сохранены, включая точные
-  ссылки на initializer как функцию. Новые overload требуют новые параметры;
+- Старые public сигнатуры baseline 7.0.0 сохранены. Для затронутых Settings-типов,
+  `BroadOnboardingFlowHost` и `OnboardingViewModel` с единственным public init в 7.0.0
+  проверяются ссылки `Type.init` без явного типа и прежние типизированные ссылки.
+  Новые Settings-формы используют именованные фабрики/модификатор;
   deprecated-аннотаций и новых cases в существующих public enum нет.
 - `appStoreURL: URL` сохраняется для чтения: ссылка или `https://apps.apple.com`;
   для проверки наличия используется `appStoreLink`. Legal preconditions не изменены.
@@ -40,7 +46,7 @@
 
 ### SemVer intent
 
-7.1.0: MINOR — API добавлен совместимыми overload, три исправления не требуют
+7.1.0: MINOR — API добавлен фабриками и модификатором, исправления не требуют
 правок существующего кода baseline 7.0.0. Версии и теги в этой worktree не меняются.
 
 ## 7.0.0

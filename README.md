@@ -365,8 +365,8 @@ BroadSettingsHost(
 `screen.restoreMessage`, `screen.isUserIDCopied`, `screen.version` и `screen.build`
 готовы к показу. Превью: `BroadSettingsScreen.preview(.restored)`.
 
-Для нового приложения без App Store ID используйте отдельный overload
-`BroadSettingsConfiguration(userID:appStoreLink:privacyPolicyURL:termsURL:...)` с
+Для нового приложения без App Store ID используйте именованную фабрику
+`BroadSettingsConfiguration.withAppStoreLink(userID:appStoreLink:privacyPolicyURL:termsURL:...)` с
 `appStoreLink: nil`. Старый init с `appStoreURL: URL` сохранён: невалидная ссылка
 теперь означает отсутствие ссылки, без crash. `appStoreURL: URL` по-прежнему можно
 читать; при отсутствии ссылки он возвращает `https://apps.apple.com`. Это свойство
@@ -380,12 +380,17 @@ BroadSettingsHost(
 При недоступной системной почте `contactSupport()` показывает alert с адресом,
 «Скопировать адрес» и «Закрыть». «Открыть почту» добавляется только после успешного
 `UIApplication.shared.canOpenURL`; `mailto:` получает только адрес и subject.
-Пустой адрес поддержки показывает отдельный понятный alert. Тексты находятся в
+Пустой адрес поддержки показывает отдельный понятный alert. При доступной почте
+пустое вложение или имя файла показывают ошибку подготовки письма с Close, без mailto.
+Тексты находятся в
 `BroadSettingsCopy.russian` / `.english`; старый init с двумя сообщениями восстановления
 сохранён и использует русские значения новых полей. Если приложение уже показывает
 свой fallback и вызывает `contactSupport()` только при `canSendMail == true`,
-дополнительного alert от хоста не будет. Все основные действия сохраняют общий gate;
-кнопка копирования внутри alert сразу копирует адрес, даже если 400 мс ещё не истекли.
+при корректном request дополнительного alert от хоста не будет. Каждый Settings-тип
+сохраняет единственный public init: расширенные тексты задаёт `BroadSettingsCopy.localized(...)`,
+preview — `BroadSettingsScreen.previewWithAppStoreActions(...)`, Gallery capability —
+модификатор хоста `.supportMailCapability { ... }`. Все основные действия сохраняют
+общий gate; Copy/Open Mail/Close внутри alert выполняются сразу и продлевают его на 400 мс.
 
 ## Алерт обновления
 

@@ -51,6 +51,7 @@ final class OnboardingWindowVisibilityProbeView: UIView {
 
     private var lastReportedVisibility: Bool?
     private var transitionTask: Task<Void, Never>?
+    private var transitionObservation = OnboardingTransitionObservation()
     private var isTransitionSettled = false
 
     init(
@@ -112,6 +113,7 @@ final class OnboardingWindowVisibilityProbeView: UIView {
     }
 
     func stopObservingTransition() {
+        transitionObservation.cancel()
         transitionTask?.cancel()
         transitionTask = nil
         if isTransitionSettled {
@@ -122,7 +124,14 @@ final class OnboardingWindowVisibilityProbeView: UIView {
 
     private func startObservingTransitionIfNeeded() {
         guard transitionTask == nil, !isTransitionSettled else { return }
+        guard let generation = transitionObservation.begin() else { return }
         transitionTask = Task { @MainActor [weak self] in
+            defer {
+                // An old cancelled task must not clear the replacement task's handle.
+                if self?.transitionObservation.finish(generation: generation) == true {
+                    self?.transitionTask = nil
+                }
+            }
             let startedAt = ContinuousClock.now
             var stability = OnboardingTransitionStability()
             while !Task.isCancelled {

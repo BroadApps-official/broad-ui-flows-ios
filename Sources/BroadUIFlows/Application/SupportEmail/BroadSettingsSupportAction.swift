@@ -3,6 +3,7 @@ import Foundation
 /// Resolves the host's support presentation without importing UI frameworks.
 enum BroadSettingsSupportAction {
     case missingAddress
+    case preparationFailed
     case compose(BroadSupportEmailRequest)
     case fallback(recipient: String, externalURL: URL?)
 
@@ -14,8 +15,10 @@ enum BroadSettingsSupportAction {
         guard let configuration else { return .missingAddress }
         let recipient = configuration.recipient.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !recipient.isEmpty else { return .missingAddress }
-        let request = BroadSupportEmailRequestBuilder.makeRequest(configuration: configuration)
-        if canSendMail, let request {
+        if canSendMail {
+            guard let request = BroadSupportEmailRequestBuilder.makeRequest(configuration: configuration) else {
+                return .preparationFailed
+            }
             return .compose(request)
         }
 

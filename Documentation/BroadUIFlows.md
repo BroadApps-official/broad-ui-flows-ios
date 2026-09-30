@@ -178,12 +178,12 @@ Support email принимает необязательный баланс, devi
 snapshot поступает в `onRestored`. `BroadSettingsScreen.preview(_:)` даёт состояния
 для Preview и Gallery без SDK и сети.
 
-Ссылка App Store теперь необязательна: новый init принимает обязательный параметр
-`appStoreLink: URL?`, в том числе `nil`, без неоднозначности со старым `appStoreURL: URL`.
-Старый init не падает на заглушке: принимает только HTTPS на `apps.apple.com` без
-credentials и нестандартного порта, остальные ссылки становятся `nil`. В DEBUG
-пишется фиксированное сообщение без raw URL; модуль не имел собственного логгера,
-поэтому используется `NSLog`. Preconditions privacy/terms не меняются.
+Ссылка App Store теперь необязательна: именованная фабрика
+`BroadSettingsConfiguration.withAppStoreLink(userID:appStoreLink:privacyPolicyURL:termsURL:...)`
+принимает `appStoreLink: URL?`, в том числе `nil`. Старый init с `appStoreURL: URL`
+остаётся единственным public init и не падает на заглушке: принимает только HTTPS
+на `apps.apple.com` без credentials и нестандартного порта, остальные ссылки становятся
+`nil`. Проверка ссылки не пишет в консоль. Preconditions privacy/terms не меняются.
 Для совместимости чтения `appStoreURL: URL` остаётся и при отсутствии ссылки даёт
 `https://apps.apple.com`; свойство устарело по смыслу, используйте `appStoreLink`.
 `canShareApp` / `canRateApp` у screen показывают доступность строк. Методы Share/Rate
@@ -194,19 +194,25 @@ Fallback поддержки соблюдает платформенный Suppor
 Третье действие «Открыть почту» есть только при `UIApplication.shared.canOpenURL == true`
 для сформированного mailto; перед открытием доступность проверяется ещё раз.
 External composer получает только адрес/subject, без body с обещанием вложения.
-Пустой/неуказанный адрес — отдельный alert. `canContactSupport` сохраняет прежний
+Пустой/неуказанный адрес — отдельный alert. При доступной почте пустое вложение или
+пустое имя файла дают alert «Не удалось подготовить письмо» с Close; внешний mailto
+не предлагается и письмо без диагностики не открывается. `canContactSupport` сохраняет прежний
 предикат доступности полного письма; прямой вызов `contactSupport()` обрабатывает и
 пустой адрес. Приложение со своим fallback продолжает вызывать метод только при
-доступной системной почте: хост тогда открывает только native composer.
+доступной системной почте: при корректном request хост открывает только native composer.
 
 Новые тексты `BroadSettingsCopy` включают заголовок/сообщение недоступной почты,
-Copy/Close/Open Mail и заголовок/сообщение пустого адреса. `.russian` и `.english`
-полностью локализованы; старый двухстрочный init оставляет тексты восстановления
-приложения и берёт русские fallback-значения. Расширенный init требует все новые поля.
-Старый init хоста сохранён; новый overload с обязательным `canSendMail` позволяет
-Gallery отключать native mail без системных настроек. Production использует системную
-проверку по умолчанию. Основные действия проходят прежний gate 400 мс, а выбор действия
-в уже открытом alert сразу выполняет копирование или открытие.
+Copy/Close/Open Mail и заголовки/сообщения пустого адреса и ошибки подготовки письма.
+`.russian` и `.english` полностью локализованы; единственный public двухстрочный init
+оставляет тексты восстановления приложения и берёт русские fallback-значения.
+`BroadSettingsCopy.localized(...)` принимает тексты восстановления, действий и пары
+`(title, message)` для каждого исхода поддержки. Preview с явными признаками Share/Rate
+создаёт `BroadSettingsScreen.previewWithAppStoreActions(values, canShareApp:canRateApp:)`;
+его действия ничего не делают. Старый init screen остаётся единственным public init.
+Единственный init хоста использует системную проверку почты; модификатор
+`.supportMailCapability { ... }` позволяет Gallery подменять её без системных настроек.
+Основные действия проходят прежний gate 400 мс. Copy/Open Mail/Close в уже открытом
+alert выполняются сразу, даже в первые 400 мс, и продлевают общий gate ещё на 400 мс.
 
 На главном табе создайте `BroadAppUpdateChecker` один раз и подключите
 `.broadAppUpdateAlert(checker)`. Клиент Data запрашивает iTunes lookup по bundle ID

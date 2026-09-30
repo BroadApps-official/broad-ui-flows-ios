@@ -10,9 +10,11 @@ struct SettingsHostGallery: View {
     @State private var noAppStoreLink = false
     @State private var noMail = true
     @State private var emptySupportAddress = false
+    @State private var emptySupportLog = false
+    @State private var emptySupportLogFileName = false
 
     private var configuration: BroadSettingsConfiguration {
-        BroadSettingsConfiguration(
+        BroadSettingsConfiguration.withAppStoreLink(
             userID: "fixture-settings-user",
             appStoreLink: noAppStoreLink ? nil : URL(string: "https://apps.apple.com/app/id000000000")!,
             privacyPolicyURL: URL(string: "https://example.invalid/privacy")!,
@@ -32,7 +34,6 @@ struct SettingsHostGallery: View {
                 isPaywallPresented = true
             },
             restorePurchases: FixtureRestore(),
-            canSendMail: { !noMail && BroadSupportEmailComposer.canSendMail },
             onRestored: { _ in restoredCallbacks += 1 },
             content: { screen in
                 Form {
@@ -40,6 +41,8 @@ struct SettingsHostGallery: View {
                         Toggle("Без ссылки App Store", isOn: $noAppStoreLink)
                         Toggle("Без почты", isOn: $noMail)
                         Toggle("Пустой адрес поддержки", isOn: $emptySupportAddress)
+                        Toggle("Пустое вложение", isOn: $emptySupportLog)
+                        Toggle("Пустое имя вложения", isOn: $emptySupportLogFileName)
                     }
                     Section("App actions") {
                         if screen.canShareApp {
@@ -105,6 +108,7 @@ struct SettingsHostGallery: View {
                 }
             }
         )
+        .supportMailCapability { !noMail && BroadSupportEmailComposer.canSendMail }
         .sheet(isPresented: $isPaywallPresented) {
             NavigationStack {
                 VStack(spacing: 16) {
@@ -142,7 +146,8 @@ struct SettingsHostGallery: View {
             adaptyProfileID: "fixture-profile",
             backendUserID: "fixture-user",
             subscriptionStatus: "not_subscribed",
-            supportLogData: Data("Fixture support log".utf8)
+            supportLogData: emptySupportLog ? Data() : Data("Fixture support log".utf8),
+            supportLogFileName: emptySupportLogFileName ? " \n " : "support-log.txt"
         )
     }
 }

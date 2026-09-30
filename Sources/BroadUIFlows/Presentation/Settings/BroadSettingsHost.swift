@@ -12,7 +12,7 @@ public struct BroadSettingsHost<Content: View>: View {
     @State private var supportAlert: SupportAlert?
 
     private let configuration: BroadSettingsConfiguration
-    private let canSendMail: @MainActor () -> Bool
+    private var canSendMail: @MainActor () -> Bool
     private let showPaywall: @MainActor () -> Void
     private let content: @MainActor (BroadSettingsScreen) -> Content
 
@@ -36,28 +36,8 @@ public struct BroadSettingsHost<Content: View>: View {
         onRestored: @escaping @MainActor (EntitlementSnapshot) -> Void = { _ in },
         @ViewBuilder content: @escaping @MainActor (BroadSettingsScreen) -> Content
     ) {
-        self.init(
-            configuration: configuration,
-            showPaywall: showPaywall,
-            restorePurchases: restorePurchases,
-            canSendMail: { BroadSupportEmailComposer.canSendMail },
-            onRestored: onRestored,
-            content: content
-        )
-    }
-
-    /// Creates a host with an injectable mail capability for local Gallery scenarios.
-    /// Production callers normally use the original initializer's system check.
-    public init(
-        configuration: BroadSettingsConfiguration,
-        showPaywall: @escaping @MainActor () -> Void,
-        restorePurchases: any RestorePurchasesUseCaseProtocol,
-        canSendMail: @escaping @MainActor () -> Bool,
-        onRestored: @escaping @MainActor (EntitlementSnapshot) -> Void = { _ in },
-        @ViewBuilder content: @escaping @MainActor (BroadSettingsScreen) -> Content
-    ) {
         self.configuration = configuration
-        self.canSendMail = canSendMail
+        canSendMail = { BroadSupportEmailComposer.canSendMail }
         self.showPaywall = showPaywall
         self.content = content
         _state = StateObject(wrappedValue: BroadSettingsState(
@@ -65,6 +45,13 @@ public struct BroadSettingsHost<Content: View>: View {
             copy: configuration.copy,
             onRestored: onRestored
         ))
+    }
+
+    /// Overrides the system mail capability for local Gallery or fixture scenarios.
+    public func supportMailCapability(_ canSendMail: @escaping @MainActor () -> Bool) -> Self {
+        var host = self
+        host.canSendMail = canSendMail
+        return host
     }
 
     public var body: some View {
@@ -95,21 +82,29 @@ public struct BroadSettingsHost<Content: View>: View {
             ) { alert in
                 if case let .fallback(recipient, externalURL) = alert {
                     Button(configuration.copy.copySupportAddressTitle) {
-                        UIPasteboard.general.string = recipient
+                        state.performSupportAlertAction {
+                            UIPasteboard.general.string = recipient
+                        }
                     }
                     if let externalURL {
                         Button(configuration.copy.openMailTitle) {
-                            if UIApplication.shared.canOpenURL(externalURL) {
-                                openURL(externalURL)
+                            state.performSupportAlertAction {
+                                if UIApplication.shared.canOpenURL(externalURL) {
+                                    openURL(externalURL)
+                                }
                             }
                         }
                     }
                 }
-                Button(configuration.copy.closeSupportTitle, role: .cancel) {}
+                Button(configuration.copy.closeSupportTitle, role: .cancel) {
+                    state.performSupportAlertAction {}
+                }
             } message: { alert in
                 switch alert {
                 case .missingAddress:
                     Text(configuration.copy.supportAddressMissingMessage)
+                case .preparationFailed:
+                    Text(configuration.copy.supportPreparationFailedMessage)
                 case let .fallback(recipient, _):
                     Text(configuration.copy.supportUnavailableMessage + "\n\n" + recipient)
                 }
@@ -117,10 +112,14 @@ public struct BroadSettingsHost<Content: View>: View {
     }
 
     private var supportAlertTitle: String {
-        if case .missingAddress = supportAlert {
-            return configuration.copy.supportAddressMissingTitle
+        switch supportAlert {
+        case .missingAddress:
+            configuration.copy.supportAddressMissingTitle
+        case .preparationFailed:
+            configuration.copy.supportPreparationFailedTitle
+        case .fallback, nil:
+            configuration.copy.supportUnavailableTitle
         }
-        return configuration.copy.supportUnavailableTitle
     }
 
     private var screen: BroadSettingsScreen {
@@ -192,6 +191,8 @@ public struct BroadSettingsHost<Content: View>: View {
         ) {
         case .missingAddress:
             supportAlert = .missingAddress
+        case .preparationFailed:
+            supportAlert = .preparationFailed
         case let .compose(request):
             destination = .email(request)
         case let .fallback(recipient, externalURL):
@@ -242,6 +243,12 @@ private final class BroadSettingsState: ObservableObject {
 
     func perform(_ action: () -> Void) {
         guard Date() >= nextActionAt else { return }
+        nextActionAt = Date().addingTimeInterval(0.4)
+        action()
+    }
+
+    /// Alert choices already own the interaction; execute immediately and renew the shared gate.
+    func performSupportAlertAction(_ action: () -> Void) {
         nextActionAt = Date().addingTimeInterval(0.4)
         action()
     }
@@ -300,5 +307,6 @@ private struct BroadSettingsShareSheet: UIViewControllerRepresentable {
 
 private enum SupportAlert {
     case missingAddress
+    case preparationFailed
     case fallback(recipient: String, externalURL: URL?)
 }

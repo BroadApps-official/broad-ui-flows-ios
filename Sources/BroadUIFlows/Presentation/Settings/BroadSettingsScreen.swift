@@ -99,27 +99,20 @@ public struct BroadSettingsScreen {
     }
 
     /// Builds a preview with explicit App Store action availability.
-    public init(
-        userID: String,
-        version: String,
-        build: String,
-        isRestoring: Bool = false,
-        restoreResult: BroadSettingsRestoreResult? = nil,
-        restoreMessage: String? = nil,
-        canContactSupport: Bool = false,
-        isUserIDCopied: Bool = false,
+    public static func previewWithAppStoreActions(
+        _ values: BroadSettingsScreen,
         canShareApp: Bool,
         canRateApp: Bool
-    ) {
-        self.init(
-            userID: userID,
-            version: version,
-            build: build,
-            isRestoring: isRestoring,
-            restoreResult: restoreResult,
-            restoreMessage: restoreMessage,
-            canContactSupport: canContactSupport,
-            isUserIDCopied: isUserIDCopied,
+    ) -> Self {
+        Self(
+            userID: values.userID,
+            version: values.version,
+            build: values.build,
+            isRestoring: values.isRestoring,
+            restoreResult: values.restoreResult,
+            restoreMessage: values.restoreMessage,
+            canContactSupport: values.canContactSupport,
+            isUserIDCopied: values.isUserIDCopied,
             canShareApp: canShareApp,
             canRateApp: canRateApp,
             actions: Actions()

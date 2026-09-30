@@ -421,6 +421,23 @@ require_pattern \
     'nextActionAt = Date\(\)\.addingTimeInterval\(0\.4\)'
 
 require_pattern \
+    "Support alert choices must immediately execute and renew the shared gate:" \
+    "$source_root/Presentation/Settings/BroadSettingsHost.swift" \
+    'func performSupportAlertAction\(_ action: \(\) -> Void\) \{[[:space:]]*nextActionAt = Date\(\)\.addingTimeInterval\(0\.4\)[[:space:]]*action\(\)[[:space:]]*\}'
+
+for support_alert_title in copySupportAddressTitle openMailTitle closeSupportTitle; do
+    require_pattern \
+        "Support alert action must renew the shared gate: $support_alert_title" \
+        "$source_root/Presentation/Settings/BroadSettingsHost.swift" \
+        "Button\\(configuration\\.copy\\.$support_alert_title(?:, role: \\.cancel)?\\) \\{[[:space:]]*state\\.performSupportAlertAction"
+done
+
+require_pattern \
+    "Transition observation must release its task on every exit using generation ownership:" \
+    "$source_root/Presentation/Onboarding/OnboardingWindowVisibilityView.swift" \
+    'transitionTask = Task \{ @MainActor \[weak self\] in[[:space:]]*defer \{(?s:.*?)transitionObservation\.finish\(generation: generation\) == true[[:space:]]*\{[[:space:]]*self\?\.transitionTask = nil'
+
+require_pattern \
     "Update versions must parse numeric components:" \
     "$source_root/Domain/AppUpdate/BroadAppVersion.swift" \
     '(?s)let number = Int\(part\).*if left != right \{[[:space:]]*return left < right'

@@ -44,7 +44,29 @@ public struct BroadSettingsConfiguration: Sendable {
 
     /// Pass `nil` while the app has no App Store link.
     /// Invalid links also become `nil`; legal URL preconditions are unchanged.
-    public init(
+    public static func withAppStoreLink(
+        userID: String,
+        appStoreLink: URL?,
+        privacyPolicyURL: URL,
+        termsURL: URL,
+        supportEmail: BroadSupportEmailConfiguration? = nil,
+        version: String? = nil,
+        build: String? = nil,
+        copy: BroadSettingsCopy = .russian
+    ) -> Self {
+        Self(
+            userID: userID,
+            appStoreLink: appStoreLink,
+            privacyPolicyURL: privacyPolicyURL,
+            termsURL: termsURL,
+            supportEmail: supportEmail,
+            version: version,
+            build: build,
+            copy: copy
+        )
+    }
+
+    private init(
         userID: String,
         appStoreLink: URL?,
         privacyPolicyURL: URL,

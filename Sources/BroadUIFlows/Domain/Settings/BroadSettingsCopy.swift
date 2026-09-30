@@ -11,6 +11,8 @@ public struct BroadSettingsCopy: Equatable, Sendable {
     public let openMailTitle: String
     public let supportAddressMissingTitle: String
     public let supportAddressMissingMessage: String
+    public let supportPreparationFailedTitle: String
+    public let supportPreparationFailedMessage: String
 
     /// Keeps the original initializer; new support texts use Russian defaults.
     public init(restoredMessage: String, nothingToRestoreMessage: String) {
@@ -23,13 +25,40 @@ public struct BroadSettingsCopy: Equatable, Sendable {
             closeSupportTitle: Self.russian.closeSupportTitle,
             openMailTitle: Self.russian.openMailTitle,
             supportAddressMissingTitle: Self.russian.supportAddressMissingTitle,
-            supportAddressMissingMessage: Self.russian.supportAddressMissingMessage
+            supportAddressMissingMessage: Self.russian.supportAddressMissingMessage,
+            supportPreparationFailedTitle: Self.russian.supportPreparationFailedTitle,
+            supportPreparationFailedMessage: Self.russian.supportPreparationFailedMessage
         )
     }
 
-    /// Creates localized restore and support fallback texts.
+    /// Creates localized restore and support texts without adding an initializer overload.
     /// The host appends the support address to `supportUnavailableMessage`.
-    public init(
+    public static func localized(
+        restoredMessage: String,
+        nothingToRestoreMessage: String,
+        supportUnavailable: (title: String, message: String),
+        copySupportAddressTitle: String,
+        closeSupportTitle: String,
+        openMailTitle: String,
+        supportAddressMissing: (title: String, message: String),
+        supportPreparationFailed: (title: String, message: String)
+    ) -> Self {
+        Self(
+            restoredMessage: restoredMessage,
+            nothingToRestoreMessage: nothingToRestoreMessage,
+            supportUnavailableTitle: supportUnavailable.title,
+            supportUnavailableMessage: supportUnavailable.message,
+            copySupportAddressTitle: copySupportAddressTitle,
+            closeSupportTitle: closeSupportTitle,
+            openMailTitle: openMailTitle,
+            supportAddressMissingTitle: supportAddressMissing.title,
+            supportAddressMissingMessage: supportAddressMissing.message,
+            supportPreparationFailedTitle: supportPreparationFailed.title,
+            supportPreparationFailedMessage: supportPreparationFailed.message
+        )
+    }
+
+    private init(
         restoredMessage: String,
         nothingToRestoreMessage: String,
         supportUnavailableTitle: String,
@@ -38,7 +67,9 @@ public struct BroadSettingsCopy: Equatable, Sendable {
         closeSupportTitle: String,
         openMailTitle: String,
         supportAddressMissingTitle: String,
-        supportAddressMissingMessage: String
+        supportAddressMissingMessage: String,
+        supportPreparationFailedTitle: String,
+        supportPreparationFailedMessage: String
     ) {
         self.restoredMessage = restoredMessage
         self.nothingToRestoreMessage = nothingToRestoreMessage
@@ -49,6 +80,8 @@ public struct BroadSettingsCopy: Equatable, Sendable {
         self.openMailTitle = openMailTitle
         self.supportAddressMissingTitle = supportAddressMissingTitle
         self.supportAddressMissingMessage = supportAddressMissingMessage
+        self.supportPreparationFailedTitle = supportPreparationFailedTitle
+        self.supportPreparationFailedMessage = supportPreparationFailedMessage
     }
 
     public static let russian = BroadSettingsCopy(
@@ -60,7 +93,9 @@ public struct BroadSettingsCopy: Equatable, Sendable {
         closeSupportTitle: "Закрыть",
         openMailTitle: "Открыть почту",
         supportAddressMissingTitle: "Поддержка недоступна",
-        supportAddressMissingMessage: "Адрес поддержки не указан. Попробуйте позже."
+        supportAddressMissingMessage: "Адрес поддержки не указан. Попробуйте позже.",
+        supportPreparationFailedTitle: "Не удалось подготовить письмо",
+        supportPreparationFailedMessage: "Не удалось прикрепить журнал диагностики. Попробуйте позже."
     )
 
     public static let english = BroadSettingsCopy(
@@ -72,6 +107,8 @@ public struct BroadSettingsCopy: Equatable, Sendable {
         closeSupportTitle: "Close",
         openMailTitle: "Open mail",
         supportAddressMissingTitle: "Support unavailable",
-        supportAddressMissingMessage: "The support address is not configured. Please try again later."
+        supportAddressMissingMessage: "The support address is not configured. Please try again later.",
+        supportPreparationFailedTitle: "Could not prepare email",
+        supportPreparationFailedMessage: "The diagnostic log could not be attached. Please try again later."
     )
 }

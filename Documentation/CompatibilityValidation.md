@@ -3,7 +3,8 @@
 `Examples/BroadUIFlowsGallery/Sources/CompatibilityProbe.swift` только компилируется:
 Gallery его не вызывает. Gate шаги 8–9 включают файл через `sources: Sources`,
 с warnings-as-errors и `SWIFT_STRICT_CONCURRENCY = complete`. Probe проверяет старые
-вызовы, пропущенные defaults, trailing closures и точные типы фабрик `init`.
+вызовы, пропущенные defaults, trailing closures, точные типы функций `init` и
+ссылки `Type.init` без явного типа для затронутых типов с одним public init в 7.0.0.
 
 `Scripts/run_contract_probes.py` собирает три небольших macOS executable из
 production-исходников Core, Monetization и UIFlows вместе с локальными fixtures.
@@ -33,8 +34,10 @@ cache удаляются после запуска. Временные копи�
 `SettingsAndOnboardingProbe.swift` использует production configuration, support action
 resolver, screen и transition stability, а также настоящий `OnboardingViewModel` с
 fixture tracking use case. Проверяет старые точные init-формы, App Store URL/nil,
-Share/Rate no-op, `.russian`/`.english`, матрицу canSendMail/canOpenURL, пустой адрес,
-состав mailto, движения/fade/таймаут, границу ATT delay и отмену/once-only/disabled.
+Share/Rate no-op, именованные фабрики, `.russian`/`.english`, матрицу canSendMail/canOpenURL,
+пустой адрес/вложение/имя файла, состав mailto, движения/fade/таймаут, освобождение
+поколения observer и повтор после восстановления видимости, границу ATT delay и
+отмену/once-only/disabled.
 UIKit и SwiftUI observer этот executable не монтирует.
 
 `Scripts/check_ui_contracts.sh` остаётся статической проверкой исходников; его
@@ -73,17 +76,34 @@ macOS probes его не собирают. Settings gate покрывает эт
 
 **Автоматически:** старый init с `appStoreURL: URL` сохраняет корректный URL;
 неверная схема/host, relative URL, credentials и нестандартный порт дают `appStoreLink == nil`
-без crash. Новый init принимает nil. Старый getter остаётся URL и возвращает
+без crash. Фабрика `withAppStoreLink(...)` принимает nil. Старый getter остаётся URL и возвращает
 `https://apps.apple.com` при отсутствии ссылки. Screen с выключенными признаками
 не вызывает Share/Rate actions. Старые точные формы init конфигурации, copy, screen,
 host и onboarding собраны в Gallery CompatibilityProbe, без deprecated warnings.
 Старый copy сохраняет restore-тексты и использует русские fallback-значения.
 
+Сверка с `git show 7.0.0:Documentation/PublicAPI.md` и исходниками baseline:
+
+| Затронутый public тип | Число public init в 7.0.0 / кандидате | Новая форма |
+|---|---|---|
+| `BroadSettingsCopy` | 1 / 1 | `localized(...)` |
+| `BroadSettingsConfiguration` | 1 / 1 | `withAppStoreLink(...)` |
+| `BroadSettingsScreen` | 1 / 1 | `previewWithAppStoreActions(_:canShareApp:canRateApp:)` |
+| `BroadSettingsHost<Content>` | 1 / 1 | `supportMailCapability(_:)` |
+| `BroadOnboardingFlowHost<Content>` | 1 / 1 | Без новой формы |
+| `OnboardingViewModel` | 1 / 1 | Без новой формы |
+
+Все шесть имеют нетипизированные и типизированные ссылки в CompatibilityProbe.
+`OnboardingTrackingAuthorizationPolicy` не имеет public init; его factory API не меняется.
+Внутренние observer/detector и resolver не добавляют public init.
+
 Матрица production resolver:
 
 | Адрес / capabilities | Результат |
 |---|---|
-| Адрес, canSendMail=true, canOpenURL=false/true | Только native composer, с log attachment; canOpenURL не вызывается |
+| Адрес, непустое вложение и имя файла, canSendMail=true, canOpenURL=false/true | Только native composer, с log attachment; canOpenURL не вызывается |
+| Адрес, пустое вложение или пустое/whitespace имя файла, canSendMail=true | Отдельный preparation-failure alert с Close; без Copy/Open Mail, canOpenURL не вызывается |
+| Адрес, невалидное вложение/имя файла, canSendMail=false | No-mail alert с Copy/Close и условным Open Mail: проверка capability имеет приоритет |
 | Адрес, canSendMail=false, canOpenURL=false | Alert: адрес, Copy и Close; externalURL nil |
 | Адрес, canSendMail=false, canOpenURL=true | Тот же alert и Open Mail; mailto содержит только адрес/subject |
 | Пустой/whitespace адрес или configuration nil | Отдельный missing-address alert; canOpenURL не вызывается |
@@ -103,6 +123,14 @@ host и onboarding собраны в Gallery CompatibilityProbe, без deprecat
 - «Пустой адрес поддержки»: Contact support показывает **Support unavailable** с
   понятным сообщением и Close, без Copy/Open Mail. Обычный предикат canContactSupport
   сохранён; Gallery намеренно даёт прямой вызов для проверки ошибки конфигурации.
+- Выключить «Без почты» на устройстве с доступной системной почтой и включить
+  «Пустое вложение» либо «Пустое имя вложения»: только **Could not prepare email**
+  с Close, без Copy/Open Mail и без native composer. Пустой адрес имеет приоритет
+  и продолжает показывать собственный alert.
+- Copy/Open Mail/Close срабатывают по первому нажатию, в том числе до окончания
+  исходных 400 мс; каждое продлевает общий gate. Сразу после закрытия alert соседний
+  Get Pro не должен пройти следующие 400 мс. Статический detector проверяет все
+  три обработчика и отсутствие входного guard в передаче gate.
 - **Support + Get Pro (same tap)**: только support alert, Presenter calls не меняется.
   После Close и 400 мс Get Pro снова открывает один sheet. Проверить обратный порядок
   отдельными быстрыми касаниями: общий gate блокирует второе действие.
@@ -119,7 +147,11 @@ host и onboarding собраны в Gallery CompatibilityProbe, без deprecat
 закрывает ожидание без разрешения при 3 с. OnboardingViewModel не запускает ATT
 по одному onAppear; visibility signal запускает delay. Проверяются отмена при уходе,
 повторная проверка живого окна, один вызов, disabled и invalid onboarding.
-Это отдельно проверенная логика; связь UIKit presentation layers со SwiftUI-анимацией
+Production generation tracker отдельно проверяет ранний выход при потере видимости,
+новое поколение при восстановлении, отмену и завершение старой задачи после запуска
+новой, освобождение после fail-closed таймаута. Статический detector проверяет
+`defer` с защитой поколением в настоящем UIKit observer. Executable не исполняет его
+UIKit task; связь UIKit presentation layers со SwiftUI-анимацией
 подтверждается ручным сценарием ниже, а не macOS probe.
 
 **Вручную:** Gallery → **ATT transition (real host)**. Use case возвращает `.denied`
@@ -135,7 +167,10 @@ host и onboarding собраны в Gallery CompatibilityProbe, без deprecat
   неизменного x. Сразу/до окончания delay нажать Reset / leave или перейти со
   первого слайда: запрос не возникает.
 - Свернуть приложение во время перехода или delay: ATT не вызывается в фоне.
-  Вернуться: только после подтверждения видимости и новой задержки; максимум один вызов.
+  Вернуться: observer начинает новое наблюдение даже после раннего выхода цикла
+  до notification; только после подтверждения видимости и новой задержки возникает
+  максимум один вызов. Повторить быстрое скрытие/возврат, когда старая отменённая
+  задача завершается после начала новой.
 - **ATT disabled**: после любого ожидания счётчик 0. Отключённый onboarding в реальном
   app flow вообще не монтирует host; loader/сплеш счётчик не меняет.
 - В интеграции со старым увеличенным delay «переход + 0,4 с» запрос безопасно

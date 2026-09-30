@@ -99,8 +99,8 @@ Store update from the main tab after a successful lookup.
 
 ## Settings without an App Store link or system mail
 
-Use the new `BroadSettingsConfiguration(userID:appStoreLink:privacyPolicyURL:termsURL:...)`
-overload with `appStoreLink: nil` until an App Store link is available. The original
+Use the named `BroadSettingsConfiguration.withAppStoreLink(userID:appStoreLink:privacyPolicyURL:termsURL:...)`
+factory with `appStoreLink: nil` until an App Store link is available. The original
 `appStoreURL: URL` initializer retains its exact signature and now treats invalid
 links as absent. Privacy and terms preconditions are unchanged. The legacy
 ``BroadSettingsConfiguration/appStoreURL`` getter remains nonoptional and returns
@@ -109,21 +109,25 @@ prefer ``BroadSettingsConfiguration/appStoreLink``. No deprecation warning is em
 
 App-owned layouts should hide Share and Rate using ``BroadSettingsScreen/canShareApp``
 and ``BroadSettingsScreen/canRateApp``. Both actions safely do nothing without a link,
-including unchanged consumers that still draw those rows. Preview initializers
-retain their exact old signature; a new overload requires both availability flags.
+including unchanged consumers that still draw those rows. The single public preview
+initializer retains its exact old signature. `BroadSettingsScreen.previewWithAppStoreActions(_:canShareApp:canRateApp:)`
+copies preview values with explicit availability flags and no-op actions.
 
 When system mail is unavailable, ``BroadSettingsScreen/contactSupport()`` presents
 a localized alert with the support address, Copy address and Close. Open mail appears
 only after `UIApplication.shared.canOpenURL` succeeds for the mailto URL, which carries
 only the address and subject. An empty address gets a separate explanatory alert.
-``BroadSettingsCopy`` supplies all fallback texts in Russian and English. Its original
-two-message initializer preserves custom restore messages and uses Russian fallback
-texts. The expanded initializer requires every added text. The original host initializer
-uses the system mail check; a separate overload requires a `canSendMail` closure for
-local Gallery capability scenarios. Apps showing their own fallback and calling the
-screen only when system mail is available receive only the native composer.
-The existing shared tap gate remains on screen actions; choosing Copy inside the
-already presented alert immediately copies the address.
+If mail is available but the diagnostic attachment or filename is empty, a preparation
+failure alert offers Close without an external mail action. ``BroadSettingsCopy`` supplies
+all support texts in Russian and English. Its single public two-message initializer
+preserves custom restore messages and uses Russian support texts. The named
+`BroadSettingsCopy.localized(...)` factory accepts restore/action texts and `(title, message)`
+pairs for each support outcome. The single host initializer uses the system mail check;
+`BroadSettingsHost.supportMailCapability(_:)` overrides it for local Gallery fixtures.
+Apps showing their own fallback and calling the screen only when system mail is available
+receive only the native composer when the request is valid. Copy, Open mail and Close
+inside an already presented alert execute immediately and renew the shared tap gate
+for 400 milliseconds, blocking adjacent settings actions.
 
 ## ATT after the onboarding transition
 
@@ -133,7 +137,9 @@ after the incoming launch-to-onboarding transition finishes, for both
 presentation frame until it has entered the window horizontally and stayed stable
 for approximately 0.1 seconds. Ancestor opacity is also checked for Reduce Motion fades.
 A three-second ceiling stops observation without requesting ATT if visibility cannot
-be confirmed. Leaving the first slide, hiding the window or leaving onboarding cancels
+be confirmed. Every exit releases observation ownership; generation checks prevent a
+cancelled task from clearing its replacement, and later visibility reports can observe again.
+Leaving the first slide, hiding the window or leaving onboarding cancels
 the pending request. Window visibility and the active scene are revalidated after the delay.
 
 A manual “transition duration + 0.4 seconds” delay is no longer needed. Existing

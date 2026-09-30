@@ -1,6 +1,29 @@
 import CoreGraphics
 import Foundation
 
+/// Tracks observation ownership across early exits, cancellation and replacement tasks.
+struct OnboardingTransitionObservation {
+    private var generation: UInt64 = 0
+    private(set) var activeGeneration: UInt64?
+
+    mutating func begin() -> UInt64? {
+        guard activeGeneration == nil else { return nil }
+        generation &+= 1
+        activeGeneration = generation
+        return generation
+    }
+
+    mutating func finish(generation: UInt64) -> Bool {
+        guard activeGeneration == generation else { return false }
+        activeGeneration = nil
+        return true
+    }
+
+    mutating func cancel() {
+        activeGeneration = nil
+    }
+}
+
 /// A bounded, fail-closed visibility check shared with executable contract probes.
 struct OnboardingTransitionStability {
     static let maximumWait: Duration = .seconds(3)
