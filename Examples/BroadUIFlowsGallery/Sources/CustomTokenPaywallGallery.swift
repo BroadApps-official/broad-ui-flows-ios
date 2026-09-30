@@ -31,7 +31,7 @@ struct CustomTokenPaywallGallery: View {
                 BroadTokenPaywallHost(
                     viewModel: FixtureTokenPaywallScreen.makeViewModel(showsAnalytics: false),
                     tokenAmount: { product in
-                        // An app maps its product IDs or backend catalog to amounts.
+                        // An app maps backend catalog amounts by product ID.
                         ["fixture-token-product": 100][product.productID.rawValue]
                     },
                     onClose: {},
@@ -115,7 +115,7 @@ struct CustomTokenPaywallExample: View {
 
     private func packageRow(_ package: BroadTokenPackage) -> some View {
         HStack {
-            Text(package.tokens.map { "\($0) tokens" } ?? package.title ?? copy.products.fallbackTitle)
+            Text(package.name)
                 .font(.headline)
             Spacer()
             if let savings = package.savingsPercent, package.isBestValue {

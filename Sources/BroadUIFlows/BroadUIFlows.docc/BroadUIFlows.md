@@ -8,6 +8,11 @@ the existing purchase for safe retry. Host exhaustive switches handle the new
 
 Unreleased: settings subscription rows open the app paywall through the required `BroadSettingsHost(showPaywall:)` handler. `showPaywall()` and `manageSubscription()` never cancel a subscription or open the App Store subscription page, because purchases go through Adapty. In 6.5.0 there is no handler and `manageSubscription()` opens the App Store.
 
+Unreleased: custom subscription and token screens draw ``BroadPaywallPlan/name``
+and ``BroadTokenPackage/name``. Ready views use these names, derived from the
+subscription period or token quantity. Raw store `title` values are not safe
+for display. See <doc:NamingPaywallProducts>.
+
 Connect the token paywall's optional `trackEvent` dependency to the existing
 paywall tracker. The standard view reports shown/closed events in order, once
 per presentation; custom views call `viewDidAppear()` and `viewDidDisappear()`.
@@ -122,10 +127,13 @@ ready screen model.
 - ``BroadPaywallHost``
 - ``BroadPaywallScreen``
 - ``BroadPaywallPlan``
+- ``BroadPaywallPlanNameCopy``
+- ``BroadCountedNameCopy``
 - ``BroadPaywallNotice``
 - ``BroadTokenPaywallHost``
 - ``BroadTokenPaywallScreen``
 - ``BroadTokenPackage``
+- <doc:NamingPaywallProducts>
 
 ### Monetization UI
 

@@ -7,7 +7,8 @@ public extension BroadPaywallCopy {
         products: Products(
             fallbackTitle: "Премиум-доступ",
             unavailablePriceTitle: "Цена недоступна",
-            selectedAccessibilityValue: "Выбрано"
+            selectedAccessibilityValue: "Выбрано",
+            planNames: .russian
         ),
         actions: Actions(
             purchaseTitle: "Продолжить",

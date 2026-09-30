@@ -10,17 +10,20 @@ public struct BroadTokenPaywallView: View {
 
     let theme: BroadPaywallTheme
     let productFormatter: BroadPaywallProductFormatter
+    let tokenAmount: (@MainActor (MonetizationProduct) -> Int?)?
     let onClose: @MainActor () -> Void
 
     public init(
         viewModel: BroadTokenPaywallViewModel,
         theme: BroadPaywallTheme,
         productFormatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter(),
+        tokenAmount: (@MainActor (MonetizationProduct) -> Int?)? = nil,
         onClose: @escaping @MainActor () -> Void
     ) {
         self.viewModel = viewModel
         self.theme = theme
         self.productFormatter = productFormatter
+        self.tokenAmount = tokenAmount
         self.onClose = onClose
     }
 
@@ -232,7 +235,12 @@ extension BroadTokenPaywallView {
         BroadSelectableProductRow(
             product: product,
             content: BroadSelectableProductContent(
-                title: product.title ?? copy.products.fallbackTitle,
+                title: BroadTokenPackageName.name(
+                    count: BroadTokenPackageName.displayCount(
+                        tokens: tokenAmount?(product), productID: product.productID
+                    ),
+                    copy: copy.products
+                ),
                 subtitle: product.subtitle,
                 price: productFormatter.price(for: product)
                     ?? copy.products.unavailablePriceTitle,

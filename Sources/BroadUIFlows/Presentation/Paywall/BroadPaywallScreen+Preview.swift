@@ -124,7 +124,10 @@ private extension BroadPaywallScreen {
                 savingsPercent: savings,
                 isBestValue: index == 1,
                 isSelected: index == 1,
-                isAvailable: true
+                isAvailable: true,
+                name: BroadPaywallCopy.standard.products.planNames.name(
+                    for: period, fallback: BroadPaywallCopy.standard.products.fallbackTitle
+                )
             )
         }
         return [

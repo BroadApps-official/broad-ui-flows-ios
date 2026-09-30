@@ -4,6 +4,9 @@
 
 ### Added
 
+- Display-ready `BroadPaywallPlan.name` and `BroadTokenPackage.name`, localized
+  through paywall copy. `BroadTokenPackage.displayTokenCount` is display-only.
+- `BroadPaywallCopy.english` aliases the English `.standard` copy.
 - `BroadSettingsScreen.showPaywall()` opens the app's subscription paywall through
   the shared tap gate, for "Get Pro" and subscription status rows.
 - `BroadTokenPaywallViewModel.init(configuration:dependencies:initialPayload:)`
@@ -23,8 +26,15 @@
 - Contract checks reject the App Store subscription page, the system manage
   subscriptions sheet and cancel-subscription code in sources and Gallery.
 
+### Changed
+
+- Subscription and token copy now supplies localized names for ready views and
+  custom screens. Backend token amounts take priority over display-only ID counts.
+
 ### Fixed
 
+- Ready subscription, Special Offer, and token rows no longer show raw App Store
+  product names, which may contain internal product IDs.
 - Ordinary token loads also reject catalogs containing non-consumable products,
   including catalogs resolved directly from `.tokens`.
 
@@ -34,12 +44,16 @@ Pass `showPaywall: { present the settings-placement paywall }` to every
 `BroadSettingsHost`. Rows that called `manageSubscription()` now open that paywall.
 A preloaded token paywall is optional: `preloader.preload(.tokens)` early and
 `BroadTokenPaywallViewModel(..., initialPayload: preloader.take(.tokens))` when it opens.
+Custom Figma screens use `plan.name` and `package.name` instead of raw `title`.
+ID-derived token counts are for display only; supply `tokenAmount` from the
+backend catalog for actual package quantities.
 
 ### SemVer intent
 
 MAJOR: `BroadSettingsHost` gains a required parameter and `manageSubscription()`
 changes behavior. The token paywall `initialPayload` parameter is additive and the
 token catalog check is PATCH-compatible.
+The additive plan and package names have MINOR intent.
 
 ## 6.5.0
 

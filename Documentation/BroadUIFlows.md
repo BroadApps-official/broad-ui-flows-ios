@@ -30,6 +30,13 @@ App передаёт тексты, theme и действия через public c
 
 ## Paywall и Special Offer
 
+Готовый экран и собственный экран по Figma показывают `BroadPaywallPlan.name`:
+`Weekly`/`Неделя`, `Monthly`/`Месяц`, `Yearly`/`Год`, а другие периоды — «3 Months»/«3 месяца».
+Другие периоды формируются через `BroadPaywallCopy.Products.planNames`, а
+неизвестный период даёт `fallbackTitle`. `plan.title` — сырое имя App Store,
+оно может содержать ID и не предназначено для интерфейса.
+`BroadPaywallCopy.english` и `.standard` дают одинаковые английские названия.
+
 `BroadPaywallPreloader` preloads a subscription or token paywall before its
 sheet opens. The app calls `preload(placementID)` while the presenting screen is
 visible, then passes `take(placementID)` as the view model's `initialPayload`
@@ -76,6 +83,12 @@ persisted 24-часового окна, на нуле блокирует пок�
 экран. Значение не зацикливается в 24:00:00.
 
 ## Token UI и optional billing
+
+Для пакета токенов показывайте `BroadTokenPackage.name`: например, `2000 Tokens`
+или `2000 токенов`. Сначала используется количество из backend `tokenAmount`;
+если его нет, ведущее число ID служит только для надписи в
+`displayTokenCount`. `package.tokens`, расчёт выгоды, зачисление и баланс не
+получают число из ID. `package.title` — сырое имя App Store, его не показывают.
 
 Token paywall работает через public BroadMonetization protocols.
 `BroadTokenPaywallCopy.english` и `.standard` дают одинаковый нейтральный

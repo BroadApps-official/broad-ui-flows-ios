@@ -25,8 +25,9 @@ public struct BroadTokenPaywallHost<Content: View>: View {
     /// - Parameters:
     ///   - viewModel: The token paywall of this presentation.
     ///   - productFormatter: Formats package prices and the balance number.
-    ///   - tokenAmount: Tokens a package adds, for example from its product ID
-    ///     or the backend catalog; `nil` leaves ``BroadTokenPackage/tokens`` empty.
+    ///   - tokenAmount: Tokens a package adds, from the backend catalog.
+    ///     `nil` leaves ``BroadTokenPackage/tokens`` empty; an ID-derived display
+    ///     count must never be used for credits, balances, or savings.
     ///   - onClose: Called when the screen closes; closing waits while busy.
     ///   - content: The app's layout of ``BroadTokenPaywallScreen``.
     public init(

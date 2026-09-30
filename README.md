@@ -170,7 +170,8 @@ BroadPaywallHost(viewModel: viewModel, onClose: close, onCompleted: finish) { sc
 }
 ```
 
-`MyPaywall` рисует `screen.plans` (цена, цена за неделю, бейдж, выбран ли тариф) и
+`MyPaywall` рисует `screen.plans` (`plan.name`, цена, цена за неделю, бейдж,
+выбран ли тариф) и
 вызывает `screen.select(plan)`, `purchase()`, `restore()`, `close()`, `open(link)`.
 Все состояния видны в Xcode Preview без Adapty: `BroadPaywallScreen.preview(.purchasing)`.
 
@@ -181,8 +182,12 @@ BroadPaywallHost(viewModel: viewModel, onClose: close, onCompleted: finish) { sc
 </p>
 
 Один renderer показывает 0, 1 или любое количество provider products. Он не
-фильтрует, не сортирует и не объединяет их. Длинные названия и локализованные
-цены не должны ломать layout; product list прокручивается, а primary action и
+фильтрует, не сортирует и не объединяет их. Название тарифа берётся из периода:
+`Weekly`/`Неделя`, `Monthly`/`Месяц`, `Yearly`/`Год`, а другие периоды — «3 Months»/«3 месяца».
+Неизвестный период даёт `fallbackTitle`. `plan.title` хранит сырое имя App Store
+для совместимости; в UI показывайте `plan.name`. `BroadPaywallCopy.english` и
+`.standard` дают одинаковый английский copy. Локализованные цены не должны
+ломать layout; product list прокручивается, а primary action и
 legal actions остаются доступны.
 
 <table>
@@ -260,12 +265,20 @@ BroadTokenPaywallHost(
 обычным способом. Показ считается только после появления экрана. Пример на
 fixtures: «Preloaded token paywall» в Gallery.
 
-`MyTokenStore` рисует `screen.packages` (цена, число токенов, выбран ли пакет),
+`MyTokenStore` рисует `screen.packages` (`package.name`, цена, число токенов,
+выбран ли пакет),
 `screen.balanceText` и `screen.noticeMessage`. Главная кнопка: `screen.purchase()`,
 а если `screen.needsConfirmation` — `screen.confirm()`: проверка сохранённой
 покупки, которая никогда не списывает деньги повторно. Ещё `select(package)`,
 `refreshBalance()`, `retry()`, `close()`, `dismissNotice()`. Превью без Adapty:
 `BroadTokenPaywallScreen.preview(.pending)`.
+
+Имя пакета строится из backend `tokenAmount`: `2000 Tokens` или `2000 токенов`.
+Тот же обработчик можно передать в `BroadTokenPaywallView(tokenAmount:)`.
+Если количество отсутствует, ведущее число product ID применяется только для
+надписи (`50_Tokens_9.99` → `50 Tokens`). Оно не попадает в `package.tokens`,
+баланс, зачисление или расчёт выгоды. ID без ведущего числа даёт `fallbackTitle`.
+`package.title` — сырое имя App Store; в UI используйте `package.name`.
 
 Для английского приложения используйте `BroadTokenPaywallCopy.english` (алиас
 `.standard`). `BroadTokenPaywallConfiguration(copy: .english, closeDelay: 3)`

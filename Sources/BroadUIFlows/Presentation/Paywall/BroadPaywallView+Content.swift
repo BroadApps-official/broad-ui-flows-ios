@@ -181,7 +181,7 @@ extension BroadPaywallView {
     func specialOfferRow(_ plan: BroadPaywallPlan) -> some View {
         HStack(spacing: theme.metrics.spacing.productContent) {
             VStack(alignment: .leading, spacing: theme.metrics.spacing.text) {
-                Text(plan.title ?? viewModel.configuration.copy.products.fallbackTitle)
+                Text(plan.name)
                     .font(theme.typography.productTitle)
                     .foregroundStyle(theme.palette.primaryText)
                 if let period = plan.periodText {
@@ -223,7 +223,9 @@ extension BroadPaywallView {
         let isEnabled = product.isEligibleForGenericPurchase
             && viewModel.canSelectProducts
         let content = BroadSelectableProductContent(
-            title: product.title ?? copy.fallbackTitle,
+            title: copy.planNames.name(
+                for: product.subscriptionPeriod, fallback: copy.fallbackTitle
+            ),
             subtitle: product.subtitle,
             price: productFormatter.price(for: product) ?? copy.unavailablePriceTitle,
             period: productFormatter.period(for: product)

@@ -7,7 +7,10 @@ public struct BroadTokenPackage: Identifiable, Equatable, Sendable {
     public let id: ProductPresentationID
     /// Store product identifier, for mapping to app assets or copy.
     public let productID: ProductID
+    /// Raw App Store title. It may be a product ID; never show it to users.
     public let title: String?
+    /// Localized package name ready for display.
+    public let name: String
     public let subtitle: String?
     /// Price as the store formats it.
     public let price: String?
@@ -15,6 +18,9 @@ public struct BroadTokenPackage: Identifiable, Equatable, Sendable {
     public let priceAmount: Money?
     /// Tokens the package adds, from the host's `tokenAmount`; `nil` when unknown.
     public let tokens: Int?
+    /// Quantity used only in the package name; may come from the product ID.
+    /// Credits, balance, purchase analytics, and savings use ``tokens`` instead.
+    public let displayTokenCount: Int?
     /// Whole-percent saving per token against the most expensive package per token.
     public let savingsPercent: Int?
     /// The single package with the largest positive per-token saving.
@@ -32,12 +38,14 @@ public struct BroadTokenPackage: Identifiable, Equatable, Sendable {
         price: String?,
         tokens: Int?,
         isSelected: Bool,
-        isAvailable: Bool
+        isAvailable: Bool,
+        name: String? = nil
     ) {
         self.init(
             id: id, productID: productID, title: title, subtitle: subtitle,
             price: price, priceAmount: nil, tokens: tokens, savingsPercent: nil,
-            isBestValue: false, isSelected: isSelected, isAvailable: isAvailable
+            isBestValue: false, isSelected: isSelected, isAvailable: isAvailable,
+            name: name
         )
     }
 
@@ -53,11 +61,19 @@ public struct BroadTokenPackage: Identifiable, Equatable, Sendable {
         savingsPercent: Int?,
         isBestValue: Bool,
         isSelected: Bool,
-        isAvailable: Bool
+        isAvailable: Bool,
+        name: String? = nil
     ) {
         self.id = id
         self.productID = productID
         self.title = title
+        let displayTokenCount = BroadTokenPackageName.displayCount(
+            tokens: tokens, productID: productID
+        )
+        self.displayTokenCount = displayTokenCount
+        self.name = name ?? BroadTokenPackageName.name(
+            count: displayTokenCount, copy: BroadTokenPaywallCopy.english.products
+        )
         self.subtitle = subtitle
         self.price = price
         self.priceAmount = priceAmount
@@ -296,7 +312,13 @@ extension BroadTokenPaywallViewModel {
                 savingsPercent: pricing[index].savingsPercent,
                 isBestValue: pricing[index].isBestValue,
                 isSelected: product.presentationID == selectedProductPresentationID,
-                isAvailable: product.isTokenPackage
+                isAvailable: product.isTokenPackage,
+                name: BroadTokenPackageName.name(
+                    count: BroadTokenPackageName.displayCount(
+                        tokens: tokenCounts[index], productID: product.productID
+                    ),
+                    copy: configuration.copy.products
+                )
             )
         }
     }

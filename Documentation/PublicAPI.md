@@ -149,7 +149,7 @@
 | Initializer | `@MainActor init(url: URL)` |
 | Initializer | `@MainActor init(userID: String, version: String, build: String, isRestoring: Bool = false, restoreResult: BroadSettingsRestoreResult? = nil, restoreMessage: String? = nil, canContactSupport: Bool = false, isUserIDCopied: Bool = false)` |
 | Initializer | `@MainActor init(viewModel: BroadTokenPaywallViewModel, productFormatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter(), tokenAmount: (@MainActor (MonetizationProduct) -> Int?)? = nil, onClose: @escaping @MainActor () -> Void, @ViewBuilder content: @escaping @MainActor (BroadTokenPaywallScreen) -> Content)` |
-| Initializer | `@MainActor init(viewModel: BroadTokenPaywallViewModel, theme: BroadPaywallTheme, productFormatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter(), onClose: @escaping @MainActor () -> Void)` |
+| Initializer | `@MainActor init(viewModel: BroadTokenPaywallViewModel, theme: BroadPaywallTheme, productFormatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter(), tokenAmount: (@MainActor (MonetizationProduct) -> Int?)? = nil, onClose: @escaping @MainActor () -> Void)` |
 | Initializer | `@MainActor init(viewModel: OnboardingViewModel, @ViewBuilder media: @escaping @MainActor (OnboardingMediaDescriptor) -> Media, onFooterAction: @escaping @MainActor (OnboardingFooterDestination) -> Void, onCompleted: @escaping @MainActor () -> Void)` |
 | Initializer | `@MainActor init(viewModel: OnboardingViewModel, onCompleted: @escaping @MainActor () -> Void, @ViewBuilder content: @escaping @MainActor (OnboardingViewModel, OnboardingFlowActions) -> Content)` |
 | Initializer | `@MainActor init(viewModel: OnboardingViewModel, theme: BroadOnboardingTheme, @ViewBuilder media: @escaping @MainActor (OnboardingMediaDescriptor) -> Media, onFooterAction: @escaping @MainActor (OnboardingFooterDestination) -> Void, onCompleted: @escaping @MainActor () -> Void)` |
@@ -164,15 +164,17 @@
 | Initializer | `init(copy: BroadTokenPaywallCopy, defaultSelectionIndex: Int = 0, closeDelay: TimeInterval = 0, showsAnalytics: Bool = false)` |
 | Initializer | `init(cornerRadius: CGFloat, minimumProductHeight: CGFloat, minimumActionHeight: CGFloat, closeButton: CGFloat, borderWidth: CGFloat, maximumContentWidth: CGFloat, maximumRetryWidth: CGFloat? = nil)` |
 | Initializer | `init(crossedValueAccessibilityLabel: String, multiplierAccessibilityLabel: String, countdownAccessibilityLabel: String, expiredMessage: String = "This offer has ended. Close the screen or choose another offer.", discountFormat: String = "%d%% OFF")` |
+| Initializer | `init(daily: String, weekly: String, monthly: String, yearly: String, days: BroadCountedNameCopy, weeks: BroadCountedNameCopy, months: BroadCountedNameCopy, years: BroadCountedNameCopy)` |
 | Initializer | `init(defaultPolicy: PaywallAccessPolicy = .soft, hardPaywallCloseDelay: TimeInterval? = nil)` |
 | Initializer | `init(destination: OnboardingFooterDestination, title: String, accessibilityLabel: String? = nil)` |
-| Initializer | `init(fallbackTitle: String, unavailablePriceTitle: String, selectedAccessibilityValue: String)` |
+| Initializer | `init(fallbackTitle: String, unavailablePriceTitle: String, selectedAccessibilityValue: String, planNames: BroadPaywallPlanNameCopy = .english)` |
+| Initializer | `init(fallbackTitle: String, unavailablePriceTitle: String, selectedAccessibilityValue: String, tokenName: BroadCountedNameCopy = BroadCountedNameCopy( one: "Token", few: "Tokens", many: "Tokens" ))` |
 | Initializer | `init(header: BroadPaywallCopy.Header, products: BroadPaywallCopy.Products, actions: BroadPaywallCopy.Actions, states: BroadPaywallCopy.States, checkout: BroadPaywallCopy.Checkout)` |
 | Initializer | `init(header: BroadTokenPaywallCopy.Header, products: BroadTokenPaywallCopy.Products, actions: BroadTokenPaywallCopy.Actions, states: BroadTokenPaywallCopy.States, analytics: BroadTokenPaywallCopy.Analytics)` |
-| Initializer | `init(id: ProductPresentationID, productID: ProductID, title: String?, subtitle: String?, price: String?, priceAmount: Money?, tokens: Int?, savingsPercent: Int?, isBestValue: Bool, isSelected: Bool, isAvailable: Bool)` |
-| Initializer | `init(id: ProductPresentationID, productID: ProductID, title: String?, subtitle: String?, price: String?, tokens: Int?, isSelected: Bool, isAvailable: Bool)` |
-| Initializer | `init(id: ProductPresentationID, title: String?, period: SubscriptionPeriod, periodText: String?, price: String?, weeklyPrice: String?, regularPrice: String?, discountPercent: Int?, savingsPercent: Int?, isBestValue: Bool, isSelected: Bool, isAvailable: Bool)` |
-| Initializer | `init(id: ProductPresentationID, title: String?, period: SubscriptionPeriod, periodText: String?, price: String?, weeklyPrice: String?, savingsPercent: Int?, isBestValue: Bool, isSelected: Bool, isAvailable: Bool)` |
+| Initializer | `init(id: ProductPresentationID, productID: ProductID, title: String?, subtitle: String?, price: String?, priceAmount: Money?, tokens: Int?, savingsPercent: Int?, isBestValue: Bool, isSelected: Bool, isAvailable: Bool, name: String? = nil)` |
+| Initializer | `init(id: ProductPresentationID, productID: ProductID, title: String?, subtitle: String?, price: String?, tokens: Int?, isSelected: Bool, isAvailable: Bool, name: String? = nil)` |
+| Initializer | `init(id: ProductPresentationID, title: String?, period: SubscriptionPeriod, periodText: String?, price: String?, weeklyPrice: String?, regularPrice: String?, discountPercent: Int?, savingsPercent: Int?, isBestValue: Bool, isSelected: Bool, isAvailable: Bool, name: String? = nil)` |
+| Initializer | `init(id: ProductPresentationID, title: String?, period: SubscriptionPeriod, periodText: String?, price: String?, weeklyPrice: String?, savingsPercent: Int?, isBestValue: Bool, isSelected: Bool, isAvailable: Bool, name: String? = nil)` |
 | Initializer | `init(id: String, title: String, accessibilityLabel: String? = nil, url: URL)` |
 | Initializer | `init(id: String, title: String, subtitle: String? = nil, media: OnboardingMediaDescriptor)` |
 | Initializer | `init(identifier: String = "BroadUIFlows", monetizationIdentifier: String)` |
@@ -186,6 +188,7 @@
 | Initializer | `init(loadingTitle: String, errorTitle: String, emptyTitle: String, emptyMessage: String, checkoutUnavailableMessage: String, nothingToRestoreMessage: String, purchase: BroadPaywallPurchaseStateCopy)` |
 | Initializer | `init(locale: Locale = .autoupdatingCurrent, periodCopy: BroadPaywallPeriodCopy = .english)` |
 | Initializer | `init(onboarding: AppFlowStepPolicy, initialPaywall: AppFlowInitialPaywallPolicy)` |
+| Initializer | `init(one: String, few: String, many: String, usesRussianPluralRules: Bool = false)` |
 | Initializer | `init(pageSpacing: CGFloat, textSpacing: CGFloat, controlSpacing: CGFloat, screenPadding: CGFloat, surfacePadding: CGFloat, cornerRadius: CGFloat, progressSpacing: CGFloat, progressHeight: CGFloat, borderWidth: CGFloat, minimumActionHeight: CGFloat)` |
 | Initializer | `init(pages: [OnboardingPageConfiguration], continueTitle: String, completionTitle: String, progressAccessibilityLabel: String, footerLinks: [OnboardingFooterLinkConfiguration] = [], trackingAuthorizationPolicy: OnboardingTrackingAuthorizationPolicy = .disabled)` |
 | Initializer | `init(pendingMessage: String, completedMessage: String = "The purchase completed.", completedButUnverifiedMessage: String)` |
@@ -431,7 +434,9 @@
 | Instance Property | `let countdownAccessibilityLabel: String` |
 | Instance Property | `let creditedMessage: String` |
 | Instance Property | `let crossedValueAccessibilityLabel: String` |
+| Instance Property | `let daily: String` |
 | Instance Property | `let day: BroadPaywallPeriodCopy.UnitCopy` |
+| Instance Property | `let days: BroadCountedNameCopy` |
 | Instance Property | `let defaultPolicy: PaywallAccessPolicy` |
 | Instance Property | `let defaultSelection: BroadPaywallDefaultSelection?` |
 | Instance Property | `let defaultSelectionIndex: Int` |
@@ -440,6 +445,7 @@
 | Instance Property | `let deviceModel: String` |
 | Instance Property | `let discountFormat: String` |
 | Instance Property | `let discountPercent: Int?` |
+| Instance Property | `let displayTokenCount: Int?` |
 | Instance Property | `let emptyMessage: String` |
 | Instance Property | `let emptyTitle: String` |
 | Instance Property | `let errorTitle: String` |
@@ -448,6 +454,7 @@
 | Instance Property | `let expiredMessage: String` |
 | Instance Property | `let failure: Color` |
 | Instance Property | `let fallbackTitle: String` |
+| Instance Property | `let few: String` |
 | Instance Property | `let footer: CGFloat` |
 | Instance Property | `let footer: Font` |
 | Instance Property | `let footerLinks: [OnboardingFooterLinkConfiguration]` |
@@ -472,6 +479,7 @@
 | Instance Property | `let loadingTitle: String` |
 | Instance Property | `let locale: Locale` |
 | Instance Property | `let localeIdentifier: String` |
+| Instance Property | `let many: String` |
 | Instance Property | `let maximumContentWidth: CGFloat` |
 | Instance Property | `let maximumRetryWidth: CGFloat` |
 | Instance Property | `let media: OnboardingMediaDescriptor` |
@@ -483,9 +491,13 @@
 | Instance Property | `let minimumProductHeight: CGFloat` |
 | Instance Property | `let monetizationIdentifier: String` |
 | Instance Property | `let month: BroadPaywallPeriodCopy.UnitCopy` |
+| Instance Property | `let monthly: String` |
+| Instance Property | `let months: BroadCountedNameCopy` |
 | Instance Property | `let multiplierAccessibilityLabel: String` |
+| Instance Property | `let name: String` |
 | Instance Property | `let nothingToRestoreMessage: String` |
 | Instance Property | `let onboarding: AppFlowStepPolicy` |
+| Instance Property | `let one: String` |
 | Instance Property | `let padding: CGFloat` |
 | Instance Property | `let pageSpacing: CGFloat` |
 | Instance Property | `let pages: [OnboardingPageConfiguration]` |
@@ -495,6 +507,7 @@
 | Instance Property | `let period: SubscriptionPeriod` |
 | Instance Property | `let periodCopy: BroadPaywallPeriodCopy` |
 | Instance Property | `let periodText: String?` |
+| Instance Property | `let planNames: BroadPaywallPlanNameCopy` |
 | Instance Property | `let plural: String` |
 | Instance Property | `let price: String` |
 | Instance Property | `let price: String?` |
@@ -567,6 +580,7 @@
 | Instance Property | `let title: String` |
 | Instance Property | `let title: String?` |
 | Instance Property | `let tokenBalance: String?` |
+| Instance Property | `let tokenName: BroadCountedNameCopy` |
 | Instance Property | `let tokens: Int?` |
 | Instance Property | `let trackingAuthorizationPolicy: OnboardingTrackingAuthorizationPolicy` |
 | Instance Property | `let unavailablePriceTitle: String` |
@@ -574,14 +588,19 @@
 | Instance Property | `let updateTitle: String` |
 | Instance Property | `let url: URL` |
 | Instance Property | `let userID: String` |
+| Instance Property | `let usesRussianPluralRules: Bool` |
 | Instance Property | `let validationError: OnboardingConfigurationValidationError?` |
 | Instance Property | `let value: String` |
 | Instance Property | `let version: BroadAppVersion` |
 | Instance Property | `let version: String` |
 | Instance Property | `let warning: Color` |
 | Instance Property | `let week: BroadPaywallPeriodCopy.UnitCopy` |
+| Instance Property | `let weekly: String` |
 | Instance Property | `let weeklyPrice: String?` |
+| Instance Property | `let weeks: BroadCountedNameCopy` |
 | Instance Property | `let year: BroadPaywallPeriodCopy.UnitCopy` |
+| Instance Property | `let yearly: String` |
+| Instance Property | `let years: BroadCountedNameCopy` |
 | Instance Property | `var allowsInitialPaywallClose: Bool { get }` |
 | Instance Property | `var externalComposeURL: URL? { get }` |
 | Instance Property | `var hasCompletedOnboarding: Bool { get }` |
@@ -637,6 +656,7 @@
 | Structure | `struct BroadAppStoreLookupClient` |
 | Structure | `struct BroadAppUpdateAlertCopy` |
 | Structure | `struct BroadAppVersion` |
+| Structure | `struct BroadCountedNameCopy` |
 | Structure | `struct BroadPaywallAccessConfiguration` |
 | Structure | `struct BroadPaywallCompletionEvent` |
 | Structure | `struct BroadPaywallConfiguration` |
@@ -644,6 +664,7 @@
 | Structure | `struct BroadPaywallLegalLink` |
 | Structure | `struct BroadPaywallPeriodCopy` |
 | Structure | `struct BroadPaywallPlan` |
+| Structure | `struct BroadPaywallPlanNameCopy` |
 | Structure | `struct BroadPaywallProductFormatter` |
 | Structure | `struct BroadPaywallPurchaseStateCopy` |
 | Structure | `struct BroadPaywallSpecialOfferCopy` |
@@ -691,7 +712,9 @@
 | Type Property | `static let defaultHardPaywallCloseDelay: TimeInterval` |
 | Type Property | `static let disabled: OnboardingTrackingAuthorizationPolicy` |
 | Type Property | `static let english: BroadAppUpdateAlertCopy` |
+| Type Property | `static let english: BroadPaywallCopy` |
 | Type Property | `static let english: BroadPaywallPeriodCopy` |
+| Type Property | `static let english: BroadPaywallPlanNameCopy` |
 | Type Property | `static let english: BroadPaywallSpecialOfferCopy` |
 | Type Property | `static let english: BroadSettingsCopy` |
 | Type Property | `static let english: BroadTokenPaywallCopy` |
@@ -701,6 +724,7 @@
 | Type Property | `static let russian: BroadAppUpdateAlertCopy` |
 | Type Property | `static let russian: BroadPaywallCopy` |
 | Type Property | `static let russian: BroadPaywallPeriodCopy` |
+| Type Property | `static let russian: BroadPaywallPlanNameCopy` |
 | Type Property | `static let russian: BroadPaywallSpecialOfferCopy` |
 | Type Property | `static let russian: BroadSettingsCopy` |
 | Type Property | `static let russian: BroadTokenPaywallCopy` |

@@ -143,15 +143,19 @@ public struct BroadPaywallCopy: Equatable, Sendable {
         public let fallbackTitle: String
         public let unavailablePriceTitle: String
         public let selectedAccessibilityValue: String
+        /// Localized names derived from the subscription period, never from a store title.
+        public let planNames: BroadPaywallPlanNameCopy
 
         public init(
             fallbackTitle: String,
             unavailablePriceTitle: String,
-            selectedAccessibilityValue: String
+            selectedAccessibilityValue: String,
+            planNames: BroadPaywallPlanNameCopy = .english
         ) {
             self.fallbackTitle = fallbackTitle
             self.unavailablePriceTitle = unavailablePriceTitle
             self.selectedAccessibilityValue = selectedAccessibilityValue
+            self.planNames = planNames
         }
     }
 
@@ -279,6 +283,9 @@ public struct BroadPaywallCopy: Equatable, Sendable {
             appleTitle: "App Store"
         )
     )
+
+    /// English paywall copy; equivalent to ``standard``.
+    public static let english = standard
 }
 
 public struct BroadPaywallConfiguration: Equatable, Sendable {

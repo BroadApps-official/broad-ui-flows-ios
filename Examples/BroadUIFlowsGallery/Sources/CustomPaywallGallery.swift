@@ -96,8 +96,13 @@ struct CustomPaywallExample: View {
     private func planCard(_ plan: BroadPaywallPlan) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text(plan.periodText ?? "")
+                Text(plan.name)
                     .font(.headline)
+                if let period = plan.periodText {
+                    Text(period)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
                 if let weekly = plan.weeklyPrice {
                     Text("\(weekly) / week")
                         .font(.subheadline)

@@ -24,7 +24,7 @@ public extension BroadTokenPaywallScreen {
         formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter(),
         copy: BroadTokenPaywallCopy = .russian
     ) -> BroadTokenPaywallScreen {
-        let packages = previewPackages(formatter: formatter)
+        let packages = previewPackages(formatter: formatter, copy: copy)
         let states = copy.states
         switch state {
         case .packages:
@@ -106,7 +106,10 @@ private extension BroadTokenPaywallScreen {
         )
     }
 
-    static func previewPackages(formatter: BroadPaywallProductFormatter) -> [BroadTokenPackage] {
+    static func previewPackages(
+        formatter: BroadPaywallProductFormatter,
+        copy: BroadTokenPaywallCopy
+    ) -> [BroadTokenPackage] {
         let currency = formatter.locale.currency?.identifier ?? "XXX"
         let counts = [100, 500, 1500]
         let prices = [499, 1999, 4999].map {
@@ -130,7 +133,8 @@ private extension BroadTokenPaywallScreen {
                 savingsPercent: pricing[offset].savingsPercent,
                 isBestValue: pricing[offset].isBestValue,
                 isSelected: index == 2,
-                isAvailable: true
+                isAvailable: true,
+                name: copy.products.tokenName.name(for: tokens)
             )
         }
     }

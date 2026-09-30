@@ -22,15 +22,21 @@ public struct BroadTokenPaywallCopy: Equatable, Sendable {
         public let fallbackTitle: String
         public let unavailablePriceTitle: String
         public let selectedAccessibilityValue: String
+        /// Localized token noun forms for the package name.
+        public let tokenName: BroadCountedNameCopy
 
         public init(
             fallbackTitle: String,
             unavailablePriceTitle: String,
-            selectedAccessibilityValue: String
+            selectedAccessibilityValue: String,
+            tokenName: BroadCountedNameCopy = BroadCountedNameCopy(
+                one: "Token", few: "Tokens", many: "Tokens"
+            )
         ) {
             self.fallbackTitle = fallbackTitle
             self.unavailablePriceTitle = unavailablePriceTitle
             self.selectedAccessibilityValue = selectedAccessibilityValue
+            self.tokenName = tokenName
         }
     }
 
@@ -184,7 +190,10 @@ public extension BroadTokenPaywallCopy {
         products: Products(
             fallbackTitle: "Пакет токенов",
             unavailablePriceTitle: "Цена недоступна",
-            selectedAccessibilityValue: "Выбрано"
+            selectedAccessibilityValue: "Выбрано",
+            tokenName: BroadCountedNameCopy(
+                one: "токен", few: "токена", many: "токенов", usesRussianPluralRules: true
+            )
         ),
         actions: Actions(
             purchaseTitle: "Купить",
