@@ -2,58 +2,60 @@
 
 ## Unreleased
 
+### Breaking
+
+- `BroadSettingsHost` has one initializer and requires the app's `showPaywall`
+  presenter, usually for the `settings` placement. Both `screen.showPaywall()`
+  and `screen.manageSubscription()` call it through the shared tap gate; settings
+  no longer open App Store subscription management.
+  One-line migration: `showPaywall: { /* present the settings-placement paywall */ }`.
+
 ### Added
 
-- Display-ready `BroadPaywallPlan.name` and `BroadTokenPackage.name`, localized
-  through paywall copy. `BroadTokenPackage.displayTokenCount` is display-only.
-- `BroadPaywallCopy.english` aliases the English `.standard` copy.
-- `BroadSettingsScreen.showPaywall()` opens the app's subscription paywall through
-  the shared tap gate, for "Get Pro" and subscription status rows.
+- `BroadPaywallPlan.name`, `BroadTokenPackage.name` and display-only
+  `BroadTokenPackage.displayTokenCount` for custom screens.
+- `BroadPaywallPlanNameCopy`, `BroadCountedNameCopy`, optional
+  `BroadPaywallCopy.Products.planNames` and `BroadTokenPaywallCopy.Products.tokenName`.
+- `BroadPaywallCopy.english`, equivalent to `.standard`.
+- `BroadSettingsScreen.showPaywall()` for subscription rows.
 - `BroadTokenPaywallViewModel.init(configuration:dependencies:initialPayload:)`
-  accepts a prepared `.tokens` payload so the token screen opens with packages
-  before its appearance. `BroadPaywallPreloader` now checks token payload safety
-  before retaining it; the Gallery shows token preloading with fixtures.
-
-### Changed (breaking)
-
-- `BroadSettingsHost` requires `showPaywall`, the app's paywall presenter (usually
-  the `settings` placement). Existing `BroadSettingsHost(...)` calls stop compiling
-  until the app passes it, so no subscription row can silently do nothing.
-- `BroadSettingsScreen.manageSubscription()` opens the same paywall instead of the
-  App Store subscription page. Purchases go through Adapty, so settings never
-  cancel a subscription or open App Store subscription management; a
-  "Cancel subscription" row from a design is not drawn.
-- Contract checks reject the App Store subscription page, the system manage
-  subscriptions sheet and cancel-subscription code in sources and Gallery.
+  and token preloading through `BroadPaywallPreloader.take(.tokens)`.
+- `BroadTokenPaywallView(tokenAmount:)` accepts backend package quantities.
+- A compile-only Gallery compatibility probe covers legacy calls and precisely
+  typed initializer references without deprecation warnings.
 
 ### Changed
 
-- Subscription and token copy now supplies localized names for ready views and
-  custom screens. Backend token amounts take priority over display-only ID counts.
+- Built-in `.standard`, `.english` and `.russian` copy enables localized product
+  names in ready subscription, Special Offer and token screens. Subscription
+  names use the product's period; token names prefer the backend quantity.
+- Custom copy created with the old three-string `Products` initializer keeps
+  `title ?? fallbackTitle`. Opt in with explicitly localized `planNames` or
+  `tokenName`; passing `nil` also keeps the legacy titles.
+- A leading quantity in a token product ID is used only for display, only with
+  token names enabled, and only without a backend quantity. Crediting, balance,
+  `package.tokens` and value comparisons always use backend data.
 
-### Fixed
+### Compatibility
 
-- Ready subscription, Special Offer, and token rows no longer show raw App Store
-  product names, which may contain internal product IDs.
-- Ordinary token loads also reject catalogs containing non-consumable products,
-  including catalogs resolved directly from `.tokens`.
-
-### Migration
-
-Pass `showPaywall: { present the settings-placement paywall }` to every
-`BroadSettingsHost`. Rows that called `manageSubscription()` now open that paywall.
-A preloaded token paywall is optional: `preloader.preload(.tokens)` early and
-`BroadTokenPaywallViewModel(..., initialPayload: preloader.take(.tokens))` when it opens.
-Custom Figma screens use `plan.name` and `package.name` instead of raw `title`.
-ID-derived token counts are for display only; supply `tokenAmount` from the
-backend catalog for actual package quantities.
+- All other initializer signatures from 6.5.0 are retained as exact overloads,
+  including references to `init` as a function. Expanded initializers require
+  their newly added argument. Existing defaults and trailing closures remain usable.
+- Historical exact signatures for configurable product order, token analytics,
+  confirmation copy, discount copy, token close delay and token previews are restored.
+- Ordinary `.tokens` loads, prepared payloads and `take(.tokens)` use the 6.5.0
+  acceptance rules. The full catalog, order, duplicates and presentation IDs are
+  preserved, including mixed catalogs. Only consumables with a price are purchasable.
+- The existing consumable-only `.main` fallback is accepted with `usedFallback = true`
+  without requiring `fallbackReason`. UIFlows does not create a fallback from tokens
+  to a subscription `main` placement.
 
 ### SemVer intent
 
-MAJOR: `BroadSettingsHost` gains a required parameter and `manageSubscription()`
-changes behavior. The token paywall `initialPayload` parameter is additive and the
-token catalog check is PATCH-compatible.
-The additive plan and package names have MINOR intent.
+7.0.0: MAJOR only because of Settings (the required `showPaywall` presenter and
+routing both subscription actions to it). All other changes retain the 6.5.0
+source contract; built-in copy deliberately enables the new localized names.
+Versions and tags remain unchanged until release validation is complete.
 
 ## 6.5.0
 

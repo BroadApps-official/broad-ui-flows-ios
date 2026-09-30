@@ -2,13 +2,14 @@ import BroadCore
 import BroadMonetization
 
 enum BroadTokenPackageName {
-    static func displayCount(tokens: Int?, productID: ProductID) -> Int? {
-        tokens ?? leadingCount(in: productID.rawValue)
+    static func displayCount(tokens: Int?, productID: ProductID, namesEnabled: Bool) -> Int? {
+        tokens ?? (namesEnabled ? leadingCount(in: productID.rawValue) : nil)
     }
 
-    static func name(count: Int?, copy: BroadTokenPaywallCopy.Products) -> String {
+    static func name(count: Int?, title: String?, copy: BroadTokenPaywallCopy.Products) -> String {
+        guard let tokenName = copy.tokenName else { return title ?? copy.fallbackTitle }
         guard let count, count > 0 else { return copy.fallbackTitle }
-        return copy.tokenName.name(for: count)
+        return tokenName.name(for: count)
     }
 
     private static func leadingCount(in id: String) -> Int? {

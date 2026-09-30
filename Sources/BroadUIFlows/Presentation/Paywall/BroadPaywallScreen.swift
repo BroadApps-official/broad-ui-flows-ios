@@ -6,9 +6,9 @@ import Foundation
 /// selection are decided. A custom screen only lays these values out.
 public struct BroadPaywallPlan: Identifiable, Equatable, Sendable {
     public let id: ProductPresentationID
-    /// Raw App Store title. It may be a product ID; never show it to users.
+    /// Raw store title, retained for title-based custom copy.
     public let title: String?
-    /// Localized name ready for display, derived only from the subscription period.
+    /// Display name: a localized period name when enabled, otherwise the title or copy fallback.
     public let name: String
     public let period: SubscriptionPeriod
     /// Billing period text, for example "per year".
@@ -43,8 +43,35 @@ public struct BroadPaywallPlan: Identifiable, Equatable, Sendable {
         savingsPercent: Int?,
         isBestValue: Bool,
         isSelected: Bool,
+        isAvailable: Bool
+    ) {
+        self.init(
+            id: id,
+            title: title,
+            period: period,
+            periodText: periodText,
+            price: price,
+            weeklyPrice: weeklyPrice,
+            savingsPercent: savingsPercent,
+            isBestValue: isBestValue,
+            isSelected: isSelected,
+            isAvailable: isAvailable,
+            name: nil
+        )
+    }
+
+    public init(
+        id: ProductPresentationID,
+        title: String?,
+        period: SubscriptionPeriod,
+        periodText: String?,
+        price: String?,
+        weeklyPrice: String?,
+        savingsPercent: Int?,
+        isBestValue: Bool,
+        isSelected: Bool,
         isAvailable: Bool,
-        name: String? = nil
+        name: String?
     ) {
         self.init(
             id: id, title: title, period: period, periodText: periodText,
@@ -68,14 +95,43 @@ public struct BroadPaywallPlan: Identifiable, Equatable, Sendable {
         savingsPercent: Int?,
         isBestValue: Bool,
         isSelected: Bool,
+        isAvailable: Bool
+    ) {
+        self.init(
+            id: id,
+            title: title,
+            period: period,
+            periodText: periodText,
+            price: price,
+            weeklyPrice: weeklyPrice,
+            regularPrice: regularPrice,
+            discountPercent: discountPercent,
+            savingsPercent: savingsPercent,
+            isBestValue: isBestValue,
+            isSelected: isSelected,
+            isAvailable: isAvailable,
+            name: nil
+        )
+    }
+
+    public init(
+        id: ProductPresentationID,
+        title: String?,
+        period: SubscriptionPeriod,
+        periodText: String?,
+        price: String?,
+        weeklyPrice: String?,
+        regularPrice: String?,
+        discountPercent: Int?,
+        savingsPercent: Int?,
+        isBestValue: Bool,
+        isSelected: Bool,
         isAvailable: Bool,
-        name: String? = nil
+        name: String?
     ) {
         self.id = id
         self.title = title
-        self.name = name ?? BroadPaywallPlanNameCopy.english.name(
-            for: period, fallback: BroadPaywallCopy.standard.products.fallbackTitle
-        )
+        self.name = name ?? title ?? BroadPaywallCopy.standard.products.fallbackTitle
         self.period = period
         self.periodText = periodText
         self.price = price
@@ -314,9 +370,8 @@ extension PaywallViewModel {
                 isBestValue: presentation.isBestValue,
                 isSelected: product.presentationID == selectedProductPresentationID,
                 isAvailable: product.isEligibleForGenericPurchase,
-                name: configuration.copy.products.planNames.name(
-                    for: product.subscriptionPeriod,
-                    fallback: configuration.copy.products.fallbackTitle
+                name: configuration.copy.products.name(
+                    for: product.subscriptionPeriod, title: product.title
                 )
             )
         }

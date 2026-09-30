@@ -75,13 +75,21 @@ public final class BroadTokenPaywallViewModel: ObservableObject {
     var lastShownPresentationID: PaywallPresentationID?
     var eventTask: Task<Void, Never>?
 
+    /// Creates a token paywall that loads its placement on appearance.
+    public convenience init(
+        configuration: BroadTokenPaywallConfiguration,
+        dependencies: BroadTokenPaywallViewModelDependencies
+    ) {
+        self.init(configuration: configuration, dependencies: dependencies, initialPayload: nil)
+    }
+
     /// Creates a token paywall, optionally with packages prepared for this presentation.
     /// Invalid prepared payloads are ignored and the placement loads on appearance.
     /// Showing is reported only after the screen appears.
     public init(
         configuration: BroadTokenPaywallConfiguration,
         dependencies: BroadTokenPaywallViewModelDependencies,
-        initialPayload: PaywallPayload? = nil
+        initialPayload: PaywallPayload?
     ) {
         self.configuration = configuration
         self.dependencies = dependencies

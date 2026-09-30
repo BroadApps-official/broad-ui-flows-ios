@@ -7,9 +7,9 @@ public struct BroadTokenPackage: Identifiable, Equatable, Sendable {
     public let id: ProductPresentationID
     /// Store product identifier, for mapping to app assets or copy.
     public let productID: ProductID
-    /// Raw App Store title. It may be a product ID; never show it to users.
+    /// Raw store title, retained for title-based custom copy.
     public let title: String?
-    /// Localized package name ready for display.
+    /// Display name: a localized quantity name when enabled, otherwise the title or copy fallback.
     public let name: String
     public let subtitle: String?
     /// Price as the store formats it.
@@ -38,8 +38,25 @@ public struct BroadTokenPackage: Identifiable, Equatable, Sendable {
         price: String?,
         tokens: Int?,
         isSelected: Bool,
+        isAvailable: Bool
+    ) {
+        self.init(
+            id: id, productID: productID, title: title, subtitle: subtitle,
+            price: price, tokens: tokens, isSelected: isSelected, isAvailable: isAvailable,
+            name: nil
+        )
+    }
+
+    public init(
+        id: ProductPresentationID,
+        productID: ProductID,
+        title: String?,
+        subtitle: String?,
+        price: String?,
+        tokens: Int?,
+        isSelected: Bool,
         isAvailable: Bool,
-        name: String? = nil
+        name: String?
     ) {
         self.init(
             id: id, productID: productID, title: title, subtitle: subtitle,
@@ -61,19 +78,62 @@ public struct BroadTokenPackage: Identifiable, Equatable, Sendable {
         savingsPercent: Int?,
         isBestValue: Bool,
         isSelected: Bool,
+        isAvailable: Bool
+    ) {
+        self.init(
+            id: id, productID: productID, title: title, subtitle: subtitle,
+            price: price, priceAmount: priceAmount, tokens: tokens,
+            savingsPercent: savingsPercent, isBestValue: isBestValue,
+            isSelected: isSelected, isAvailable: isAvailable, name: nil
+        )
+    }
+
+    public init(
+        id: ProductPresentationID,
+        productID: ProductID,
+        title: String?,
+        subtitle: String?,
+        price: String?,
+        priceAmount: Money?,
+        tokens: Int?,
+        savingsPercent: Int?,
+        isBestValue: Bool,
+        isSelected: Bool,
         isAvailable: Bool,
-        name: String? = nil
+        name: String?
+    ) {
+        self.init(
+            id: id, productID: productID, title: title, subtitle: subtitle,
+            price: price, priceAmount: priceAmount, tokens: tokens,
+            savingsPercent: savingsPercent, isBestValue: isBestValue,
+            isSelected: isSelected, isAvailable: isAvailable,
+            name: name ?? title ?? BroadTokenPaywallCopy.standard.products.fallbackTitle,
+            displayTokenCount: BroadTokenPackageName.displayCount(
+                tokens: tokens, productID: productID, namesEnabled: name != nil
+            )
+        )
+    }
+
+    init(
+        id: ProductPresentationID,
+        productID: ProductID,
+        title: String?,
+        subtitle: String?,
+        price: String?,
+        priceAmount: Money?,
+        tokens: Int?,
+        savingsPercent: Int?,
+        isBestValue: Bool,
+        isSelected: Bool,
+        isAvailable: Bool,
+        name: String,
+        displayTokenCount: Int?
     ) {
         self.id = id
         self.productID = productID
         self.title = title
-        let displayTokenCount = BroadTokenPackageName.displayCount(
-            tokens: tokens, productID: productID
-        )
+        self.name = name
         self.displayTokenCount = displayTokenCount
-        self.name = name ?? BroadTokenPackageName.name(
-            count: displayTokenCount, copy: BroadTokenPaywallCopy.english.products
-        )
         self.subtitle = subtitle
         self.price = price
         self.priceAmount = priceAmount
@@ -315,9 +375,14 @@ extension BroadTokenPaywallViewModel {
                 isAvailable: product.isTokenPackage,
                 name: BroadTokenPackageName.name(
                     count: BroadTokenPackageName.displayCount(
-                        tokens: tokenCounts[index], productID: product.productID
+                        tokens: tokenCounts[index], productID: product.productID,
+                        namesEnabled: configuration.copy.products.tokenName != nil
                     ),
-                    copy: configuration.copy.products
+                    title: product.title, copy: configuration.copy.products
+                ),
+                displayTokenCount: BroadTokenPackageName.displayCount(
+                    tokens: tokenCounts[index], productID: product.productID,
+                    namesEnabled: configuration.copy.products.tokenName != nil
                 )
             )
         }

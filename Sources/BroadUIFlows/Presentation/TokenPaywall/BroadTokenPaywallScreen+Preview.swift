@@ -21,8 +21,16 @@ public extension BroadTokenPaywallScreen {
     /// locale. `copy` supplies notice text; actions do nothing.
     static func preview(
         _ state: PreviewState = .packages,
+        formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter()
+    ) -> BroadTokenPaywallScreen {
+        preview(state, formatter: formatter, copy: .russian)
+    }
+
+    /// Fixture screen with explicitly selected notice and product-name copy.
+    static func preview(
+        _ state: PreviewState = .packages,
         formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter(),
-        copy: BroadTokenPaywallCopy = .russian
+        copy: BroadTokenPaywallCopy
     ) -> BroadTokenPaywallScreen {
         let packages = previewPackages(formatter: formatter, copy: copy)
         let states = copy.states
@@ -134,7 +142,7 @@ private extension BroadTokenPaywallScreen {
                 isBestValue: pricing[offset].isBestValue,
                 isSelected: index == 2,
                 isAvailable: true,
-                name: copy.products.tokenName.name(for: tokens)
+                name: BroadTokenPackageName.name(count: tokens, title: nil, copy: copy.products)
             )
         }
     }

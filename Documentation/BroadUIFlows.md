@@ -30,19 +30,45 @@ App передаёт тексты, theme и действия через public c
 
 ## Paywall и Special Offer
 
-Готовый экран и собственный экран по Figma показывают `BroadPaywallPlan.name`:
-`Weekly`/`Неделя`, `Monthly`/`Месяц`, `Yearly`/`Год`, а другие периоды — «3 Months»/«3 месяца».
-Другие периоды формируются через `BroadPaywallCopy.Products.planNames`, а
-неизвестный период даёт `fallbackTitle`. `plan.title` — сырое имя App Store,
-оно может содержать ID и не предназначено для интерфейса.
-`BroadPaywallCopy.english` и `.standard` дают одинаковые английские названия.
+`BroadPaywallPlan.name` и готовые subscription/Special Offer экраны со встроенными
+`.standard`/`.english` показывают `Weekly`, `Monthly`, `Yearly`; с `.russian` —
+`Неделя`, `Месяц`, `Год`. Другие периоды дают «3 Months»/«3 месяца», неизвестный —
+`fallbackTitle`. Встроенные copy включают названия на своём языке.
+
+Старый трёхстрочный initializer `Products` у своего copy оставляет `planNames` /
+`tokenName` равными `nil`: модели и готовые экраны показывают `title ?? fallbackTitle`,
+как в 6.5.0. Чтобы включить названия, задайте локализованные поля явно:
+
+```swift
+let products = BroadPaywallCopy.Products(
+    fallbackTitle: "Премиум-доступ",
+    unavailablePriceTitle: "Цена недоступна",
+    selectedAccessibilityValue: "Выбрано",
+    planNames: .russian
+)
+let tokenProducts = BroadTokenPaywallCopy.Products(
+    fallbackTitle: "Пакет токенов",
+    unavailablePriceTitle: "Цена недоступна",
+    selectedAccessibilityValue: "Выбрано",
+    tokenName: BroadCountedNameCopy(
+        one: "токен", few: "токена", many: "токенов", usesRussianPluralRules: true
+    )
+)
+```
+
+Используйте эти `products` в соответствующем copy. `planNames: nil` / `tokenName: nil`
+сохраняет заголовки. Локаль форматтера цены не выбирает язык названий.
 
 `BroadPaywallPreloader` preloads a subscription or token paywall before its
 sheet opens. The app calls `preload(placementID)` while the presenting screen is
 visible, then passes `take(placementID)` as the view model's `initialPayload`
 when opening the sheet. For token packages use `.tokens` and
-`BroadTokenPaywallViewModel`; valid consumable packages are ready immediately.
-Invalid token payloads trigger a regular load. The default freshness window is
+`BroadTokenPaywallViewModel`; accepted catalogs are ready immediately.
+Acceptance matches 6.5.0: a direct `.tokens` payload keeps every product, including
+non-consumables; the existing `.main` fallback requires `usedFallback = true` and
+consumables only, without a `fallbackReason` requirement. The preloader does not
+create a fallback. Invalid origins trigger a regular load. Order, duplicate products
+and presentation IDs remain intact; only consumables with a price can be purchased. The default freshness window is
 ten minutes. `discardAll()` releases unused payloads after a confirmed purchase
 or restore. A preload never reports a paywall impression; the visible view model
 does. Special Offer uses its own BroadMonetization preparation flow. See
@@ -85,10 +111,11 @@ persisted 24-часового окна, на нуле блокирует пок�
 ## Token UI и optional billing
 
 Для пакета токенов показывайте `BroadTokenPackage.name`: например, `2000 Tokens`
-или `2000 токенов`. Сначала используется количество из backend `tokenAmount`;
+или `2000 токенов`. При включённом `tokenName` сначала используется количество из backend `tokenAmount`;
 если его нет, ведущее число ID служит только для надписи в
 `displayTokenCount`. `package.tokens`, расчёт выгоды, зачисление и баланс не
-получают число из ID. `package.title` — сырое имя App Store, его не показывают.
+получают число из ID. При `tokenName == nil` заголовок — `title ?? fallbackTitle`,
+число из ID не читается, а `displayTokenCount` содержит только backend-количество.
 
 Token paywall работает через public BroadMonetization protocols.
 `BroadTokenPaywallCopy.english` и `.standard` дают одинаковый нейтральный
@@ -123,7 +150,8 @@ Support email принимает необязательный баланс, devi
 ## Настройки и обновление приложения
 
 `BroadSettingsHost` принимает `BroadSettingsConfiguration` и существующий
-`RestorePurchasesUseCaseProtocol` из BroadMonetization. Приложение рисует
+`RestorePurchasesUseCaseProtocol` из BroadMonetization. Миграция на 7.0.0 в одну строку:
+`showPaywall: { /* present the settings-placement paywall */ }`. Приложение рисует
 `BroadSettingsScreen` и вызывает его действия: restore, пейвол подписки,
 юридические ссылки, письмо поддержки, копирование ID, Rate и Share.
 Покупки идут через Adapty: `showPaywall()` и `manageSubscription()` открывают

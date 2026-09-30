@@ -22,16 +22,27 @@ public struct BroadTokenPaywallCopy: Equatable, Sendable {
         public let fallbackTitle: String
         public let unavailablePriceTitle: String
         public let selectedAccessibilityValue: String
-        /// Localized token noun forms for the package name.
-        public let tokenName: BroadCountedNameCopy
+        /// Localized token noun forms; `nil` preserves the store title and fallback from older copy.
+        public let tokenName: BroadCountedNameCopy?
 
+        /// Preserves the title-based presentation of custom copy from 6.5.0 and earlier.
+        public init(
+            fallbackTitle: String,
+            unavailablePriceTitle: String,
+            selectedAccessibilityValue: String
+        ) {
+            self.init(
+                fallbackTitle: fallbackTitle, unavailablePriceTitle: unavailablePriceTitle,
+                selectedAccessibilityValue: selectedAccessibilityValue, tokenName: nil
+            )
+        }
+
+        /// Enables localized quantity names when `tokenName` is non-nil.
         public init(
             fallbackTitle: String,
             unavailablePriceTitle: String,
             selectedAccessibilityValue: String,
-            tokenName: BroadCountedNameCopy = BroadCountedNameCopy(
-                one: "Token", few: "Tokens", many: "Tokens"
-            )
+            tokenName: BroadCountedNameCopy?
         ) {
             self.fallbackTitle = fallbackTitle
             self.unavailablePriceTitle = unavailablePriceTitle
@@ -52,6 +63,45 @@ public struct BroadTokenPaywallCopy: Equatable, Sendable {
         public let confirmTitle: String
         public let confirmingTitle: String
 
+        /// Preserves the initializer from releases before pending-purchase confirmation copy.
+        public init(
+            purchaseTitle: String,
+            purchasingTitle: String,
+            retryTitle: String,
+            retryingTitle: String,
+            recoverBalanceTitle: String,
+            recoveringBalanceTitle: String,
+            closeAccessibilityLabel: String
+        ) {
+            self.init(
+                purchaseTitle: purchaseTitle, purchasingTitle: purchasingTitle,
+                retryTitle: retryTitle, retryingTitle: retryingTitle,
+                recoverBalanceTitle: recoverBalanceTitle, recoveringBalanceTitle: recoveringBalanceTitle,
+                closeAccessibilityLabel: closeAccessibilityLabel,
+                confirmTitle: "Проверить покупку"
+            )
+        }
+
+        /// Allows overriding only the progress text, as the original defaulted initializer did.
+        public init(
+            purchaseTitle: String,
+            purchasingTitle: String,
+            retryTitle: String,
+            retryingTitle: String,
+            recoverBalanceTitle: String,
+            recoveringBalanceTitle: String,
+            closeAccessibilityLabel: String,
+            confirmingTitle: String
+        ) {
+            self.init(
+                purchaseTitle: purchaseTitle, purchasingTitle: purchasingTitle,
+                retryTitle: retryTitle, retryingTitle: retryingTitle,
+                recoverBalanceTitle: recoverBalanceTitle, recoveringBalanceTitle: recoveringBalanceTitle,
+                closeAccessibilityLabel: closeAccessibilityLabel,
+                confirmTitle: "Проверить покупку", confirmingTitle: confirmingTitle
+            )
+        }
+
         /// `retryTitle` reloads the packages after an error; `confirmTitle` checks a
         /// saved purchase and never charges again.
         public init(
@@ -62,7 +112,7 @@ public struct BroadTokenPaywallCopy: Equatable, Sendable {
             recoverBalanceTitle: String,
             recoveringBalanceTitle: String,
             closeAccessibilityLabel: String,
-            confirmTitle: String = "Проверить покупку",
+            confirmTitle: String,
             confirmingTitle: String = "Проверяем покупку…"
         ) {
             self.purchaseTitle = purchaseTitle
@@ -149,7 +199,8 @@ public extension BroadTokenPaywallCopy {
         products: Products(
             fallbackTitle: "Token pack",
             unavailablePriceTitle: "Price unavailable",
-            selectedAccessibilityValue: "Selected"
+            selectedAccessibilityValue: "Selected",
+            tokenName: BroadCountedNameCopy(one: "Token", few: "Tokens", many: "Tokens")
         ),
         actions: Actions(
             purchaseTitle: "Continue",
@@ -231,10 +282,24 @@ public struct BroadTokenPaywallConfiguration: Equatable, Sendable {
     /// Shows the event log panel in ``BroadTokenPaywallView``; for demos only.
     public let showsAnalytics: Bool
 
+    /// Preserves the initializer from releases before the analytics panel.
+    public init(copy: BroadTokenPaywallCopy, defaultSelectionIndex: Int = 0) {
+        self.init(copy: copy, defaultSelectionIndex: defaultSelectionIndex, showsAnalytics: false)
+    }
+
+    /// Preserves the initializer from releases before the close delay.
     public init(
         copy: BroadTokenPaywallCopy,
         defaultSelectionIndex: Int = 0,
-        closeDelay: TimeInterval = 0,
+        showsAnalytics: Bool
+    ) {
+        self.init(copy: copy, defaultSelectionIndex: defaultSelectionIndex, closeDelay: 0, showsAnalytics: showsAnalytics)
+    }
+
+    public init(
+        copy: BroadTokenPaywallCopy,
+        defaultSelectionIndex: Int = 0,
+        closeDelay: TimeInterval,
         showsAnalytics: Bool = false
     ) {
         precondition(

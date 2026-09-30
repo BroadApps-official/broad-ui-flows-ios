@@ -223,9 +223,7 @@ extension BroadPaywallView {
         let isEnabled = product.isEligibleForGenericPurchase
             && viewModel.canSelectProducts
         let content = BroadSelectableProductContent(
-            title: copy.planNames.name(
-                for: product.subscriptionPeriod, fallback: copy.fallbackTitle
-            ),
+            title: copy.name(for: product.subscriptionPeriod, title: product.title),
             subtitle: product.subtitle,
             price: productFormatter.price(for: product) ?? copy.unavailablePriceTitle,
             period: productFormatter.period(for: product)

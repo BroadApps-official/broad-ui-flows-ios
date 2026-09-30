@@ -18,18 +18,20 @@ public struct BroadSettingsHost<Content: View>: View {
     ///
     /// - Parameters:
     ///   - configuration: Account ID, legal links, App Store URL and support email.
-    ///   - restorePurchases: The existing restore use case from BroadMonetization.
-    ///   - onRestored: Receives the confirmed snapshot after a successful restore.
     ///   - showPaywall: Presents the app's subscription paywall, usually the
     ///     `settings` placement. ``BroadSettingsScreen/showPaywall()`` and
     ///     ``BroadSettingsScreen/manageSubscription()`` call it. Settings never open
     ///     App Store subscription management or cancellation for Adapty purchases.
+    ///     It comes right after `configuration`, so code written for 6.x gets a clear
+    ///     "missing argument for parameter 'showPaywall'" error.
+    ///   - restorePurchases: The existing restore use case from BroadMonetization.
+    ///   - onRestored: Receives the confirmed snapshot after a successful restore.
     ///   - content: The app's settings layout drawn from ``BroadSettingsScreen``.
     public init(
         configuration: BroadSettingsConfiguration,
+        showPaywall: @escaping @MainActor () -> Void,
         restorePurchases: any RestorePurchasesUseCaseProtocol,
         onRestored: @escaping @MainActor (EntitlementSnapshot) -> Void = { _ in },
-        showPaywall: @escaping @MainActor () -> Void,
         @ViewBuilder content: @escaping @MainActor (BroadSettingsScreen) -> Content
     ) {
         self.configuration = configuration

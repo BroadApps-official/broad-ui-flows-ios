@@ -125,9 +125,7 @@ private extension BroadPaywallScreen {
                 isBestValue: index == 1,
                 isSelected: index == 1,
                 isAvailable: true,
-                name: BroadPaywallCopy.standard.products.planNames.name(
-                    for: period, fallback: BroadPaywallCopy.standard.products.fallbackTitle
-                )
+                name: BroadPaywallCopy.standard.products.name(for: period, title: nil)
             )
         }
         return [

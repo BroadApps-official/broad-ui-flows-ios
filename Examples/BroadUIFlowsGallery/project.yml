@@ -40,6 +40,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.broadapps.ui-flows.gallery
         PRODUCT_NAME: BroadUIFlowsGallery
         SWIFT_TREAT_WARNINGS_AS_ERRORS: YES
+        SWIFT_STRICT_CONCURRENCY: complete
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_BroadAppsFixtureOnly: YES
         INFOPLIST_KEY_CFBundleDisplayName: UI Flows Gallery

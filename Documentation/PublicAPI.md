@@ -110,6 +110,7 @@
 | Enumeration | `enum OnboardingFooterDestination` |
 | Enumeration | `enum PreviewState` |
 | Initializer | `@MainActor convenience init(bundleID: String = Bundle.main.bundleIdentifier ?? "", installedVersion: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "", lookup: any BroadAppStoreLookupProtocol = BroadAppStoreLookupClient())` |
+| Initializer | `@MainActor convenience init(configuration: BroadTokenPaywallConfiguration, dependencies: BroadTokenPaywallViewModelDependencies)` |
 | Initializer | `@MainActor convenience init(dependencies: PaywallViewModelDependencies, lifetime: Duration = .seconds(600))` |
 | Initializer | `@MainActor init()` |
 | Initializer | `@MainActor init(accessibilityLabel: String)` |
@@ -119,8 +120,8 @@
 | Initializer | `@MainActor init(configuration: BroadActionConfiguration, tint: Color)` |
 | Initializer | `@MainActor init(configuration: BroadActionConfiguration, tint: Color, theme: BroadLoadableTheme)` |
 | Initializer | `@MainActor init(configuration: BroadPaywallConfiguration, dependencies: PaywallViewModelDependencies, initialPayload: PaywallPayload? = nil)` |
-| Initializer | `@MainActor init(configuration: BroadSettingsConfiguration, restorePurchases: any RestorePurchasesUseCaseProtocol, onRestored: @escaping @MainActor (EntitlementSnapshot) -> Void = { _ in }, showPaywall: @escaping @MainActor () -> Void, @ViewBuilder content: @escaping @MainActor (BroadSettingsScreen) -> Content)` |
-| Initializer | `@MainActor init(configuration: BroadTokenPaywallConfiguration, dependencies: BroadTokenPaywallViewModelDependencies, initialPayload: PaywallPayload? = nil)` |
+| Initializer | `@MainActor init(configuration: BroadSettingsConfiguration, showPaywall: @escaping @MainActor () -> Void, restorePurchases: any RestorePurchasesUseCaseProtocol, onRestored: @escaping @MainActor (EntitlementSnapshot) -> Void = { _ in }, @ViewBuilder content: @escaping @MainActor (BroadSettingsScreen) -> Content)` |
+| Initializer | `@MainActor init(configuration: BroadTokenPaywallConfiguration, dependencies: BroadTokenPaywallViewModelDependencies, initialPayload: PaywallPayload?)` |
 | Initializer | `@MainActor init(configuration: OnboardingConfiguration, requestTrackingAuthorizationUseCase: any TrackingAuthorizationUseCaseProtocol)` |
 | Initializer | `@MainActor init(content: BroadPaywallScreen.Content, plans: [BroadPaywallPlan], activity: BroadPaywallScreen.Activity = .idle, notice: BroadPaywallNotice? = nil, noticeMessage: String? = nil, canPurchase: Bool, canClose: Bool, legalLinks: [BroadPaywallLegalLink] = [], specialOfferEndsAt: Date? = nil, select: @escaping @MainActor (ProductPresentationID) -> Void = { _ in }, purchase: @escaping @MainActor () -> Void = {}, restore: @escaping @MainActor () -> Void = {}, retry: @escaping @MainActor () -> Void = {}, close: @escaping @MainActor () -> Void = {}, open: @escaping @MainActor (BroadPaywallLegalLink) -> Void = { _ in })` |
 | Initializer | `@MainActor init(content: BroadPaywallScreen.Content, plans: [BroadPaywallPlan], activity: BroadPaywallScreen.Activity = .idle, notice: BroadPaywallNotice? = nil, noticeMessage: String? = nil, canPurchase: Bool, canClose: Bool, legalLinks: [BroadPaywallLegalLink] = [], specialOfferEndsAt: Date? = nil, select: @escaping @MainActor (ProductPresentationID) -> Void = { _ in }, purchase: @escaping @MainActor () -> Void = {}, restore: @escaping @MainActor () -> Void = {}, retry: @escaping @MainActor () -> Void = {}, dismissNotice: @escaping @MainActor () -> Void, close: @escaping @MainActor () -> Void = {}, open: @escaping @MainActor (BroadPaywallLegalLink) -> Void = { _ in })` |
@@ -149,7 +150,8 @@
 | Initializer | `@MainActor init(url: URL)` |
 | Initializer | `@MainActor init(userID: String, version: String, build: String, isRestoring: Bool = false, restoreResult: BroadSettingsRestoreResult? = nil, restoreMessage: String? = nil, canContactSupport: Bool = false, isUserIDCopied: Bool = false)` |
 | Initializer | `@MainActor init(viewModel: BroadTokenPaywallViewModel, productFormatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter(), tokenAmount: (@MainActor (MonetizationProduct) -> Int?)? = nil, onClose: @escaping @MainActor () -> Void, @ViewBuilder content: @escaping @MainActor (BroadTokenPaywallScreen) -> Content)` |
-| Initializer | `@MainActor init(viewModel: BroadTokenPaywallViewModel, theme: BroadPaywallTheme, productFormatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter(), tokenAmount: (@MainActor (MonetizationProduct) -> Int?)? = nil, onClose: @escaping @MainActor () -> Void)` |
+| Initializer | `@MainActor init(viewModel: BroadTokenPaywallViewModel, theme: BroadPaywallTheme, productFormatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter(), onClose: @escaping @MainActor () -> Void)` |
+| Initializer | `@MainActor init(viewModel: BroadTokenPaywallViewModel, theme: BroadPaywallTheme, productFormatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter(), tokenAmount: (@MainActor (MonetizationProduct) -> Int?)?, onClose: @escaping @MainActor () -> Void)` |
 | Initializer | `@MainActor init(viewModel: OnboardingViewModel, @ViewBuilder media: @escaping @MainActor (OnboardingMediaDescriptor) -> Media, onFooterAction: @escaping @MainActor (OnboardingFooterDestination) -> Void, onCompleted: @escaping @MainActor () -> Void)` |
 | Initializer | `@MainActor init(viewModel: OnboardingViewModel, onCompleted: @escaping @MainActor () -> Void, @ViewBuilder content: @escaping @MainActor (OnboardingViewModel, OnboardingFlowActions) -> Content)` |
 | Initializer | `@MainActor init(viewModel: OnboardingViewModel, theme: BroadOnboardingTheme, @ViewBuilder media: @escaping @MainActor (OnboardingMediaDescriptor) -> Media, onFooterAction: @escaping @MainActor (OnboardingFooterDestination) -> Void, onCompleted: @escaping @MainActor () -> Void)` |
@@ -161,20 +163,28 @@
 | Initializer | `init(background: Color, surface: Color, primaryText: Color, secondaryText: Color, accent: Color, actionForeground: Color, progressInactive: Color, border: Color)` |
 | Initializer | `init(configuration: AppFlowConfiguration)` |
 | Initializer | `init(contentSpacing: CGFloat, textSpacing: CGFloat, padding: CGFloat, cornerRadius: CGFloat, iconSize: CGFloat, borderWidth: CGFloat, minimumActionHeight: CGFloat, compactPadding: CGFloat)` |
-| Initializer | `init(copy: BroadTokenPaywallCopy, defaultSelectionIndex: Int = 0, closeDelay: TimeInterval = 0, showsAnalytics: Bool = false)` |
+| Initializer | `init(copy: BroadTokenPaywallCopy, defaultSelectionIndex: Int = 0)` |
+| Initializer | `init(copy: BroadTokenPaywallCopy, defaultSelectionIndex: Int = 0, closeDelay: TimeInterval, showsAnalytics: Bool = false)` |
+| Initializer | `init(copy: BroadTokenPaywallCopy, defaultSelectionIndex: Int = 0, showsAnalytics: Bool)` |
 | Initializer | `init(cornerRadius: CGFloat, minimumProductHeight: CGFloat, minimumActionHeight: CGFloat, closeButton: CGFloat, borderWidth: CGFloat, maximumContentWidth: CGFloat, maximumRetryWidth: CGFloat? = nil)` |
-| Initializer | `init(crossedValueAccessibilityLabel: String, multiplierAccessibilityLabel: String, countdownAccessibilityLabel: String, expiredMessage: String = "This offer has ended. Close the screen or choose another offer.", discountFormat: String = "%d%% OFF")` |
+| Initializer | `init(crossedValueAccessibilityLabel: String, multiplierAccessibilityLabel: String, countdownAccessibilityLabel: String, expiredMessage: String = "This offer has ended. Close the screen or choose another offer.")` |
+| Initializer | `init(crossedValueAccessibilityLabel: String, multiplierAccessibilityLabel: String, countdownAccessibilityLabel: String, expiredMessage: String = "This offer has ended. Close the screen or choose another offer.", discountFormat: String)` |
 | Initializer | `init(daily: String, weekly: String, monthly: String, yearly: String, days: BroadCountedNameCopy, weeks: BroadCountedNameCopy, months: BroadCountedNameCopy, years: BroadCountedNameCopy)` |
 | Initializer | `init(defaultPolicy: PaywallAccessPolicy = .soft, hardPaywallCloseDelay: TimeInterval? = nil)` |
 | Initializer | `init(destination: OnboardingFooterDestination, title: String, accessibilityLabel: String? = nil)` |
-| Initializer | `init(fallbackTitle: String, unavailablePriceTitle: String, selectedAccessibilityValue: String, planNames: BroadPaywallPlanNameCopy = .english)` |
-| Initializer | `init(fallbackTitle: String, unavailablePriceTitle: String, selectedAccessibilityValue: String, tokenName: BroadCountedNameCopy = BroadCountedNameCopy( one: "Token", few: "Tokens", many: "Tokens" ))` |
+| Initializer | `init(fallbackTitle: String, unavailablePriceTitle: String, selectedAccessibilityValue: String)` |
+| Initializer | `init(fallbackTitle: String, unavailablePriceTitle: String, selectedAccessibilityValue: String, planNames: BroadPaywallPlanNameCopy?)` |
+| Initializer | `init(fallbackTitle: String, unavailablePriceTitle: String, selectedAccessibilityValue: String, tokenName: BroadCountedNameCopy?)` |
 | Initializer | `init(header: BroadPaywallCopy.Header, products: BroadPaywallCopy.Products, actions: BroadPaywallCopy.Actions, states: BroadPaywallCopy.States, checkout: BroadPaywallCopy.Checkout)` |
 | Initializer | `init(header: BroadTokenPaywallCopy.Header, products: BroadTokenPaywallCopy.Products, actions: BroadTokenPaywallCopy.Actions, states: BroadTokenPaywallCopy.States, analytics: BroadTokenPaywallCopy.Analytics)` |
-| Initializer | `init(id: ProductPresentationID, productID: ProductID, title: String?, subtitle: String?, price: String?, priceAmount: Money?, tokens: Int?, savingsPercent: Int?, isBestValue: Bool, isSelected: Bool, isAvailable: Bool, name: String? = nil)` |
-| Initializer | `init(id: ProductPresentationID, productID: ProductID, title: String?, subtitle: String?, price: String?, tokens: Int?, isSelected: Bool, isAvailable: Bool, name: String? = nil)` |
-| Initializer | `init(id: ProductPresentationID, title: String?, period: SubscriptionPeriod, periodText: String?, price: String?, weeklyPrice: String?, regularPrice: String?, discountPercent: Int?, savingsPercent: Int?, isBestValue: Bool, isSelected: Bool, isAvailable: Bool, name: String? = nil)` |
-| Initializer | `init(id: ProductPresentationID, title: String?, period: SubscriptionPeriod, periodText: String?, price: String?, weeklyPrice: String?, savingsPercent: Int?, isBestValue: Bool, isSelected: Bool, isAvailable: Bool, name: String? = nil)` |
+| Initializer | `init(id: ProductPresentationID, productID: ProductID, title: String?, subtitle: String?, price: String?, priceAmount: Money?, tokens: Int?, savingsPercent: Int?, isBestValue: Bool, isSelected: Bool, isAvailable: Bool)` |
+| Initializer | `init(id: ProductPresentationID, productID: ProductID, title: String?, subtitle: String?, price: String?, priceAmount: Money?, tokens: Int?, savingsPercent: Int?, isBestValue: Bool, isSelected: Bool, isAvailable: Bool, name: String?)` |
+| Initializer | `init(id: ProductPresentationID, productID: ProductID, title: String?, subtitle: String?, price: String?, tokens: Int?, isSelected: Bool, isAvailable: Bool)` |
+| Initializer | `init(id: ProductPresentationID, productID: ProductID, title: String?, subtitle: String?, price: String?, tokens: Int?, isSelected: Bool, isAvailable: Bool, name: String?)` |
+| Initializer | `init(id: ProductPresentationID, title: String?, period: SubscriptionPeriod, periodText: String?, price: String?, weeklyPrice: String?, regularPrice: String?, discountPercent: Int?, savingsPercent: Int?, isBestValue: Bool, isSelected: Bool, isAvailable: Bool)` |
+| Initializer | `init(id: ProductPresentationID, title: String?, period: SubscriptionPeriod, periodText: String?, price: String?, weeklyPrice: String?, regularPrice: String?, discountPercent: Int?, savingsPercent: Int?, isBestValue: Bool, isSelected: Bool, isAvailable: Bool, name: String?)` |
+| Initializer | `init(id: ProductPresentationID, title: String?, period: SubscriptionPeriod, periodText: String?, price: String?, weeklyPrice: String?, savingsPercent: Int?, isBestValue: Bool, isSelected: Bool, isAvailable: Bool)` |
+| Initializer | `init(id: ProductPresentationID, title: String?, period: SubscriptionPeriod, periodText: String?, price: String?, weeklyPrice: String?, savingsPercent: Int?, isBestValue: Bool, isSelected: Bool, isAvailable: Bool, name: String?)` |
 | Initializer | `init(id: String, title: String, accessibilityLabel: String? = nil, url: URL)` |
 | Initializer | `init(id: String, title: String, subtitle: String? = nil, media: OnboardingMediaDescriptor)` |
 | Initializer | `init(identifier: String = "BroadUIFlows", monetizationIdentifier: String)` |
@@ -193,10 +203,13 @@
 | Initializer | `init(pages: [OnboardingPageConfiguration], continueTitle: String, completionTitle: String, progressAccessibilityLabel: String, footerLinks: [OnboardingFooterLinkConfiguration] = [], trackingAuthorizationPolicy: OnboardingTrackingAuthorizationPolicy = .disabled)` |
 | Initializer | `init(pendingMessage: String, completedMessage: String = "The purchase completed.", completedButUnverifiedMessage: String)` |
 | Initializer | `init(perPrefix: String, everyPrefix: String, day: BroadPaywallPeriodCopy.UnitCopy, week: BroadPaywallPeriodCopy.UnitCopy, month: BroadPaywallPeriodCopy.UnitCopy, year: BroadPaywallPeriodCopy.UnitCopy, unknownTitle: String? = nil)` |
-| Initializer | `init(placementID: PlacementID, defaultSelection: BroadPaywallDefaultSelection? = nil, access: BroadPaywallAccessConfiguration = BroadPaywallAccessConfiguration(), copy: BroadPaywallCopy = .standard, legalLinks: [BroadPaywallLegalLink] = [], specialOfferCopy: BroadPaywallSpecialOfferCopy = .english, specialOfferAuthorization: SpecialOfferPresentationAuthorization? = nil, productOrder: BroadPaywallProductOrder = .longestPeriodFirst)` |
+| Initializer | `init(placementID: PlacementID, defaultSelection: BroadPaywallDefaultSelection? = nil, access: BroadPaywallAccessConfiguration = BroadPaywallAccessConfiguration(), copy: BroadPaywallCopy = .standard, legalLinks: [BroadPaywallLegalLink] = [], specialOfferCopy: BroadPaywallSpecialOfferCopy = .english, specialOfferAuthorization: SpecialOfferPresentationAuthorization? = nil)` |
+| Initializer | `init(placementID: PlacementID, defaultSelection: BroadPaywallDefaultSelection? = nil, access: BroadPaywallAccessConfiguration = BroadPaywallAccessConfiguration(), copy: BroadPaywallCopy = .standard, legalLinks: [BroadPaywallLegalLink] = [], specialOfferCopy: BroadPaywallSpecialOfferCopy = .english, specialOfferAuthorization: SpecialOfferPresentationAuthorization? = nil, productOrder: BroadPaywallProductOrder)` |
 | Initializer | `init(placementID: PlacementID, defaultSelection: BroadPaywallDefaultSelection? = nil, access: BroadPaywallAccessConfiguration = BroadPaywallAccessConfiguration(), copy: BroadPaywallCopy = .standard, legalLinks: [BroadPaywallLegalLink] = [], specialOfferCopy: BroadPaywallSpecialOfferCopy = .english, specialOfferAuthorization: SpecialOfferPresentationAuthorization? = nil, referenceProducts: [MonetizationProduct], productOrder: BroadPaywallProductOrder = .longestPeriodFirst)` |
 | Initializer | `init(providerMarker: String? = nil)` |
-| Initializer | `init(purchaseTitle: String, purchasingTitle: String, retryTitle: String, retryingTitle: String, recoverBalanceTitle: String, recoveringBalanceTitle: String, closeAccessibilityLabel: String, confirmTitle: String = "Проверить покупку", confirmingTitle: String = "Проверяем покупку…")` |
+| Initializer | `init(purchaseTitle: String, purchasingTitle: String, retryTitle: String, retryingTitle: String, recoverBalanceTitle: String, recoveringBalanceTitle: String, closeAccessibilityLabel: String)` |
+| Initializer | `init(purchaseTitle: String, purchasingTitle: String, retryTitle: String, retryingTitle: String, recoverBalanceTitle: String, recoveringBalanceTitle: String, closeAccessibilityLabel: String, confirmTitle: String, confirmingTitle: String = "Проверяем покупку…")` |
+| Initializer | `init(purchaseTitle: String, purchasingTitle: String, retryTitle: String, retryingTitle: String, recoverBalanceTitle: String, recoveringBalanceTitle: String, closeAccessibilityLabel: String, confirmingTitle: String)` |
 | Initializer | `init(purchaseTitle: String, restoreTitle: String, restoringTitle: String, retryTitle: String, closeAccessibilityLabel: String, cancelTitle: String)` |
 | Initializer | `init(recipient: String, subject: String, greeting: BroadSupportEmailGreeting, appName: String, appStoreVersion: String, installedVersion: String, buildNumber: String, bundleIdentifier: String, systemVersion: String, deviceModel: String, localeIdentifier: String, timeZoneIdentifier: String, adaptyProfileID: String, backendUserID: String, subscriptionStatus: String, tokenBalance: String? = nil, deviceID: String? = nil, additionalIdentifiers: [BroadSupportEmailIdentifier] = [], supportLogData: Data, supportLogFileName: String = "support-log.txt")` |
 | Initializer | `init(restoredMessage: String, nothingToRestoreMessage: String)` |
@@ -507,7 +520,7 @@
 | Instance Property | `let period: SubscriptionPeriod` |
 | Instance Property | `let periodCopy: BroadPaywallPeriodCopy` |
 | Instance Property | `let periodText: String?` |
-| Instance Property | `let planNames: BroadPaywallPlanNameCopy` |
+| Instance Property | `let planNames: BroadPaywallPlanNameCopy?` |
 | Instance Property | `let plural: String` |
 | Instance Property | `let price: String` |
 | Instance Property | `let price: String?` |
@@ -580,7 +593,7 @@
 | Instance Property | `let title: String` |
 | Instance Property | `let title: String?` |
 | Instance Property | `let tokenBalance: String?` |
-| Instance Property | `let tokenName: BroadCountedNameCopy` |
+| Instance Property | `let tokenName: BroadCountedNameCopy?` |
 | Instance Property | `let tokens: Int?` |
 | Instance Property | `let trackingAuthorizationPolicy: OnboardingTrackingAuthorizationPolicy` |
 | Instance Property | `let unavailablePriceTitle: String` |
@@ -701,7 +714,8 @@
 | Type Method | `@MainActor static func preview(_ state: BroadAppUpdateChecker.PreviewState) -> BroadAppUpdateChecker` |
 | Type Method | `@MainActor static func preview(_ state: BroadPaywallScreen.PreviewState = .plans, formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter()) -> BroadPaywallScreen` |
 | Type Method | `@MainActor static func preview(_ state: BroadSettingsScreen.PreviewState = .ready) -> BroadSettingsScreen` |
-| Type Method | `@MainActor static func preview(_ state: BroadTokenPaywallScreen.PreviewState = .packages, formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter(), copy: BroadTokenPaywallCopy = .russian) -> BroadTokenPaywallScreen` |
+| Type Method | `@MainActor static func preview(_ state: BroadTokenPaywallScreen.PreviewState = .packages, formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter()) -> BroadTokenPaywallScreen` |
+| Type Method | `@MainActor static func preview(_ state: BroadTokenPaywallScreen.PreviewState = .packages, formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter(), copy: BroadTokenPaywallCopy) -> BroadTokenPaywallScreen` |
 | Type Method | `@MainActor static func previewSpecialOfferWithTwoProducts(formatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter()) -> BroadPaywallScreen` |
 | Type Method | `static func afterFirstSlide(delay: Duration = .milliseconds(400)) -> OnboardingTrackingAuthorizationPolicy` |
 | Type Method | `static func makeRequest(configuration: BroadSupportEmailConfiguration) -> BroadSupportEmailRequest?` |

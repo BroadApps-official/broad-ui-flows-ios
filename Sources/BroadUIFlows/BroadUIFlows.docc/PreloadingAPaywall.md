@@ -46,9 +46,13 @@ let viewModel = BroadTokenPaywallViewModel(
 )
 ```
 
-The token view model accepts only a payload requested for `.tokens` with
-consumable products. A `.main` fallback also needs a typed fallback origin;
-other payloads trigger a regular load. A valid payload supplies packages before
+The token view model and preloader use the same acceptance rules as ordinary
+loads in 6.5.0. A payload requested and resolved for `.tokens` preserves the entire
+catalog, including non-consumables, order, duplicates and presentation IDs. Only
+consumables with a price can be selected and purchased. The existing `.main`
+fallback is accepted only with `usedFallback = true` and consumables only;
+`fallbackReason` is not required. UIFlows does not create a token-to-subscription
+fallback. Other origins trigger a regular load. A valid payload supplies packages before
 the screen opens. Use the same `loadPaywall` instance in `tokenDependencies`.
 The token view is reported as shown only on appearance.
 

@@ -8,9 +8,7 @@ extension MonetizationProduct {
 
 extension PaywallPayload {
     var isValidTokenPaywallPayload: Bool {
-        guard origin.requestedPlacementID == .tokens,
-              products.allSatisfy({ $0.kind == .consumable })
-        else {
+        guard origin.requestedPlacementID == .tokens else {
             return false
         }
 
@@ -20,6 +18,6 @@ extension PaywallPayload {
 
         return origin.resolvedPlacementID == .main
             && origin.usedFallback
-            && origin.fallbackReason != nil
+            && products.allSatisfy { $0.kind == .consumable }
     }
 }

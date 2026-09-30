@@ -182,13 +182,40 @@ BroadPaywallHost(viewModel: viewModel, onClose: close, onCompleted: finish) { sc
 </p>
 
 Один renderer показывает 0, 1 или любое количество provider products. Он не
-фильтрует, не сортирует и не объединяет их. Название тарифа берётся из периода:
-`Weekly`/`Неделя`, `Monthly`/`Месяц`, `Yearly`/`Год`, а другие периоды — «3 Months»/«3 месяца».
-Неизвестный период даёт `fallbackTitle`. `plan.title` хранит сырое имя App Store
-для совместимости; в UI показывайте `plan.name`. `BroadPaywallCopy.english` и
-`.standard` дают одинаковый английский copy. Локализованные цены не должны
-ломать layout; product list прокручивается, а primary action и
-legal actions остаются доступны.
+фильтрует, не сортирует и не объединяет их. Со встроенными `.standard`/`.english`
+названия включены на английском (`Weekly`, `Monthly`, `Yearly`), с `.russian` —
+на русском (`Неделя`, `Месяц`, `Год`). Другие периоды дают «3 Months»/«3 месяца»,
+неизвестный период — `fallbackTitle`. Это относится и к Special Offer.
+
+Свой copy со старым `Products(fallbackTitle:unavailablePriceTitle:selectedAccessibilityValue:)`
+сохраняет `title ?? fallbackTitle`, как в 6.5.0: `planNames` и `tokenName` равны `nil`.
+Собственные русские тексты не получают английские названия автоматически.
+Чтобы включить названия, передайте локализованные поля при создании `products`
+для своего copy; можно использовать встроенные формы или свои:
+
+```swift
+let products = BroadPaywallCopy.Products(
+    fallbackTitle: "Премиум-доступ",
+    unavailablePriceTitle: "Цена недоступна",
+    selectedAccessibilityValue: "Выбрано",
+    planNames: .russian
+)
+let tokenProducts = BroadTokenPaywallCopy.Products(
+    fallbackTitle: "Пакет токенов",
+    unavailablePriceTitle: "Цена недоступна",
+    selectedAccessibilityValue: "Выбрано",
+    tokenName: BroadCountedNameCopy(
+        one: "токен", few: "токена", many: "токенов", usesRussianPluralRules: true
+    )
+)
+```
+
+Передайте эти `products` в соответствующий `BroadPaywallCopy` или
+`BroadTokenPaywallCopy`. Явный `planNames: nil` / `tokenName: nil` тоже сохраняет
+старые заголовки. `plan.name` и `package.name` учитывают этот выбор, готовые экраны
+используют тот же режим. `title` сохраняется как исходное имя App Store.
+Локализованные цены не должны ломать layout; product list прокручивается,
+а primary action и legal actions остаются доступны.
 
 <table>
   <tr>
@@ -261,8 +288,12 @@ BroadTokenPaywallHost(
 
 Создайте `BroadPaywallPreloader` с тем же `loadPaywall`, что у токенной модели,
 и `presentationLifecycle`. Если предзагрузка ещё идёт или payload не прошёл
-проверку плейсмента `.tokens` и consumable-продуктов, модель загрузит каталог
-обычным способом. Показ считается только после появления экрана. Пример на
+проверку происхождения, модель загрузит каталог обычным способом. Правила как
+в 6.5.0: запрошенный и разрешённый `.tokens` принимается целиком, даже со строками
+non-consumable; прежний `.main` fallback принимается только с `usedFallback = true`
+и consumable-продуктами, без требования `fallbackReason`. UIFlows такой fallback
+не создаёт. Порядок, дубли и presentation IDs сохраняются; покупать можно только
+consumable с ценой. Показ считается только после появления экрана. Пример на
 fixtures: «Preloaded token paywall» в Gallery.
 
 `MyTokenStore` рисует `screen.packages` (`package.name`, цена, число токенов,
@@ -273,12 +304,14 @@ fixtures: «Preloaded token paywall» в Gallery.
 `refreshBalance()`, `retry()`, `close()`, `dismissNotice()`. Превью без Adapty:
 `BroadTokenPaywallScreen.preview(.pending)`.
 
-Имя пакета строится из backend `tokenAmount`: `2000 Tokens` или `2000 токенов`.
+При включённом `tokenName` имя пакета строится из backend `tokenAmount`: `2000 Tokens` или `2000 токенов`.
 Тот же обработчик можно передать в `BroadTokenPaywallView(tokenAmount:)`.
 Если количество отсутствует, ведущее число product ID применяется только для
 надписи (`50_Tokens_9.99` → `50 Tokens`). Оно не попадает в `package.tokens`,
 баланс, зачисление или расчёт выгоды. ID без ведущего числа даёт `fallbackTitle`.
-`package.title` — сырое имя App Store; в UI используйте `package.name`.
+При выключенном `tokenName` число из ID не читается, а `package.name` и готовый
+экран показывают `title ?? fallbackTitle`. `displayTokenCount` в этом режиме
+содержит только backend-количество, если оно известно.
 
 Для английского приложения используйте `BroadTokenPaywallCopy.english` (алиас
 `.standard`). `BroadTokenPaywallConfiguration(copy: .english, closeDelay: 3)`
@@ -299,9 +332,9 @@ BroadSettingsHost(
         termsURL: termsURL,
         supportEmail: supportEmail
     ),
+    showPaywall: { router.showPaywall(placement: .settings) },
     restorePurchases: restorePurchases,
-    onRestored: refreshAccess,
-    showPaywall: { router.showPaywall(placement: .settings) }
+    onRestored: refreshAccess
 ) { screen in
     MySettings(screen: screen)
 }
@@ -317,7 +350,8 @@ BroadSettingsHost(
 `manageSubscription()` — оба открывают пейвол приложения через обязательный
 обработчик `showPaywall` хоста. «Cancel subscription» из макета не рисуется.
 
-> Unreleased: обработчик `showPaywall` появится в следующем MAJOR-выпуске. В
+> Миграция на 7.0.0 в одну строку: `showPaywall: { /* present the settings-placement paywall */ }`.
+> Unreleased: обязательный обработчик `showPaywall` появится в 7.0.0. В
 > 6.5.0 его нет, а `manageSubscription()` открывает App Store — не подключайте к
 > нему строки подписки до выхода новой версии.
 

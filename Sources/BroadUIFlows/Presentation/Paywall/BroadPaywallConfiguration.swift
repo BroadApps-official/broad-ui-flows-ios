@@ -103,12 +103,28 @@ public struct BroadPaywallSpecialOfferCopy: Equatable, Sendable {
     /// Format of the discount headline, with one integer: "%d%% OFF".
     public let discountFormat: String
 
+    /// Preserves the initializer from releases before discount headlines were added.
+    public init(
+        crossedValueAccessibilityLabel: String,
+        multiplierAccessibilityLabel: String,
+        countdownAccessibilityLabel: String,
+        expiredMessage: String = "This offer has ended. Close the screen or choose another offer."
+    ) {
+        self.init(
+            crossedValueAccessibilityLabel: crossedValueAccessibilityLabel,
+            multiplierAccessibilityLabel: multiplierAccessibilityLabel,
+            countdownAccessibilityLabel: countdownAccessibilityLabel,
+            expiredMessage: expiredMessage,
+            discountFormat: "%d%% OFF"
+        )
+    }
+
     public init(
         crossedValueAccessibilityLabel: String,
         multiplierAccessibilityLabel: String,
         countdownAccessibilityLabel: String,
         expiredMessage: String = "This offer has ended. Close the screen or choose another offer.",
-        discountFormat: String = "%d%% OFF"
+        discountFormat: String
     ) {
         self.crossedValueAccessibilityLabel = crossedValueAccessibilityLabel
         self.multiplierAccessibilityLabel = multiplierAccessibilityLabel
@@ -143,19 +159,36 @@ public struct BroadPaywallCopy: Equatable, Sendable {
         public let fallbackTitle: String
         public let unavailablePriceTitle: String
         public let selectedAccessibilityValue: String
-        /// Localized names derived from the subscription period, never from a store title.
-        public let planNames: BroadPaywallPlanNameCopy
+        /// Localized period names; `nil` preserves the store title and fallback from older copy.
+        public let planNames: BroadPaywallPlanNameCopy?
 
+        /// Preserves the title-based presentation of custom copy from 6.5.0 and earlier.
+        public init(
+            fallbackTitle: String,
+            unavailablePriceTitle: String,
+            selectedAccessibilityValue: String
+        ) {
+            self.init(
+                fallbackTitle: fallbackTitle, unavailablePriceTitle: unavailablePriceTitle,
+                selectedAccessibilityValue: selectedAccessibilityValue, planNames: nil
+            )
+        }
+
+        /// Enables localized period names when `planNames` is non-nil.
         public init(
             fallbackTitle: String,
             unavailablePriceTitle: String,
             selectedAccessibilityValue: String,
-            planNames: BroadPaywallPlanNameCopy = .english
+            planNames: BroadPaywallPlanNameCopy?
         ) {
             self.fallbackTitle = fallbackTitle
             self.unavailablePriceTitle = unavailablePriceTitle
             self.selectedAccessibilityValue = selectedAccessibilityValue
             self.planNames = planNames
+        }
+
+        func name(for period: SubscriptionPeriod, title: String?) -> String {
+            planNames?.name(for: period, fallback: fallbackTitle) ?? title ?? fallbackTitle
         }
     }
 
@@ -255,7 +288,8 @@ public struct BroadPaywallCopy: Equatable, Sendable {
         products: Products(
             fallbackTitle: "Premium access",
             unavailablePriceTitle: "Price unavailable",
-            selectedAccessibilityValue: "Selected"
+            selectedAccessibilityValue: "Selected",
+            planNames: .english
         ),
         actions: Actions(
             purchaseTitle: "Continue",
@@ -314,7 +348,7 @@ public struct BroadPaywallConfiguration: Equatable, Sendable {
         legalLinks: [BroadPaywallLegalLink] = [],
         specialOfferCopy: BroadPaywallSpecialOfferCopy = .english,
         specialOfferAuthorization: SpecialOfferPresentationAuthorization? = nil,
-        productOrder: BroadPaywallProductOrder = .longestPeriodFirst
+        productOrder: BroadPaywallProductOrder
     ) {
         self.init(
             placementID: placementID,
