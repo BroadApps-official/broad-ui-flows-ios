@@ -68,6 +68,9 @@ public final class OnboardingViewModel: ObservableObject {
         return true
     }
 
+    /// Signals that the first slide is visible after its incoming transition.
+    /// App-owned lifecycle integrations should call this after animation completion.
+    /// The shared hosts supply this signal automatically.
     public func firstSlideDidAppear() {
         guard currentPage != nil, currentIndex == configuration.pages.startIndex else {
             return

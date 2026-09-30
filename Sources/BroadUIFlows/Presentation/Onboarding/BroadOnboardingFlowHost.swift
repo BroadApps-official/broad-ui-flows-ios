@@ -25,6 +25,8 @@ public struct OnboardingFlowActions {
 public struct BroadOnboardingFlowHost<Content: View>: View {
     @Environment(\.scenePhase) private var scenePhase
 
+    @State private var isObservingVisibility = false
+    @State private var isTransitionSettled = false
     @StateObject private var viewModel: OnboardingViewModel
 
     private let onCompleted: @MainActor () -> Void
@@ -60,15 +62,17 @@ public struct BroadOnboardingFlowHost<Content: View>: View {
         }
         .background(windowVisibilityObserver)
         .onAppear {
+            isObservingVisibility = true
             viewModel.onboardingDidAppear()
             viewModel.applicationActiveDidChange(scenePhase == .active)
-            markFirstPageVisibleIfNeeded()
 
             if viewModel.completeInvalidConfigurationIfNeeded() {
                 onCompleted()
             }
         }
         .onDisappear {
+            isObservingVisibility = false
+            isTransitionSettled = false
             viewModel.onboardingDidDisappear()
         }
         .onChange(of: scenePhase, initial: true) { _, phase in
@@ -80,24 +84,30 @@ public struct BroadOnboardingFlowHost<Content: View>: View {
                 viewModel.firstSlideDidDisappear()
             }
             if currentIndex == firstIndex {
-                viewModel.firstSlideDidAppear()
+                markFirstPageVisibleIfNeeded()
             }
         }
     }
 
     private var windowVisibilityObserver: some View {
-        OnboardingWindowVisibilityView { isVisible, validateCurrentVisibility in
+        OnboardingWindowVisibilityView(isEnabled: isObservingVisibility, onTransitionSettledChange: { isSettled in
+            isTransitionSettled = isSettled
+            if isSettled {
+                markFirstPageVisibleIfNeeded()
+            } else {
+                viewModel.firstSlideDidDisappear()
+            }
+        }) { isVisible, validateCurrentVisibility in
             viewModel.windowVisibilityDidChange(
                 isVisible,
                 validateCurrentVisibility: validateCurrentVisibility
             )
         }
-        .frame(width: 0, height: 0)
         .accessibilityHidden(true)
     }
 
     private func markFirstPageVisibleIfNeeded() {
-        guard viewModel.currentIndex == viewModel.configuration.pages.startIndex else {
+        guard isTransitionSettled, viewModel.currentIndex == viewModel.configuration.pages.startIndex else {
             return
         }
         viewModel.firstSlideDidAppear()

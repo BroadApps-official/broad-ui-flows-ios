@@ -1,5 +1,48 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `BroadSettingsConfiguration.appStoreLink: URL?` и отдельный init с обязательным
+  `appStoreLink`, включая `nil`; `BroadSettingsScreen.canShareApp` / `canRateApp`.
+- Локализованные тексты fallback поддержки в `BroadSettingsCopy`, отдельный
+  расширенный init, preview-overload с признаками Share/Rate и host-overload с
+  обязательным `canSendMail` для Gallery.
+- Gallery-режимы без App Store ссылки/почты, пустой адрес и ATT transition fixture;
+  executable contracts для ссылок, почтовых действий, стабилизации frame и ATT lifecycle.
+
+### Fixed
+
+- Невалидная App Store ссылка в старом init больше не вызывает crash: трактуется
+  как отсутствие ссылки. Share и Rate без ссылки безопасно ничего не делают.
+- Без системной почты Settings host показывает alert с адресом, «Скопировать адрес»
+  и «Закрыть»; «Открыть почту» появляется только после успешного canOpenURL.
+  Пустой адрес получает отдельный alert. Native compose не получает второй fallback.
+- ATT delay считается после стабилизации входящего перехода первого слайда,
+  включая fade Reduce Motion; ожидание ограничено и при таймауте не запрашивает ATT.
+  Loader/сплеш и отключённый onboarding по-прежнему не запрашивают разрешение.
+
+### Compatibility
+
+- Все существующие public сигнатуры baseline 7.0.0 сохранены, включая точные
+  ссылки на initializer как функцию. Новые overload требуют новые параметры;
+  deprecated-аннотаций и новых cases в существующих public enum нет.
+- `appStoreURL: URL` сохраняется для чтения: ссылка или `https://apps.apple.com`;
+  для проверки наличия используется `appStoreLink`. Legal preconditions не изменены.
+- Старый двухстрочный `BroadSettingsCopy` сохраняет restore-тексты, новые тексты
+  берёт из `.russian`. Основные действия Settings остаются под общим tap gate.
+- Приложения со своим почтовым fallback не получают двойного окна, если вызывают
+  `contactSupport()` только при доступной системной почте. Увеличенный вручную
+  ATT delay остаётся допустимым, но компенсация длительности перехода больше не нужна.
+- Исторический MAJOR-контракт Settings 7.0.0 (`showPaywall`) не меняется:
+  уже требовавшаяся миграция с 6.x остаётся той же; этот MINOR новых правок не требует.
+
+### SemVer intent
+
+7.1.0: MINOR — API добавлен совместимыми overload, три исправления не требуют
+правок существующего кода baseline 7.0.0. Версии и теги в этой worktree не меняются.
+
 ## 7.0.0
 
 ### Breaking

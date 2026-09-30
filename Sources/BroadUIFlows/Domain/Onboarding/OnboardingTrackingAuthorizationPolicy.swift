@@ -11,6 +11,9 @@ public struct OnboardingTrackingAuthorizationPolicy: Equatable, Sendable {
         requestDelay: nil
     )
 
+    /// Starts the delay after the first slide's incoming transition has settled.
+    /// Standard and custom hosts wait for a stable, opaque frame before signaling
+    /// visibility. A manually increased delay remains valid but is unnecessary.
     public static func afterFirstSlide(
         delay: Duration = .milliseconds(400)
     ) -> OnboardingTrackingAuthorizationPolicy {

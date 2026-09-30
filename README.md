@@ -162,6 +162,14 @@ entitlement-проверке; только подтверждённый `active`
 - ATT возможен только после фактического появления первого слайда; Rate Us в
   onboarding запрещён.
 
+`.afterFirstSlide(delay:)` в общем хосте теперь считает задержку от конца
+перехода launch → onboarding: видимый frame должен стабилизироваться примерно на
+0,1 с, а экран — стать непрозрачным. Это применяется и к `BroadOnboardingView`, и к
+`BroadOnboardingFlowHost`, включая Reduce Motion. При неподтверждённой видимости
+за 3 с ожидание прекращается без запроса. Ручные «переход + 0,4 с» больше не нужны;
+уже увеличенный delay остаётся безопасным и просто откладывает запрос дольше.
+ATT никогда не планируется loader/сплешем или отключённым onboarding.
+
 ## Свой экран пейвола
 
 ```swift
@@ -356,6 +364,28 @@ BroadSettingsHost(
 
 `screen.restoreMessage`, `screen.isUserIDCopied`, `screen.version` и `screen.build`
 готовы к показу. Превью: `BroadSettingsScreen.preview(.restored)`.
+
+Для нового приложения без App Store ID используйте отдельный overload
+`BroadSettingsConfiguration(userID:appStoreLink:privacyPolicyURL:termsURL:...)` с
+`appStoreLink: nil`. Старый init с `appStoreURL: URL` сохранён: невалидная ссылка
+теперь означает отсутствие ссылки, без crash. `appStoreURL: URL` по-прежнему можно
+читать; при отсутствии ссылки он возвращает `https://apps.apple.com`. Это свойство
+устарело по смыслу: для новых решений используйте optional `appStoreLink`.
+Предупреждений о deprecated нет. Preconditions privacy/terms сохранены.
+
+Свой экран скрывает Share и Rate по `screen.canShareApp` / `screen.canRateApp`;
+оба значения true только при наличии ссылки. Если старый экран продолжает вызывать
+`shareApp()` / `rateApp()` без проверки, при отсутствии ссылки методы ничего не делают.
+
+При недоступной системной почте `contactSupport()` показывает alert с адресом,
+«Скопировать адрес» и «Закрыть». «Открыть почту» добавляется только после успешного
+`UIApplication.shared.canOpenURL`; `mailto:` получает только адрес и subject.
+Пустой адрес поддержки показывает отдельный понятный alert. Тексты находятся в
+`BroadSettingsCopy.russian` / `.english`; старый init с двумя сообщениями восстановления
+сохранён и использует русские значения новых полей. Если приложение уже показывает
+свой fallback и вызывает `contactSupport()` только при `canSendMail == true`,
+дополнительного alert от хоста не будет. Все основные действия сохраняют общий gate;
+кнопка копирования внутри alert сразу копирует адрес, даже если 400 мс ещё не истекли.
 
 ## Алерт обновления
 

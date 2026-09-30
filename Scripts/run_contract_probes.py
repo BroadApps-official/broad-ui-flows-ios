@@ -82,6 +82,15 @@ def main():
             for path in sorted((ui_source / directory).glob("*.swift")):
                 if "import SwiftUI" not in path.read_text():
                     ui_files.append(path)
+        for directory in ("Domain/Settings", "Domain/SupportEmail", "Domain/Onboarding",
+                          "Application/SupportEmail", "Presentation/Settings"):
+            for path in sorted((ui_source / directory).glob("*.swift")):
+                if "import SwiftUI" not in path.read_text():
+                    ui_files.append(path)
+        ui_files += [
+            ui_source / "Presentation/Onboarding/OnboardingViewModel.swift",
+            ui_source / "Presentation/Onboarding/OnboardingTransitionStability.swift",
+        ]
         sources = []
         for index, path in enumerate(require_sources(ui_files)):
             copy = scratch / f"{index}-{path.name}"
@@ -89,7 +98,7 @@ def main():
             sources.append(copy)
 
         probes = ROOT / "Scripts/ContractProbes"
-        for name in ("TokenCatalogProbe", "ProductNamesProbe"):
+        for name in ("TokenCatalogProbe", "ProductNamesProbe", "SettingsAndOnboardingProbe"):
             print(f"Running {name}", flush=True)
             executable = scratch / name
             run([*flags, "-parse-as-library", *linking, "-lBroadMonetization", *sources,

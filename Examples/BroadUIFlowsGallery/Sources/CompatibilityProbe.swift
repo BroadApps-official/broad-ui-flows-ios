@@ -90,6 +90,54 @@ enum CompatibilityProbe {
         }
     }
 
+    static func historicalSettings(url: URL, support: BroadSupportEmailConfiguration?) {
+        let makeCopy: (String, String) -> BroadSettingsCopy = BroadSettingsCopy.init
+        _ = makeCopy("Restored", "Nothing found")
+        _ = BroadSettingsCopy(restoredMessage: "Restored", nothingToRestoreMessage: "Nothing found")
+        let makeConfiguration: (
+            String, URL, URL, URL, BroadSupportEmailConfiguration?, String?, String?, BroadSettingsCopy
+        ) -> BroadSettingsConfiguration = BroadSettingsConfiguration.init
+        let configuration = makeConfiguration("fixture", url, url, url, support, nil, nil, .russian)
+        let legacyURL: URL = configuration.appStoreURL
+        _ = legacyURL
+        _ = BroadSettingsConfiguration(userID: "fixture", appStoreURL: url, privacyPolicyURL: url, termsURL: url)
+        let makeScreen: @MainActor (
+            String, String, String, Bool, BroadSettingsRestoreResult?, String?, Bool, Bool
+        ) -> BroadSettingsScreen = BroadSettingsScreen.init
+        let screen = makeScreen("fixture", "1", "1", false, nil, nil, false, false)
+        _ = BroadSettingsScreen(userID: "fixture", version: "1", build: "1")
+        _ = BroadSettingsScreen.preview()
+        screen.shareApp()
+        screen.rateApp()
+        screen.contactSupport()
+    }
+
+    static func historicalSettingsHost(configuration: BroadSettingsConfiguration, restore: any RestorePurchasesUseCaseProtocol) {
+        let make: @MainActor (
+            BroadSettingsConfiguration, @escaping @MainActor () -> Void,
+            any RestorePurchasesUseCaseProtocol, @escaping @MainActor (EntitlementSnapshot) -> Void,
+            @escaping @MainActor (BroadSettingsScreen) -> Text
+        ) -> BroadSettingsHost<Text> = BroadSettingsHost<Text>.init
+        _ = make(configuration, {}, restore, { _ in }, { Text($0.userID) })
+    }
+
+    static func historicalOnboarding(viewModel: OnboardingViewModel) {
+        let policy: (Duration) -> OnboardingTrackingAuthorizationPolicy = OnboardingTrackingAuthorizationPolicy.afterFirstSlide
+        _ = policy(.milliseconds(400))
+        _ = OnboardingTrackingAuthorizationPolicy.afterFirstSlide()
+        _ = BroadOnboardingFlowHost(viewModel: viewModel, onCompleted: {}) { model, actions in
+            Button(model.currentPage?.title ?? "") { actions.advance() }
+        }
+        _ = BroadOnboardingView(viewModel: viewModel) { media in
+            Text(media.identifier)
+        } onFooterAction: { _ in } onCompleted: {}
+        viewModel.onboardingDidAppear()
+        viewModel.firstSlideDidAppear()
+        viewModel.firstSlideDidDisappear()
+        viewModel.windowVisibilityDidChange(true)
+        viewModel.onboardingDidDisappear()
+    }
+
     static func historicalPaywallConfiguration(placementID: PlacementID) {
         let make: (
             PlacementID, BroadPaywallDefaultSelection?, BroadPaywallAccessConfiguration, BroadPaywallCopy,

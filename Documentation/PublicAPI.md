@@ -120,6 +120,7 @@
 | Initializer | `@MainActor init(configuration: BroadActionConfiguration, tint: Color)` |
 | Initializer | `@MainActor init(configuration: BroadActionConfiguration, tint: Color, theme: BroadLoadableTheme)` |
 | Initializer | `@MainActor init(configuration: BroadPaywallConfiguration, dependencies: PaywallViewModelDependencies, initialPayload: PaywallPayload? = nil)` |
+| Initializer | `@MainActor init(configuration: BroadSettingsConfiguration, showPaywall: @escaping @MainActor () -> Void, restorePurchases: any RestorePurchasesUseCaseProtocol, canSendMail: @escaping @MainActor () -> Bool, onRestored: @escaping @MainActor (EntitlementSnapshot) -> Void = { _ in }, @ViewBuilder content: @escaping @MainActor (BroadSettingsScreen) -> Content)` |
 | Initializer | `@MainActor init(configuration: BroadSettingsConfiguration, showPaywall: @escaping @MainActor () -> Void, restorePurchases: any RestorePurchasesUseCaseProtocol, onRestored: @escaping @MainActor (EntitlementSnapshot) -> Void = { _ in }, @ViewBuilder content: @escaping @MainActor (BroadSettingsScreen) -> Content)` |
 | Initializer | `@MainActor init(configuration: BroadTokenPaywallConfiguration, dependencies: BroadTokenPaywallViewModelDependencies, initialPayload: PaywallPayload?)` |
 | Initializer | `@MainActor init(configuration: OnboardingConfiguration, requestTrackingAuthorizationUseCase: any TrackingAuthorizationUseCaseProtocol)` |
@@ -149,6 +150,7 @@
 | Initializer | `@MainActor init(title: String, isEnabled: Bool, isInFlight: Bool, theme: BroadPaywallTheme, action: @escaping @MainActor () -> Void)` |
 | Initializer | `@MainActor init(url: URL)` |
 | Initializer | `@MainActor init(userID: String, version: String, build: String, isRestoring: Bool = false, restoreResult: BroadSettingsRestoreResult? = nil, restoreMessage: String? = nil, canContactSupport: Bool = false, isUserIDCopied: Bool = false)` |
+| Initializer | `@MainActor init(userID: String, version: String, build: String, isRestoring: Bool = false, restoreResult: BroadSettingsRestoreResult? = nil, restoreMessage: String? = nil, canContactSupport: Bool = false, isUserIDCopied: Bool = false, canShareApp: Bool, canRateApp: Bool)` |
 | Initializer | `@MainActor init(viewModel: BroadTokenPaywallViewModel, productFormatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter(), tokenAmount: (@MainActor (MonetizationProduct) -> Int?)? = nil, onClose: @escaping @MainActor () -> Void, @ViewBuilder content: @escaping @MainActor (BroadTokenPaywallScreen) -> Content)` |
 | Initializer | `@MainActor init(viewModel: BroadTokenPaywallViewModel, theme: BroadPaywallTheme, productFormatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter(), onClose: @escaping @MainActor () -> Void)` |
 | Initializer | `@MainActor init(viewModel: BroadTokenPaywallViewModel, theme: BroadPaywallTheme, productFormatter: BroadPaywallProductFormatter = BroadPaywallProductFormatter(), tokenAmount: (@MainActor (MonetizationProduct) -> Int?)?, onClose: @escaping @MainActor () -> Void)` |
@@ -213,6 +215,7 @@
 | Initializer | `init(purchaseTitle: String, restoreTitle: String, restoringTitle: String, retryTitle: String, closeAccessibilityLabel: String, cancelTitle: String)` |
 | Initializer | `init(recipient: String, subject: String, greeting: BroadSupportEmailGreeting, appName: String, appStoreVersion: String, installedVersion: String, buildNumber: String, bundleIdentifier: String, systemVersion: String, deviceModel: String, localeIdentifier: String, timeZoneIdentifier: String, adaptyProfileID: String, backendUserID: String, subscriptionStatus: String, tokenBalance: String? = nil, deviceID: String? = nil, additionalIdentifiers: [BroadSupportEmailIdentifier] = [], supportLogData: Data, supportLogFileName: String = "support-log.txt")` |
 | Initializer | `init(restoredMessage: String, nothingToRestoreMessage: String)` |
+| Initializer | `init(restoredMessage: String, nothingToRestoreMessage: String, supportUnavailableTitle: String, supportUnavailableMessage: String, copySupportAddressTitle: String, closeSupportTitle: String, openMailTitle: String, supportAddressMissingTitle: String, supportAddressMissingMessage: String)` |
 | Initializer | `init(screen: CGFloat, header: CGFloat, content: CGFloat, product: CGFloat, productContent: CGFloat, footer: CGFloat, text: CGFloat)` |
 | Initializer | `init(singular: String, plural: String)` |
 | Initializer | `init(spacing: BroadPaywallTheme.Spacing, sizing: BroadPaywallTheme.Sizing)` |
@@ -227,6 +230,7 @@
 | Initializer | `init(title: String, subtitle: String, balanceTitle: String)` |
 | Initializer | `init(title: String, subtitle: String? = nil)` |
 | Initializer | `init(title: String, subtitle: String?, price: String, period: String?)` |
+| Initializer | `init(userID: String, appStoreLink: URL?, privacyPolicyURL: URL, termsURL: URL, supportEmail: BroadSupportEmailConfiguration? = nil, version: String? = nil, build: String? = nil, copy: BroadSettingsCopy = .russian)` |
 | Initializer | `init(userID: String, appStoreURL: URL, privacyPolicyURL: URL, termsURL: URL, supportEmail: BroadSupportEmailConfiguration? = nil, version: String? = nil, build: String? = nil, copy: BroadSettingsCopy = .russian)` |
 | Initializer | `init(version: BroadAppVersion, url: URL)` |
 | Initializer | `init?(_ rawValue: String)` |
@@ -331,6 +335,8 @@
 | Instance Property | `@MainActor let canClose: Bool` |
 | Instance Property | `@MainActor let canContactSupport: Bool` |
 | Instance Property | `@MainActor let canPurchase: Bool` |
+| Instance Property | `@MainActor let canRateApp: Bool` |
+| Instance Property | `@MainActor let canShareApp: Bool` |
 | Instance Property | `@MainActor let configuration: BroadPaywallConfiguration` |
 | Instance Property | `@MainActor let configuration: BroadTokenPaywallConfiguration` |
 | Instance Property | `@MainActor let configuration: OnboardingConfiguration` |
@@ -410,7 +416,7 @@
 | Instance Property | `let additionalIdentifiers: [BroadSupportEmailIdentifier]` |
 | Instance Property | `let analytics: BroadTokenPaywallCopy.Analytics` |
 | Instance Property | `let appName: String` |
-| Instance Property | `let appStoreURL: URL` |
+| Instance Property | `let appStoreLink: URL?` |
 | Instance Property | `let appStoreVersion: String` |
 | Instance Property | `let appleTitle: String` |
 | Instance Property | `let backendUserID: String` |
@@ -429,6 +435,7 @@
 | Instance Property | `let closeAccessibilityLabel: String` |
 | Instance Property | `let closeButton: CGFloat` |
 | Instance Property | `let closeDelay: TimeInterval` |
+| Instance Property | `let closeSupportTitle: String` |
 | Instance Property | `let compactPadding: CGFloat` |
 | Instance Property | `let completedButUnverifiedMessage: String` |
 | Instance Property | `let completedMessage: String` |
@@ -443,6 +450,7 @@
 | Instance Property | `let copy: BroadPaywallCopy` |
 | Instance Property | `let copy: BroadSettingsCopy` |
 | Instance Property | `let copy: BroadTokenPaywallCopy` |
+| Instance Property | `let copySupportAddressTitle: String` |
 | Instance Property | `let cornerRadius: CGFloat` |
 | Instance Property | `let countdownAccessibilityLabel: String` |
 | Instance Property | `let creditedMessage: String` |
@@ -511,6 +519,7 @@
 | Instance Property | `let nothingToRestoreMessage: String` |
 | Instance Property | `let onboarding: AppFlowStepPolicy` |
 | Instance Property | `let one: String` |
+| Instance Property | `let openMailTitle: String` |
 | Instance Property | `let padding: CGFloat` |
 | Instance Property | `let pageSpacing: CGFloat` |
 | Instance Property | `let pages: [OnboardingPageConfiguration]` |
@@ -578,9 +587,13 @@
 | Instance Property | `let subtitle: Font` |
 | Instance Property | `let subtitle: String` |
 | Instance Property | `let subtitle: String?` |
+| Instance Property | `let supportAddressMissingMessage: String` |
+| Instance Property | `let supportAddressMissingTitle: String` |
 | Instance Property | `let supportEmail: BroadSupportEmailConfiguration?` |
 | Instance Property | `let supportLogData: Data` |
 | Instance Property | `let supportLogFileName: String` |
+| Instance Property | `let supportUnavailableMessage: String` |
+| Instance Property | `let supportUnavailableTitle: String` |
 | Instance Property | `let surface: Color` |
 | Instance Property | `let surfacePadding: CGFloat` |
 | Instance Property | `let systemImageName: String?` |
@@ -615,6 +628,7 @@
 | Instance Property | `let yearly: String` |
 | Instance Property | `let years: BroadCountedNameCopy` |
 | Instance Property | `var allowsInitialPaywallClose: Bool { get }` |
+| Instance Property | `var appStoreURL: URL { get }` |
 | Instance Property | `var externalComposeURL: URL? { get }` |
 | Instance Property | `var hasCompletedOnboarding: Bool { get }` |
 | Instance Property | `var hasResolvedInitialPaywall: Bool { get }` |

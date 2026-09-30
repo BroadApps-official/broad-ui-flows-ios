@@ -9,15 +9,17 @@ public struct BroadSettingsHost<Content: View>: View {
     @Environment(\.openURL) private var openURL
     @StateObject private var state: BroadSettingsState
     @State private var destination: Destination?
+    @State private var supportAlert: SupportAlert?
 
     private let configuration: BroadSettingsConfiguration
+    private let canSendMail: @MainActor () -> Bool
     private let showPaywall: @MainActor () -> Void
     private let content: @MainActor (BroadSettingsScreen) -> Content
 
     /// Creates a settings host around an app-owned layout.
     ///
     /// - Parameters:
-    ///   - configuration: Account ID, legal links, App Store URL and support email.
+    ///   - configuration: Account ID, legal links, optional App Store link and support email.
     ///   - showPaywall: Presents the app's subscription paywall, usually the
     ///     `settings` placement. ``BroadSettingsScreen/showPaywall()`` and
     ///     ``BroadSettingsScreen/manageSubscription()`` call it. Settings never open
@@ -34,7 +36,28 @@ public struct BroadSettingsHost<Content: View>: View {
         onRestored: @escaping @MainActor (EntitlementSnapshot) -> Void = { _ in },
         @ViewBuilder content: @escaping @MainActor (BroadSettingsScreen) -> Content
     ) {
+        self.init(
+            configuration: configuration,
+            showPaywall: showPaywall,
+            restorePurchases: restorePurchases,
+            canSendMail: { BroadSupportEmailComposer.canSendMail },
+            onRestored: onRestored,
+            content: content
+        )
+    }
+
+    /// Creates a host with an injectable mail capability for local Gallery scenarios.
+    /// Production callers normally use the original initializer's system check.
+    public init(
+        configuration: BroadSettingsConfiguration,
+        showPaywall: @escaping @MainActor () -> Void,
+        restorePurchases: any RestorePurchasesUseCaseProtocol,
+        canSendMail: @escaping @MainActor () -> Bool,
+        onRestored: @escaping @MainActor (EntitlementSnapshot) -> Void = { _ in },
+        @ViewBuilder content: @escaping @MainActor (BroadSettingsScreen) -> Content
+    ) {
         self.configuration = configuration
+        self.canSendMail = canSendMail
         self.showPaywall = showPaywall
         self.content = content
         _state = StateObject(wrappedValue: BroadSettingsState(
@@ -58,6 +81,46 @@ public struct BroadSettingsHost<Content: View>: View {
                     BroadSettingsShareSheet(url: url)
                 }
             }
+            .alert(
+                supportAlertTitle,
+                isPresented: Binding(
+                    get: { supportAlert != nil },
+                    set: {
+                        if !$0 {
+                            supportAlert = nil
+                        }
+                    }
+                ),
+                presenting: supportAlert
+            ) { alert in
+                if case let .fallback(recipient, externalURL) = alert {
+                    Button(configuration.copy.copySupportAddressTitle) {
+                        UIPasteboard.general.string = recipient
+                    }
+                    if let externalURL {
+                        Button(configuration.copy.openMailTitle) {
+                            if UIApplication.shared.canOpenURL(externalURL) {
+                                openURL(externalURL)
+                            }
+                        }
+                    }
+                }
+                Button(configuration.copy.closeSupportTitle, role: .cancel) {}
+            } message: { alert in
+                switch alert {
+                case .missingAddress:
+                    Text(configuration.copy.supportAddressMissingMessage)
+                case let .fallback(recipient, _):
+                    Text(configuration.copy.supportUnavailableMessage + "\n\n" + recipient)
+                }
+            }
+    }
+
+    private var supportAlertTitle: String {
+        if case .missingAddress = supportAlert {
+            return configuration.copy.supportAddressMissingTitle
+        }
+        return configuration.copy.supportUnavailableTitle
     }
 
     private var screen: BroadSettingsScreen {
@@ -70,6 +133,8 @@ public struct BroadSettingsHost<Content: View>: View {
             restoreMessage: state.restoreMessage,
             canContactSupport: configuration.supportEmail.flatMap(BroadSupportEmailRequestBuilder.makeRequest) != nil,
             isUserIDCopied: state.isUserIDCopied,
+            canShareApp: configuration.appStoreLink != nil,
+            canRateApp: configuration.appStoreLink != nil,
             actions: .init(
                 restore: { state.restore() },
                 showPaywall: {
@@ -98,14 +163,20 @@ public struct BroadSettingsHost<Content: View>: View {
                     }
                 },
                 shareApp: {
-                    state.perform { destination = .share(configuration.appStoreURL) }
+                    state.perform {
+                        if let url = configuration.appStoreLink {
+                            destination = .share(url)
+                        }
+                    }
                 }
             )
         )
     }
 
     private var reviewURL: URL? {
-        guard var components = URLComponents(url: configuration.appStoreURL, resolvingAgainstBaseURL: false) else {
+        guard let url = configuration.appStoreLink,
+              var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        else {
             return nil
         }
         components.queryItems = (components.queryItems ?? []).filter { $0.name != "action" }
@@ -114,15 +185,17 @@ public struct BroadSettingsHost<Content: View>: View {
     }
 
     private func openSupport() {
-        guard let configuration = configuration.supportEmail,
-              let request = BroadSupportEmailRequestBuilder.makeRequest(configuration: configuration)
-        else {
-            return
-        }
-        if BroadSupportEmailComposer.canSendMail {
+        switch BroadSettingsSupportAction.resolve(
+            configuration: configuration.supportEmail,
+            canSendMail: canSendMail(),
+            canOpenURL: { UIApplication.shared.canOpenURL($0) }
+        ) {
+        case .missingAddress:
+            supportAlert = .missingAddress
+        case let .compose(request):
             destination = .email(request)
-        } else if let url = request.externalComposeURL {
-            openURL(url)
+        case let .fallback(recipient, externalURL):
+            supportAlert = .fallback(recipient: recipient, externalURL: externalURL)
         }
     }
 }
@@ -223,4 +296,9 @@ private struct BroadSettingsShareSheet: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ controller: UIActivityViewController, context: Context) {}
+}
+
+private enum SupportAlert {
+    case missingAddress
+    case fallback(recipient: String, externalURL: URL?)
 }

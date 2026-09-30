@@ -97,6 +97,51 @@ The settings host supplies gated actions and a typed restore result to an app-ow
 layout. The update checker compares numeric version components and offers an App
 Store update from the main tab after a successful lookup.
 
+## Settings without an App Store link or system mail
+
+Use the new `BroadSettingsConfiguration(userID:appStoreLink:privacyPolicyURL:termsURL:...)`
+overload with `appStoreLink: nil` until an App Store link is available. The original
+`appStoreURL: URL` initializer retains its exact signature and now treats invalid
+links as absent. Privacy and terms preconditions are unchanged. The legacy
+``BroadSettingsConfiguration/appStoreURL`` getter remains nonoptional and returns
+`https://apps.apple.com` when the link is absent. It is obsolete in meaning;
+prefer ``BroadSettingsConfiguration/appStoreLink``. No deprecation warning is emitted.
+
+App-owned layouts should hide Share and Rate using ``BroadSettingsScreen/canShareApp``
+and ``BroadSettingsScreen/canRateApp``. Both actions safely do nothing without a link,
+including unchanged consumers that still draw those rows. Preview initializers
+retain their exact old signature; a new overload requires both availability flags.
+
+When system mail is unavailable, ``BroadSettingsScreen/contactSupport()`` presents
+a localized alert with the support address, Copy address and Close. Open mail appears
+only after `UIApplication.shared.canOpenURL` succeeds for the mailto URL, which carries
+only the address and subject. An empty address gets a separate explanatory alert.
+``BroadSettingsCopy`` supplies all fallback texts in Russian and English. Its original
+two-message initializer preserves custom restore messages and uses Russian fallback
+texts. The expanded initializer requires every added text. The original host initializer
+uses the system mail check; a separate overload requires a `canSendMail` closure for
+local Gallery capability scenarios. Apps showing their own fallback and calling the
+screen only when system mail is available receive only the native composer.
+The existing shared tap gate remains on screen actions; choosing Copy inside the
+already presented alert immediately copies the address.
+
+## ATT after the onboarding transition
+
+``OnboardingTrackingAuthorizationPolicy/afterFirstSlide(delay:)`` starts its delay
+after the incoming launch-to-onboarding transition finishes, for both
+``BroadOnboardingView`` and ``BroadOnboardingFlowHost``. The host samples the global
+presentation frame until it has entered the window horizontally and stayed stable
+for approximately 0.1 seconds. Ancestor opacity is also checked for Reduce Motion fades.
+A three-second ceiling stops observation without requesting ATT if visibility cannot
+be confirmed. Leaving the first slide, hiding the window or leaving onboarding cancels
+the pending request. Window visibility and the active scene are revalidated after the delay.
+
+A manual “transition duration + 0.4 seconds” delay is no longer needed. Existing
+longer delays remain safe and merely postpone the request further. The policy API
+is unchanged; disabled or invalid onboarding and loader/splash routes never schedule ATT.
+Custom lifecycle consumers of ``OnboardingViewModel/firstSlideDidAppear()`` should send
+that signal after their transition completes. Shared hosts do this automatically.
+
 ## Topics
 
 ### Application flow

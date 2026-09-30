@@ -19,6 +19,10 @@ public struct BroadSettingsScreen {
     public let restoreResult: BroadSettingsRestoreResult?
     public let restoreMessage: String?
     public let canContactSupport: Bool
+    /// Whether the configured App Store link allows sharing.
+    public let canShareApp: Bool
+    /// Whether the configured App Store link allows rating.
+    public let canRateApp: Bool
     /// True for two seconds after ``copyUserID()``, to show "Copied".
     public let isUserIDCopied: Bool
 
@@ -58,10 +62,12 @@ public struct BroadSettingsScreen {
     }
 
     public func rateApp() {
+        guard canRateApp else { return }
         actions.rateApp()
     }
 
     public func shareApp() {
+        guard canShareApp else { return }
         actions.shareApp()
     }
 
@@ -86,6 +92,36 @@ public struct BroadSettingsScreen {
             restoreMessage: restoreMessage,
             canContactSupport: canContactSupport,
             isUserIDCopied: isUserIDCopied,
+            canShareApp: true,
+            canRateApp: true,
+            actions: Actions()
+        )
+    }
+
+    /// Builds a preview with explicit App Store action availability.
+    public init(
+        userID: String,
+        version: String,
+        build: String,
+        isRestoring: Bool = false,
+        restoreResult: BroadSettingsRestoreResult? = nil,
+        restoreMessage: String? = nil,
+        canContactSupport: Bool = false,
+        isUserIDCopied: Bool = false,
+        canShareApp: Bool,
+        canRateApp: Bool
+    ) {
+        self.init(
+            userID: userID,
+            version: version,
+            build: build,
+            isRestoring: isRestoring,
+            restoreResult: restoreResult,
+            restoreMessage: restoreMessage,
+            canContactSupport: canContactSupport,
+            isUserIDCopied: isUserIDCopied,
+            canShareApp: canShareApp,
+            canRateApp: canRateApp,
             actions: Actions()
         )
     }
@@ -99,6 +135,8 @@ public struct BroadSettingsScreen {
         restoreMessage: String?,
         canContactSupport: Bool,
         isUserIDCopied: Bool,
+        canShareApp: Bool,
+        canRateApp: Bool,
         actions: Actions
     ) {
         self.userID = userID
@@ -109,6 +147,8 @@ public struct BroadSettingsScreen {
         self.restoreMessage = restoreMessage
         self.canContactSupport = canContactSupport
         self.isUserIDCopied = isUserIDCopied
+        self.canShareApp = canShareApp
+        self.canRateApp = canRateApp
         self.actions = actions
     }
 

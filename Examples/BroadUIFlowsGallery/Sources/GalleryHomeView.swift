@@ -8,6 +8,9 @@ struct GalleryHomeView: View {
                     NavigationLink("Onboarding") {
                         FixtureOnboardingScreen()
                     }
+                    NavigationLink("ATT transition (real host)") {
+                        OnboardingTransitionGallery()
+                    }
                     NavigationLink("App flow transition") {
                         AppFlowTransitionGallery()
                     }
