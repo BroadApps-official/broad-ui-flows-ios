@@ -1,53 +1,50 @@
 # Changelog
 
-## Unreleased
+## 7.1.0
 
 ### Added
 
-- `BroadSettingsConfiguration.appStoreLink: URL?` и именованная фабрика
-  `withAppStoreLink(...)`, включая `nil`; `BroadSettingsScreen.canShareApp` / `canRateApp`.
-- Локализованные тексты поддержки и фабрика `BroadSettingsCopy.localized(...)`,
-  `BroadSettingsScreen.previewWithAppStoreActions(...)` с признаками Share/Rate и
-  модификатор хоста `supportMailCapability(_:)` для Gallery.
-- Gallery-режимы без App Store ссылки/почты, пустой адрес и ATT transition fixture;
-  executable contracts для ссылок, почтовых действий, стабилизации frame и ATT lifecycle.
+- `BroadSettingsConfiguration.appStoreLink: URL?` and the named factory
+  `withAppStoreLink(...)`, which accepts `nil`; `BroadSettingsScreen.canShareApp` and
+  `canRateApp`.
+- Localized support alert texts with the `BroadSettingsCopy.localized(...)` factory,
+  `BroadSettingsScreen.previewWithAppStoreActions(...)` with Share/Rate flags, and the
+  `supportMailCapability(_:)` host modifier for Gallery.
+- Gallery modes without an App Store link, without mail, with an empty support address,
+  and an ATT transition fixture; executable contracts for links, mail actions, frame
+  stabilization and the ATT lifecycle.
 
 ### Fixed
 
-- Невалидная App Store ссылка в старом init больше не вызывает crash: трактуется
-  как отсутствие ссылки. Share и Rate без ссылки безопасно ничего не делают.
-- Без системной почты Settings host показывает alert с адресом, «Скопировать адрес»
-  и «Закрыть»; «Открыть почту» появляется только после успешного canOpenURL.
-  Пустой адрес получает отдельный alert. Ошибка подготовки вложения при доступной
-  почте получает свой alert с Close, без внешнего mailto. Native compose не получает
-  второй fallback. Copy/Open Mail/Close выполняются сразу и продлевают общий gate на 400 мс.
-- ATT delay считается после стабилизации входящего перехода первого слайда,
-  включая fade Reduce Motion; ожидание ограничено и при таймауте не запрашивает ATT.
-  После раннего выхода observer освобождает задачу и может наблюдать снова при
-  восстановлении видимости; поколение защищает новую задачу от завершения старой.
-  Loader/сплеш и отключённый onboarding по-прежнему не запрашивают разрешение.
+- An invalid App Store link passed to the existing initializer no longer crashes: it is
+  treated as no link. Share and Rate safely do nothing without a link.
+- Without system mail, the settings host shows an alert with the address, "Copy address"
+  and "Close"; "Open Mail" appears only after a successful `canOpenURL`. An empty address
+  gets its own alert. A failed attachment preparation while mail is available gets a
+  Close-only alert without an external `mailto`. The native composer never gets a second
+  fallback. Copy, Open Mail and Close run at once and renew the shared 400 ms tap gate.
+- The ATT delay starts after the first slide's incoming transition settles, including
+  the Reduce Motion fade. The wait is bounded and a timeout never requests ATT. After an
+  early exit the observer releases its task and can observe again when visibility
+  returns; a generation check keeps an old task from finishing a new one. The loader and
+  a disabled onboarding still never request the permission.
 
 ### Compatibility
 
-- Старые public сигнатуры baseline 7.0.0 сохранены. Для затронутых Settings-типов,
-  `BroadOnboardingFlowHost` и `OnboardingViewModel` с единственным public init в 7.0.0
-  проверяются ссылки `Type.init` без явного типа и прежние типизированные ссылки.
-  Новые Settings-формы используют именованные фабрики/модификатор;
-  deprecated-аннотаций и новых cases в существующих public enum нет.
-- `appStoreURL: URL` сохраняется для чтения: ссылка или `https://apps.apple.com`;
-  для проверки наличия используется `appStoreLink`. Legal preconditions не изменены.
-- Старый двухстрочный `BroadSettingsCopy` сохраняет restore-тексты, новые тексты
-  берёт из `.russian`. Основные действия Settings остаются под общим tap gate.
-- Приложения со своим почтовым fallback не получают двойного окна, если вызывают
-  `contactSupport()` только при доступной системной почте. Увеличенный вручную
-  ATT delay остаётся допустимым, но компенсация длительности перехода больше не нужна.
-- Исторический MAJOR-контракт Settings 7.0.0 (`showPaywall`) не меняется:
-  уже требовавшаяся миграция с 6.x остаётся той же; этот MINOR новых правок не требует.
-
-### SemVer intent
-
-7.1.0: MINOR — API добавлен фабриками и модификатором, исправления не требуют
-правок существующего кода baseline 7.0.0. Версии и теги в этой worktree не меняются.
+- All public signatures of 7.0.0 are kept. Settings types, `BroadOnboardingFlowHost` and
+  `OnboardingViewModel`, which had a single public initializer in 7.0.0, still have one,
+  so untyped `Type.init` references and typed references keep compiling. New Settings
+  forms are named factories and a modifier; there are no deprecation annotations and no
+  new cases in existing public enums.
+- `appStoreURL: URL` stays readable: the link or `https://apps.apple.com`; use
+  `appStoreLink` to check whether a link exists. Legal preconditions are unchanged.
+- The existing two-line `BroadSettingsCopy` keeps its restore texts and takes the new
+  texts from `.russian`. Main settings actions stay under the shared tap gate.
+- Apps with their own mail fallback get no double alert when they call `contactSupport()`
+  only while system mail is available. A manually increased ATT delay still works, but
+  compensating for the transition length is no longer needed.
+- The 7.0.0 settings contract (`showPaywall`) is unchanged: apps on 6.x still need that
+  one-line migration; apps on 7.0.0 need no changes.
 
 ## 7.0.0
 

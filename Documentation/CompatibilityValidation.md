@@ -1,4 +1,4 @@
-# Проверка совместимости кандидата 7.1.0 (MINOR)
+# Проверка совместимости 7.1.0 (MINOR)
 
 `Examples/BroadUIFlowsGallery/Sources/CompatibilityProbe.swift` только компилируется:
 Gallery его не вызывает. Gate шаги 8–9 включают файл через `sources: Sources`,
@@ -258,10 +258,28 @@ Dynamic Type, положение цены и элементов управлен
 ## Что не закрывается этими probes
 
 - Настоящий SwiftUI Settings host, UIKit observer конца transition, два физических тапа/мультитач и повтор после
-  окна gate: ручная Gallery-проверка выше. В этой задаче симулятор не запускался.
+  окна gate: ручная Gallery-проверка выше. Результат прогона перед выпуском — в разделе
+  «Проверка перед выпуском 7.1.0».
 - Полный module gate, сборки Gallery и неизменённых production-потребителей,
   compiler compatibility matrix и актуальность PublicAPI: отдельные проверки.
 - Обновление поверх сохранённых данных приложения: account ID, pending purchase,
   balance, onboarding progress, Special Offer state и отсутствие повторной покупки.
 - Сеть, provider SDK, настоящий restore/fulfillment, backend и платежи: fixtures
   не являются проверкой этих интеграций.
+
+## Проверка перед выпуском 7.1.0
+
+- Gallery на iPhone Simulator, **ATT transition (real host)**: обычный переход —
+  ATT fixture через 0.85 с после Start, уже после появления слайда; медленный
+  переход 1.2 с — через 1.76 с, счётчик ATT во время перехода остаётся 0.
+- Gallery, **Settings (real host)**: без почты — один alert **Mail unavailable** с
+  **Copy address** и **Close**, без **Open mail** (на симуляторе нет обработчика
+  `mailto`); Copy кладёт адрес в буфер. Пустой адрес — **Support unavailable** только
+  с Close. Без ссылки App Store строки Share/Rate скрыты, «Call hidden Share + Rate»
+  ничего не делает, приложение не падает.
+- Неизменённые потребители на кандидате, generic iOS Simulator, без подписи:
+  приложение на 7.0.0 — Debug без правок кода; приложение на 6.5.0 — Debug только с
+  однострочной миграцией `showPaywall` из 7.0.0; BroadAppTemplate набора 7.0.0 —
+  Debug и Release без правок кода.
+- Не проверялись: native composer на устройстве с настроенной почтой и ветка
+  **Open mail** при доступном `mailto`.
