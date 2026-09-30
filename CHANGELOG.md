@@ -38,6 +38,8 @@
 
 ### Compatibility
 
+- Executable production-source contract probes cover token catalogs, preloading and product names; Gallery adds a real Settings host with a shared fixture paywall.
+
 - All other initializer signatures from 6.5.0 are retained as exact overloads,
   including references to `init` as a function. Expanded initializers require
   their newly added argument. Existing defaults and trailing closures remain usable.

@@ -32,14 +32,14 @@ export CLANG_MODULE_CACHE_PATH="$swift_module_cache"
 export SWIFT_MODULECACHE_PATH="$swift_module_cache"
 export SWIFTPM_MODULECACHE_OVERRIDE="$swift_module_cache"
 
-echo "[1/9] Structure, dependency boundaries and secret patterns"
+echo "[1/10] Structure, dependency boundaries and secret patterns"
 bash "$module_root/Scripts/check_structure.sh"
 
-echo "[2/9] Documentation links and contracts"
+echo "[2/10] Documentation links and contracts"
 bash "$module_root/Scripts/check_documentation.sh"
 bash "$module_root/Scripts/check_release_version.sh"
 
-echo "[3/9] SwiftFormat"
+echo "[3/10] SwiftFormat"
 bash "$module_root/Scripts/install_swiftformat.sh"
 bash "$module_root/Scripts/install_build_tools.sh"
 "$module_root/.build/tooling/swiftformat-0.62.1/swiftformat" \
@@ -48,7 +48,7 @@ bash "$module_root/Scripts/install_build_tools.sh"
     "$module_root/Sources" \
     "$module_root/Examples/$sandbox_name/Sources"
 
-echo "[4/9] SwiftLint"
+echo "[4/10] SwiftLint"
 actual_swiftlint_version="$("$swiftlint_binary" version | tr -d '[:space:]')"
 if [[ "$actual_swiftlint_version" != "$expected_swiftlint_version" ]]; then
     echo "SwiftLint version mismatch: expected $expected_swiftlint_version, got $actual_swiftlint_version."
@@ -56,7 +56,7 @@ if [[ "$actual_swiftlint_version" != "$expected_swiftlint_version" ]]; then
 fi
 "$swiftlint_binary" lint --strict --config "$module_root/.swiftlint.yml"
 
-echo "[5/9] Swift Package, Debug iPhone Simulator"
+echo "[5/10] Swift Package, Debug iPhone Simulator"
 swift build \
     --quiet \
     --package-path "$module_root" \
@@ -69,12 +69,15 @@ swift build \
     -Xswiftc -strict-concurrency=complete \
     -Xswiftc -warnings-as-errors
 
-echo "[6/9] UI source contracts and public API report"
+echo "[6/10] Executable compatibility contracts (macOS fixtures)"
+python3 "$module_root/Scripts/run_contract_probes.py"
+
+echo "[7/10] UI source contracts and public API report"
 bash "$module_root/Scripts/check_ui_contracts.sh" --self-test
 bash "$module_root/Scripts/check_ui_contracts.sh"
 bash "$module_root/Scripts/generate_public_api_report.sh"
 
-echo "[7/9] Standalone iPhone gallery, Debug Simulator"
+echo "[8/10] Standalone iPhone gallery, Debug Simulator"
 bash "$module_root/Scripts/generate_sandbox.sh"
 xcodebuild \
     -quiet \
@@ -86,7 +89,7 @@ xcodebuild \
     CODE_SIGNING_ALLOWED=NO \
     build
 
-echo "[8/9] Standalone iPhone gallery, Release generic iOS (unsigned)"
+echo "[9/10] Standalone iPhone gallery, Release generic iOS (unsigned)"
 xcodebuild \
     -quiet \
     -project "$module_root/Examples/$sandbox_name/$sandbox_name.xcodeproj" \
@@ -97,7 +100,7 @@ xcodebuild \
     CODE_SIGNING_ALLOWED=NO \
     build
 
-echo "[9/9] DocC and module scheme, generic iOS Simulator"
+echo "[10/10] DocC and module scheme, generic iOS Simulator"
 docc_log="$module_root/.build/DocCBuild.log"
 xcodebuild \
     -quiet \

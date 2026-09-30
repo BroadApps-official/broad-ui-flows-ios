@@ -8,16 +8,33 @@ extension MonetizationProduct {
 
 extension PaywallPayload {
     var isValidTokenPaywallPayload: Bool {
-        guard origin.requestedPlacementID == .tokens else {
+        BroadTokenPaywallPayloadValidator.accepts(
+            requestedPlacementID: origin.requestedPlacementID,
+            resolvedPlacementID: origin.resolvedPlacementID,
+            usedFallback: origin.usedFallback,
+            products: products
+        )
+    }
+}
+
+/// Keeps the UIFlows acceptance policy independent of origin construction rules.
+enum BroadTokenPaywallPayloadValidator {
+    static func accepts(
+        requestedPlacementID: PlacementID,
+        resolvedPlacementID: PlacementID,
+        usedFallback: Bool,
+        products: [MonetizationProduct]
+    ) -> Bool {
+        guard requestedPlacementID == .tokens else {
             return false
         }
 
-        if origin.resolvedPlacementID == .tokens {
+        if resolvedPlacementID == .tokens {
             return true
         }
 
-        return origin.resolvedPlacementID == .main
-            && origin.usedFallback
+        return resolvedPlacementID == .main
+            && usedFallback
             && products.allSatisfy { $0.kind == .consumable }
     }
 }

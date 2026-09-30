@@ -1,41 +1,75 @@
 # Проверка совместимости кандидата 7.0.0
 
 `Examples/BroadUIFlowsGallery/Sources/CompatibilityProbe.swift` только компилируется:
-Gallery его не вызывает. Gate шаги 7–8 включают файл через `sources: Sources`,
+Gallery его не вызывает. Gate шаги 8–9 включают файл через `sources: Sources`,
 с warnings-as-errors и `SWIFT_STRICT_CONCURRENCY = complete`. Probe проверяет старые
 вызовы, пропущенные defaults, trailing closures и точные типы фабрик `init`.
 
-В репозитории нет исполняемого runtime probe. `Scripts/check_ui_contracts.sh` —
-статические source contracts; его self-test проверяет синтетические нарушения
-исходников. Эти проверки не изменены и не доказывают поведение ViewModel или
-смонтированного SwiftUI host. Ниже — сценарии для ручной проверки на fixtures
-после сборки вне песочницы. Настоящие финансовые операции не нужны.
+`Scripts/run_contract_probes.py` собирает два небольших macOS executable из
+production-исходников Core, Monetization и UIFlows вместе с локальными fixtures.
+Шаг 6/10 `Scripts/module_gate.sh` запускает их после сборки пакета. Нет сети,
+активации provider SDK, платежей, XCTest, Swift Testing или test targets.
+Каждый сценарий печатает PASS; ошибка компиляции или контракта даёт FAIL и ненулевой
+exit code. Strict concurrency и warnings-as-errors включены также для probes.
+
+Запуск из корня модуля:
+
+```bash
+python3 Scripts/run_contract_probes.py
+```
+
+По умолчанию зависимости берутся из `.build/checkouts/broad-core-ios` и
+`.build/checkouts/broad-monetization-ios`. Для существующих локальных checkout-копий
+можно задать `BROAD_CORE_ROOT` и `BROAD_MONETIZATION_ROOT` — пути к корням репозиториев.
+Runner не скачивает и не изменяет зависимости; временные dylib, executable и module
+cache удаляются после запуска. Временные копии UIFlows получают только `import Combine`,
+нужный для ObservableObject/@Published без полного SwiftPM-модуля; тела production-кода
+не заменяются фикстурами.
+
+`TokenCatalogProbe.swift` исполняет валидатор, настоящий `BroadTokenPaywallViewModel`
+(обычная загрузка, `initialPayload`, выбор, purchase gate, screen mapping) и настоящий
+`BroadPaywallPreloader`. `ProductNamesProbe.swift` исполняет встроенный и legacy copy,
+формирование token screen/packages, plural rules и сравнения Equatable.
+
+`Scripts/check_ui_contracts.sh` остаётся статической проверкой исходников; его
+self-test проверяет синтетические нарушения. Probes не монтируют SwiftUI host и
+не доказывают визуальное поведение. Ниже указаны автоматические и ручные проверки.
 
 ## Settings
 
-Использовать настоящий `BroadSettingsHost`, fixture restore use case и обработчик
-`showPaywall`, который открывает fixture paywall и увеличивает счётчик вызовов.
-`BroadSettingsScreen.preview` для этой проверки не подходит: его actions пустые.
+**Ручная проверка:** Gallery → **Settings (real host)** использует настоящий
+`BroadSettingsHost(configuration:showPaywall:restorePurchases:onRestored:content:)`.
+Restore use case `FixtureRestore` возвращает `.nothingFound` локально. Presenter
+открывает sheet **Paywall · settings** и увеличивает видимый `Presenter calls`.
+Gallery → **Settings (preview fixtures)** сохраняет прежнюю preview-страницу;
+её пустые actions не доказывают работу host.
+
+`BroadSettingsState.perform` находится в private SwiftUI/UIKit-файле, поэтому
+macOS probes его не собирают. Settings gate покрывает этот Gallery-сценарий;
+его ещё нужно выполнить на устройстве или последовательно на одном симуляторе.
 
 - В старом вызове без `showPaywall` с явно переданным `content:` компилятор
   сообщает `missing argument for parameter 'showPaywall' in call`.
-  В Swift 6.4 старый unlabeled trailing closure при текущем порядке параметров
-  привязывается к `showPaywall`: диагностика содержит `missing argument 'content'`
-  и несовпадение числа аргументов closure. Добавление обязательного `showPaywall`
-  исправляет оба случая; порядок параметров оставлен как в main.
+  Текущий порядок параметров: configuration, showPaywall, restorePurchases,
+  onRestored, content. Диагностику legacy-вызовов и мигрированный trailing closure
+  отдельно проверяет compiler compatibility matrix, а не runtime probes.
 - Миграция: `showPaywall: { /* present the settings-placement paywall */ }`.
 - `screen.showPaywall()` и `screen.manageSubscription()` по отдельности открывают
   один и тот же paywall. Каждая кнопка вызывает callback ровно один раз.
 - Нажать обе кнопки подряд в пределах 400 мс, в обоих порядках: один callback.
+  Кнопки `Get Pro + Manage (same tap)` и `Manage + Get Pro (same tap)` вызывают
+  оба метода в одном обработчике: счётчик увеличивается ровно на один, sheet один.
   После открытия gate второе действие снова разрешено. Другие действия Settings
   разделяют этот gate, включая restore.
 - Страница подписок App Store и системный экран управления подпиской не открываются.
 
 ## Токен-каталог и preloading
 
-Каждый допустимый payload проверить тремя путями: обычный `loadIfNeeded()`,
-`initialPayload`, `preload(.tokens)` → дождаться загрузки → `take(.tokens)`.
-Fixture loader возвращает payload без преобразования массива.
+**Автоматически:** каждый представимый payload из таблицы проверяется тремя путями:
+обычный `loadIfNeeded()`, `initialPayload`, `preload(.tokens)` → `take(.tokens)`.
+Fixture loader возвращает payload без преобразования массива. Проверяются равенство
+всего payload, порядок screen packages, SKU и presentation IDs. Purchase repository
+только записывает вызовы и возвращает `.cancelled`; повторный тап вызывает его один раз.
 
 | Payload | Ожидаемый результат |
 |---|---|
@@ -46,21 +80,44 @@ Fixture loader возвращает payload без преобразования 
 | Смешанные consumable / non-consumable / subscription | Все строки на месте; допустимый consumable доступен |
 | Consumable без цены | Строка на месте, недоступна для выбора и покупки |
 | Только non-consumable | `.content`, строки на месте, `canPurchase == false` |
-| `.tokens` → `.main`, `usedFallback = true`, все consumable, `fallbackReason = nil` | Принимается как в 6.5.0 |
+| `.tokens` → `.main`, `usedFallback = true`, все consumable, `fallbackReason = nil` | Предикат UIFlows принимает; ограничение создания payload описано ниже |
 | Такой fallback со смешанными продуктами | Обычная загрузка: failure; prepared payload: отклонён, обычная загрузка |
 | Другой requested/resolved placement или `.main` без `usedFallback` | Отклонён |
 
 При принятом `initialPayload` каталог готов до appearance, повторной загрузки нет;
 shown/impression отправляется только после appearance. `take` передаёт payload один
-раз. Проверить nil, истечение freshness lifetime и `discardAll`: просроченные и
-неиспользованные payload освобождаются через presentation lifecycle. Принятый
-payload не получает новые IDs и не фильтруется, не сортируется, не дедуплицируется.
+раз. Автоматически проверяются nil/invalid/empty `initialPayload`, отсутствие повторной
+загрузки, один shown после appearance для content, отсутствие shown для empty,
+close после disappearance, отсутствие параллельных preload, истечение freshness
+lifetime, `discardAll` и освобождение rejected/expired/discarded presentations.
+Принятый payload не получает новые IDs и не фильтруется, не сортируется, не дедуплицируется.
 UIFlows не создаёт подмену token placement подписочным `main`.
+
+**Граница зависимости:** Monetization 5.2.1 вычисляет `PaywallOrigin.usedFallback`
+из requested/resolved placement и требует `fallbackReason` при их различии.
+Поэтому legacy origin `.tokens` → `.main` без причины и вариант с `usedFallback = false`
+не представимы как настоящий payload. Их проверяет внутренний production-предикат
+`BroadTokenPaywallPayloadValidator.accepts`, которому делегирует
+`PaywallPayload.isValidTokenPaywallPayload`. В предикате нет условия по причине.
+Три пути загрузки проверяют fallback с `.unavailable`; исходники зависимости и её
+preconditions не меняются. Это доказательство политики UIFlows, а не возможности
+создать такой legacy payload в текущей Monetization.
+
+**Вручную осталось:** отрисовка длинного/смешанного каталога, доступность строк,
+выбор каждой duplicate occurrence жестом/VoiceOver, retry/close, освобождение
+неиспользованного preload при уходе с реального presenting screen.
 
 ## Названия и количество
 
-Одинаковый payload отрисовать готовым subscription view, Special Offer,
-token view и через `screen.plans` / `screen.packages`.
+**Автоматически:** встроенные EN/RU названия `Weekly`/`Monthly`/`Yearly`/`3 Months`
+и `Неделя`/`Месяц`/`Год`/`3 месяца`, unknown/custom period fallback, собственный
+legacy copy из трёх аргументов, явный nil и локализованный opt-in. Token package
+проверяется через production screen mapping, включая backend/ID/nil/zero и русские
+формы `1 токен`, `2 токена`, `5 токенов`, `11 токенов`, `21 токен`.
+
+**Вручную:** одинаковый payload отрисовать готовым subscription view, Special Offer,
+token view и через `screen.plans` / `screen.packages`; проверить длинные имена,
+Dynamic Type, положение цены и элементов управления.
 
 | Copy / данные | Ожидаемый результат |
 |---|---|
@@ -78,7 +135,18 @@ token view и через `screen.plans` / `screen.packages`.
 
 Цена, выбранный presentation ID и purchase routing не зависят от режима названий.
 Баланс, зачисление и savings/best-value считают только backend-количество.
-Проверить одинаковые legacy модели/copy на `Equatable`; новые поля участвуют в
-сравнении, чтобы смена отображаемого имени обновляла интерфейс. Встроенный copy
+Автоматически проверяются одинаковые legacy copy/packages на `Equatable`;
+новые поля участвуют в сравнении, чтобы смена отображаемого имени обновляла интерфейс. Встроенный copy
 с включёнными названиями отличается от ручного legacy copy с теми же старыми
 строками: это теперь разные настройки отображения.
+
+## Что не закрывается этими probes
+
+- Настоящий SwiftUI Settings host, два физических тапа/мультитач и повтор после
+  окна gate: ручная Gallery-проверка выше. В этой задаче симулятор не запускался.
+- Полный module gate, сборки Gallery и неизменённых production-потребителей,
+  compiler compatibility matrix и актуальность PublicAPI: отдельные проверки.
+- Обновление поверх сохранённых данных приложения: account ID, pending purchase,
+  balance, onboarding progress, Special Offer state и отсутствие повторной покупки.
+- Сеть, provider SDK, настоящий restore/fulfillment, backend и платежи: fixtures
+  не являются проверкой этих интеграций.
