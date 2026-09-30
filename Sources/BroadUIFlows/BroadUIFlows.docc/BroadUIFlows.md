@@ -6,9 +6,9 @@ Update package constraints together. Temporary token fulfillment failures retain
 the existing purchase for safe retry. Host exhaustive switches handle the new
 `BroadLogEvent.host` and `TokenFulfillmentOutcome.rejected` cases.
 
-Unreleased: settings subscription rows open the app paywall through the required `BroadSettingsHost(showPaywall:)` handler. `showPaywall()` and `manageSubscription()` never cancel a subscription or open the App Store subscription page, because purchases go through Adapty. Migration to 7.0.0: `showPaywall: { /* present the settings-placement paywall */ }`. In 6.5.0 there is no handler and `manageSubscription()` opens the App Store.
+Since 7.0.0, settings subscription rows open the app paywall through the required `BroadSettingsHost(showPaywall:)` handler. `showPaywall()` and `manageSubscription()` never cancel a subscription or open the App Store subscription page, because purchases go through Adapty. Migration to 7.0.0: `showPaywall: { /* present the settings-placement paywall */ }`. In 6.x there is no handler and `manageSubscription()` opens the App Store.
 
-Unreleased: custom subscription and token screens draw ``BroadPaywallPlan/name``
+Since 7.0.0, custom subscription and token screens draw ``BroadPaywallPlan/name``
 and ``BroadTokenPackage/name``. Built-in copy enables names derived from the
 subscription period or token quantity. Custom copy created with the original
 three-string `Products` initializer keeps `title ?? fallbackTitle`; opt in with

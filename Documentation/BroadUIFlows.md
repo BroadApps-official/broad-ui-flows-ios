@@ -157,7 +157,7 @@ Support email принимает необязательный баланс, devi
 Покупки идут через Adapty: `showPaywall()` и `manageSubscription()` открывают
 пейвол приложения через обязательный обработчик `showPaywall` хоста. Экран не
 отменяет подписку и не открывает страницу подписок App Store; «Cancel subscription»
-из макета не рисуется. Unreleased: в 6.5.0 обработчика нет, а
+из макета не рисуется. С 7.0.0; в 6.x обработчика нет, а
 `manageSubscription()` открывает App Store. Host открывает
 юридические ссылки через `BroadInAppSafariView`, письмо через
 `BroadSupportEmailComposer` и собирает его существующим request builder.

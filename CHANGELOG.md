@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.0.0
 
 ### Breaking
 
@@ -57,7 +57,9 @@
 7.0.0: MAJOR only because of Settings (the required `showPaywall` presenter and
 routing both subscription actions to it). All other changes retain the 6.5.0
 source contract; built-in copy deliberately enables the new localized names.
-Versions and tags remain unchanged until release validation is complete.
+Verified by the module gate (compile probe for every 6.x signature, executable
+contract probes) and by building real 6.5.0 apps: without changes they fail only on
+the missing `showPaywall`, and build after the one-line migration.
 
 ## 6.5.0
 

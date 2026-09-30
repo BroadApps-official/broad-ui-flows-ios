@@ -1,6 +1,6 @@
 # BroadUIFlows
 
-Version 6.5.0 requires BroadCore 3.0.0 and BroadMonetization 5.0.0. RU screens live in the optional BroadRUBillingUI product.
+Version 7.0.0 requires BroadCore 3.0.0 and BroadMonetization 5.0.0. RU screens live in the optional BroadRUBillingUI product.
 
 <p align="center">
   <picture>
@@ -14,7 +14,7 @@ Version 6.5.0 requires BroadCore 3.0.0 and BroadMonetization 5.0.0. RU screens l
   <img alt="iOS 17+" src="https://img.shields.io/badge/iOS-17%2B-111827?logo=apple&amp;logoColor=white">
   <img alt="SwiftUI" src="https://img.shields.io/badge/UI-SwiftUI-0A84FF?logo=swift&amp;logoColor=white">
   <img alt="iPhone only" src="https://img.shields.io/badge/device-iPhone%20only-111827?logo=apple&amp;logoColor=white">
-  <img alt="Release 6.5.0" src="https://img.shields.io/badge/release-6.5.0-10B981">
+  <img alt="Release 7.0.0" src="https://img.shields.io/badge/release-7.0.0-10B981">
 </p>
 
 Готовые SwiftUI-сценарии BroadApps для AppFlow, onboarding, loadable states,
@@ -85,7 +85,7 @@ Monetization, UIFlows или нужную комбинацию. Транзити
 dependencies: [
     .package(
         url: "https://github.com/BroadApps-official/broad-ui-flows-ios.git",
-        from: "6.5.0"
+        from: "7.0.0"
     )
 ]
 ```
@@ -351,9 +351,8 @@ BroadSettingsHost(
 обработчик `showPaywall` хоста. «Cancel subscription» из макета не рисуется.
 
 > Миграция на 7.0.0 в одну строку: `showPaywall: { /* present the settings-placement paywall */ }`.
-> Unreleased: обязательный обработчик `showPaywall` появится в 7.0.0. В
-> 6.5.0 его нет, а `manageSubscription()` открывает App Store — не подключайте к
-> нему строки подписки до выхода новой версии.
+> В 6.x обработчика нет, а `manageSubscription()` открывает App Store — обновитесь до
+> 7.0.0, чтобы строки подписки открывали пейвол.
 
 `screen.restoreMessage`, `screen.isUserIDCopied`, `screen.version` и `screen.build`
 готовы к показу. Превью: `BroadSettingsScreen.preview(.restored)`.
