@@ -62,7 +62,7 @@ struct OnboardingTransitionGallery: View {
                         Image(systemName: media.identifier)
                     } onFooterAction: { _ in } onCompleted: { route = .main }
                 } else {
-                    BroadOnboardingFlowHost(viewModel: viewModel, onCompleted: { route = .main }) { model, actions in
+                    BroadOnboardingFlowHost(viewModel: viewModel, onCompleted: finishOnboarding) { model, actions in
                         VStack {
                             Text(model.currentPage?.title ?? "")
                             Button("Continue / leave first slide") { actions.advance() }
@@ -97,6 +97,10 @@ struct OnboardingTransitionGallery: View {
             requestTrackingAuthorizationUseCase: recorder
         )
         route = .onboarding
+    }
+
+    private func finishOnboarding() {
+        route = .main
     }
 }
 

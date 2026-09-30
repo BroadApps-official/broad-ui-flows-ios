@@ -125,7 +125,8 @@ enum CompatibilityProbe {
         let policy: (Duration) -> OnboardingTrackingAuthorizationPolicy = OnboardingTrackingAuthorizationPolicy.afterFirstSlide
         _ = policy(.milliseconds(400))
         _ = OnboardingTrackingAuthorizationPolicy.afterFirstSlide()
-        _ = BroadOnboardingFlowHost(viewModel: viewModel, onCompleted: {}) { model, actions in
+        let onCompleted: @MainActor () -> Void = {}
+        _ = BroadOnboardingFlowHost(viewModel: viewModel, onCompleted: onCompleted) { model, actions in
             Button(model.currentPage?.title ?? "") { actions.advance() }
         }
         _ = BroadOnboardingView(viewModel: viewModel) { media in

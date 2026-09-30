@@ -73,9 +73,7 @@ public struct BroadSettingsConfiguration: Sendable {
               url.user == nil, url.password == nil,
               url.port == nil || url.port == 443
         else {
-            #if DEBUG
-                NSLog("[BroadUIFlows] Invalid App Store link ignored. Sharing and rating are unavailable.")
-            #endif
+            // An invalid link means there is no link yet: sharing and rating stay hidden.
             return nil
         }
         return url

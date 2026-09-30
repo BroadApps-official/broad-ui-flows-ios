@@ -90,19 +90,23 @@ public struct BroadOnboardingFlowHost<Content: View>: View {
     }
 
     private var windowVisibilityObserver: some View {
-        OnboardingWindowVisibilityView(isEnabled: isObservingVisibility, onTransitionSettledChange: { isSettled in
-            isTransitionSettled = isSettled
-            if isSettled {
-                markFirstPageVisibleIfNeeded()
-            } else {
-                viewModel.firstSlideDidDisappear()
+        OnboardingWindowVisibilityView(
+            isEnabled: isObservingVisibility,
+            onTransitionSettledChange: { isSettled in
+                isTransitionSettled = isSettled
+                if isSettled {
+                    markFirstPageVisibleIfNeeded()
+                } else {
+                    viewModel.firstSlideDidDisappear()
+                }
+            },
+            onVisibilityChange: { isVisible, validateCurrentVisibility in
+                viewModel.windowVisibilityDidChange(
+                    isVisible,
+                    validateCurrentVisibility: validateCurrentVisibility
+                )
             }
-        }) { isVisible, validateCurrentVisibility in
-            viewModel.windowVisibilityDidChange(
-                isVisible,
-                validateCurrentVisibility: validateCurrentVisibility
-            )
-        }
+        )
         .accessibilityHidden(true)
     }
 
